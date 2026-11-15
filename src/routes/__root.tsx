@@ -13,10 +13,10 @@ function RootComponent() {
   return (
     <main className="flex min-h-screen w-full flex-col items-center justify-between px-6 py-3">
       <HomeNavbar />
-      
+
       <div className="flex w-full max-w-7xl flex-col items-center justify-center">
         <Outlet />
-        
+
         <TanStackDevtools
           config={{
             position: "bottom-right",
@@ -28,9 +28,8 @@ function RootComponent() {
             },
           ]}
         />
-        
       </div>
-        
+
       <HomeFooter />
     </main>
   )

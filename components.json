@@ -22,6 +22,7 @@
   "menuColor": "inverted-translucent",
   "menuAccent": "subtle",
   "registries": {
-    "@supabase": "https://supabase.com/ui/r/{name}.json"
+    "@supabase": "https://supabase.com/ui/r/{name}.json",
+    "@ballmac": "https://ui.ballmac.com/r/{style}/{name}.json"
   }
 }
