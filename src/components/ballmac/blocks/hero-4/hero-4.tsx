@@ -1,5 +1,4 @@
 import * as React from "react"
-import { ArrowRight } from "lucide-react"
 
 import { buttonVariants } from "@/components/ballmac/button"
 import { cn } from "@/lib/utils"
@@ -43,12 +42,12 @@ function Hero4({
     <section data-slot="hero-4" className={cn("relative isolate overflow-hidden", className)} {...props}>
       <div className="mx-auto justify-center text-center max-w-6xl flex items-center px-4 pt-20 sm:px-6 lg:py-16">
         <div className="relative z-10 py-4 lg:py-24 flex flex-col text-center items-center">
-          <h1 className="mt-6 text-4xl leading-[1.04] max-w-2xl font-semibold tracking-[-0.045em] text-balance sm:text-6xl">{title} <span className={`text-primary`}>Vim.</span>
+          <h1 className="mt-6 text-4xl leading-[1.04] max-w-2xl font-semibold tracking-[-0.045em] text-balance sm:text-6xl">{title} <span className={`text-primary font-special`}>Vim.</span>
 </h1>
           <p className="mt-5 max-w-lg text-lg leading-relaxed text-pretty text-muted-foreground">{description}</p>
           <div className="mt-8 flex flex-wrap gap-3">
-            <Link to={primaryAction.to} className={buttonVariants({ size: "default", shape: "pill" })}>
-              {primaryAction.label} <ArrowRight  className="rtl:rotate-180"/>
+            <Link to={primaryAction.to} className={buttonVariants({ size: "default", shape: "default" })+" font-special text-special"}>
+              {primaryAction.label}
             </Link>
             <a href={secondaryAction.to} className={buttonVariants({ size: "default", shape: "pill", variant: "outline" })}>
               {secondaryAction.label}
@@ -59,7 +58,7 @@ function Hero4({
               {stats.map((s) => (
                 <div key={s.label} className="flex flex-col-reverse gap-1">
                   <dt className="text-sm text-muted-foreground">{s.label}</dt>
-                  <dd className="text-2xl font-semibold tracking-tight tabular-nums">{s.value}</dd>
+                  <dd className="text-2xl font-semibold tracking-tight font-special tabular-nums">{s.value}</dd>
                 </div>
               ))}
             </dl>
