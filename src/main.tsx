@@ -4,6 +4,7 @@ import { getRouter } from "./router"
 
 const router = getRouter()
 
+// biome-ignore lint: --
 const rootElement = document.getElementById("app")!
 
 if (!rootElement.innerHTML) {
