@@ -3,7 +3,6 @@ import { ArrowRight } from "lucide-react"
 
 import { buttonVariants } from "@/components/ballmac/button"
 import { cn } from "@/lib/utils"
-import { Media, type MediaSource } from "@/components/ballmac/media"
 import { Link } from "@tanstack/react-router"
 
 type Action = { label: string; to: string }
@@ -37,8 +36,6 @@ function Hero4({
     { value: "Fast.", label: "avg. latency ~ 40ms" }, // 40ms is just a placeholder up until verified stats are provided
     { value: "Free", label: "0 cost; MIT license" },
   ],
-  media,
-  mediaAlt,
   className,
   ...props
 }: Hero4Props) {
@@ -68,10 +65,6 @@ function Hero4({
             </dl>
           )}
         </div>
-        <Media media={media} alt={mediaAlt} aspect="square" priority fallback={
-        <div className="relative -mx-4 aspect-square sm:mx-auto sm:w-full sm:max-w-[560px] lg:-me-24 lg:max-w-none">
-        </div>
-        } />
       </div>
     </section>
   )
