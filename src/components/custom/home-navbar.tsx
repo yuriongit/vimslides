@@ -5,12 +5,17 @@ import {
   NavigationMenuList,
 } from "@/components/ui/navigation-menu"
 import { Link } from "@tanstack/react-router"
+import { ModeToggle } from "../mode-toggle"
 
 export function HomeNavbar() {
   return (
     <nav className="w-full font-medium flex justify-between">
       <NavigationMenu>
         <NavigationMenuList>
+          
+          <NavigationMenuItem>
+            <ModeToggle/>
+          </NavigationMenuItem>
           
           <NavigationMenuItem>
             <NavigationMenuLink
