@@ -1,10 +1,10 @@
-import { LoginForm } from '#/components/login-form'
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute } from "@tanstack/react-router";
+import { LoginForm } from "#/components/login-form";
 
-export const Route = createFileRoute('/login')({
-  component: RouteComponent,
-})
+export const Route = createFileRoute("/login")({
+	component: RouteComponent,
+});
 
 function RouteComponent() {
-  return LoginForm({className: "max-w-sm w-full"})
+	return LoginForm({ className: "max-w-sm w-full" });
 }
