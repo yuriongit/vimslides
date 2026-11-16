@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router"
-import { ArrowUpRightIcon, FolderOpen } from "lucide-react"
+import { ArrowUpRightIcon } from "lucide-react"
 
 export const Route = createFileRoute("/_authenticated/projects")({
   component: Projects,
@@ -11,7 +11,6 @@ import {
   EmptyContent,
   EmptyDescription,
   EmptyHeader,
-  EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty"
 
@@ -26,9 +25,6 @@ function EmptyProjects() {
   return (
     <Empty>
       <EmptyHeader>
-        <EmptyMedia variant="icon">
-          <FolderOpen />
-        </EmptyMedia>
         <EmptyTitle>No Projects Yet</EmptyTitle>
         <EmptyDescription>
           You haven&apos;t created any projects yet. Get started by creating

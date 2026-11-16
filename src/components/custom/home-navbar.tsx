@@ -6,10 +6,11 @@ import {
 } from "@/components/ui/navigation-menu"
 import { Link } from "@tanstack/react-router"
 import { ModeToggle } from "../mode-toggle"
+import { Button, buttonVariants } from "../ui/button"
 
 export function HomeNavbar() {
   return (
-    <nav className="flex w-full absolute top-0 justify-between border-b px-6 py-3 font-medium">
+    <nav className="absolute top-0 flex w-full justify-between border-b px-6 py-3 font-medium">
       <NavigationMenu>
         <NavigationMenuList>
           <NavigationMenuItem>
@@ -37,9 +38,20 @@ export function HomeNavbar() {
       <NavigationMenu>
         <NavigationMenuList>
           <NavigationMenuItem>
-            <NavigationMenuLink render={<Link to="/login" />}>
-              Login
-            </NavigationMenuLink>
+            <NavigationMenuLink
+              render={
+                <Link
+                  to="/login"
+                  className={buttonVariants({
+                    variant: "outline",
+                    size: "default",
+                    shape: "default",
+                  })}
+                >
+                  Login
+                </Link>
+              }
+            ></NavigationMenuLink>
           </NavigationMenuItem>
         </NavigationMenuList>
       </NavigationMenu>

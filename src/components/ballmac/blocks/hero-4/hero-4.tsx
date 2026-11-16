@@ -46,7 +46,7 @@ function Hero4({
 </h1>
           <p className="mt-5 max-w-lg text-lg leading-relaxed text-pretty text-muted-foreground">{description}</p>
           <div className="mt-8 flex flex-wrap gap-3">
-            <Link to={primaryAction.to} className={buttonVariants({ size: "default", shape: "default" })+" font-special text-special"}>
+            <Link to={primaryAction.to} className={buttonVariants({ size: "default", shape: "default" })}>
               {primaryAction.label}
             </Link>
             <a href={secondaryAction.to} className={buttonVariants({ size: "default", shape: "pill", variant: "outline" })}>
