@@ -1,19 +1,21 @@
 import { AppNavbar } from "@/components/custom/app-navbar"
-import { createClient } from '#/lib/supabase/client'
 import { createFileRoute, Outlet, redirect } from '@tanstack/react-router'
-
-const supabase = createClient()
+import { supabase } from "@/lib/supabase/client"
 
 export const Route = createFileRoute('/_authenticated')({
   beforeLoad: async ({ location }) => {
-    const { data: { session } } = await supabase.auth.getSession()
-
+    const {
+      data: { session },
+    } = await supabase.auth.getSession()
+  
     if (!session) {
       throw redirect({
-        to: '/login',
+        to: "/login",
         search: { redirect: location.href },
       })
     }
+  
+    return { user: session.user }
   },
   component: AuthenticatedLayout,
 })
