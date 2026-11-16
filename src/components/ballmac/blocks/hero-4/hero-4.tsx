@@ -27,7 +27,7 @@ type Hero4Props = Omit<React.ComponentProps<"section">, "title"> & {
 
 function Hero4({
   title = "Create your next presentation with",
-  description = "Ever wish Google Slides or Microsoft Powerpoint had Vim? Don't wish further.",
+  description = "Ever wish Google Slides or Microsoft PowerPoint had Vim? Don't wish further.",
   primaryAction = { label: "Start", to: "/login" },
   secondaryAction = { label: "Source", to: "https://github.com/yuriongit/vimslides" },
   stats = [
