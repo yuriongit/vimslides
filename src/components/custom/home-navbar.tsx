@@ -6,7 +6,7 @@ import {
 } from "@/components/ui/navigation-menu"
 import { Link } from "@tanstack/react-router"
 import { ModeToggle } from "../mode-toggle"
-import { Button, buttonVariants } from "../ui/button"
+import { buttonVariants } from "../ui/button"
 
 export function HomeNavbar() {
   return (
@@ -45,7 +45,6 @@ export function HomeNavbar() {
                   className={buttonVariants({
                     variant: "outline",
                     size: "default",
-                    shape: "default",
                   })}
                 >
                   Login

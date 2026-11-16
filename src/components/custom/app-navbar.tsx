@@ -64,13 +64,13 @@ function UserDropdownMenu({ email, onSignOut }: UserDropdownMenuProps) {
               </span>
             )}
           </DropdownMenuLabel>
-          <DropdownMenuSeparator/>
+          <DropdownMenuSeparator />
           <DropdownMenuItem>
-            <Pencil/>
+            <Pencil />
             Profile
           </DropdownMenuItem>
           <DropdownMenuItem>
-            <Cog/>
+            <Cog />
             Settings
           </DropdownMenuItem>
         </DropdownMenuGroup>
