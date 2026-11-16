@@ -6,52 +6,55 @@ import {
 } from "@/components/ui/navigation-menu"
 import { Link } from "@tanstack/react-router"
 import { ModeToggle } from "../mode-toggle"
+import { Button, buttonVariants } from "../ui/button"
 
 export function HomeNavbar() {
   return (
-    <nav className="w-full font-medium flex justify-between">
+    <nav className="absolute top-0 flex w-full justify-between border-b px-6 py-3 font-medium">
       <NavigationMenu>
         <NavigationMenuList>
-          
           <NavigationMenuItem>
-            <ModeToggle/>
+            <ModeToggle />
           </NavigationMenuItem>
-          
+
           <NavigationMenuItem>
-            <NavigationMenuLink
-              render={<Link to="/" />}
-            >
+            <NavigationMenuLink render={<Link to="/" />}>
               Home
             </NavigationMenuLink>
           </NavigationMenuItem>
-          
+
           <NavigationMenuItem>
-              <NavigationMenuLink 
-                target="_blank"
-                rel="noreferrer"
-                href="https://github.com/yuriongit/vimslides"
-              >
-                GitHub
-              </NavigationMenuLink>
-            </NavigationMenuItem>
-            
-        </NavigationMenuList>
-      </NavigationMenu>
-      
-      <NavigationMenu>
-        <NavigationMenuList>
-          
-          <NavigationMenuItem>
-            <NavigationMenuLink 
-              render={<Link to="/login" />}
+            <NavigationMenuLink
+              target="_blank"
+              rel="noreferrer"
+              href="https://github.com/yuriongit/vimslides"
             >
-              Login
+              GitHub
             </NavigationMenuLink>
           </NavigationMenuItem>
-          
         </NavigationMenuList>
       </NavigationMenu>
-      
+
+      <NavigationMenu>
+        <NavigationMenuList>
+          <NavigationMenuItem>
+            <NavigationMenuLink
+              render={
+                <Link
+                  to="/login"
+                  className={buttonVariants({
+                    variant: "outline",
+                    size: "default",
+                    shape: "default",
+                  })}
+                >
+                  Login
+                </Link>
+              }
+            ></NavigationMenuLink>
+          </NavigationMenuItem>
+        </NavigationMenuList>
+      </NavigationMenu>
     </nav>
   )
 }
