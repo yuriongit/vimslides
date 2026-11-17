@@ -1,5 +1,16 @@
 import { Separator } from "@/components/ui/separator"
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
@@ -68,10 +79,27 @@ export function PresentationsList(
               <Pencil/> Edit metadata
             </DropdownMenuItem>
           </DropdownMenuGroup>
-          <DropdownMenuItem variant="destructive" onClick={async () => await deleteFn(id)}>
-            <Trash />
-              Delete
-            </DropdownMenuItem>
+          <DropdownMenuItem className={"w-full"} render={
+            <AlertDialog>
+            <AlertDialogTrigger render={<Button className={buttonVariants({variant: "destructive", className: "w-full justify-start"})}><Trash /> Delete </Button>} />
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This action cannot be undone. This will permanently delete your
+                    presentation from our servers.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    variant={"destructive"}
+                    onClick={async () => await deleteFn(id)}>Confirm</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          }>
+          </DropdownMenuItem>
          </DropdownMenuContent>
       </DropdownMenu>
     )
@@ -189,6 +217,24 @@ function CreatePresentationSheet(
   const [sheetTitle, setSheetTitle] = useState("Vim is the Best!")
   const [sheetDesc, setSheetDesc] = useState("The best way to edit text.")
 
+  async function handleCreatePresentationConfirmation() {
+    try {
+      await createFn({
+        user_id: user.id,
+        title: sheetTitle,
+        description: sheetDesc || null,
+        slide_count: 0,
+        // Workers will update the presentation entry's URL with the new file (from queue work)
+        file_url: "",
+      })
+      setSheetOpen(false)
+      setSheetTitle("")
+      setSheetDesc("")
+    } catch (error) {
+      console.error("Failed to create presentation:", error)
+    }
+  }
+  
   return (
     <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
       <SheetTrigger render={<Button>Create</Button>} />
@@ -204,6 +250,7 @@ function CreatePresentationSheet(
             <Label htmlFor="sheet-title-label">Title</Label>
             <Input
               value={sheetTitle}
+              onEnter={handleCreatePresentationConfirmation}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSheetTitle(e.target.value)}
               id="sheet-title-input"
               placeholder="Vim is the Best!"
@@ -212,7 +259,13 @@ function CreatePresentationSheet(
           <div className="grid gap-3">
             <Label htmlFor="sheet-desc-label">Description</Label>
             <Input
+              // onKeyDown example usage:
+              // onKeyDown={(e) => {
+              //   if (e.key == "e")
+              //   console.log(5)
+              // }}
               value={sheetDesc}
+              onEnter={handleCreatePresentationConfirmation}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSheetDesc(e.target.value)}
               id="sheet-desc-input"
               placeholder="Optional"
@@ -222,23 +275,7 @@ function CreatePresentationSheet(
         <SheetFooter>
           <Button
             type="submit"
-            onClick={async () => {
-              try {
-                await createFn({
-                  user_id: user.id,
-                  title: sheetTitle,
-                  description: sheetDesc || null,
-                  slide_count: 0,
-                  // Workers will update the presentation entry's URL with the new file (from queue work)
-                  file_url: "",
-                })
-                setSheetOpen(false)
-                setSheetTitle("")
-                setSheetDesc("")
-              } catch (error) {
-                console.error("Failed to create presentation:", error)
-              }
-            }}>Confirm</Button>
+            onClick={handleCreatePresentationConfirmation}>Confirm</Button>
           <SheetClose render={<Button variant="outline">Close</Button>} />
         </SheetFooter>
       </SheetContent>
