@@ -31,7 +31,7 @@ The client is a React app around a framework-independent editor core, and nothin
 | Editor core | Document model, commands, undo stack, mode and scope state machine, key dispatch | Plain TypeScript, no React or browser APIs |
 | Text editing | Vim motions and typing inside one box | One CodeMirror 6 editor per box in text scope, with [@replit/codemirror-vim](https://github.com/replit/codemirror-vim) |
 | Rendering | Slides on screen, in present mode and in export | Absolutely positioned DOM on a fixed 1920 by 1080 canvas, scaled to fit |
-| UI shell | Routes, auth, `/projects`, status line | React, TanStack Router, shadcn, as built |
+| UI shell | Routes, auth, `/presentations`, status line | React, TanStack Router, shadcn, as built |
 | Draft store | Local working copy between saves | IndexedDB behind a `DraftStore` interface |
 | Cloud client | `:w`, open and `:export` | Supabase client plus one Edge Function call |
 
@@ -79,7 +79,7 @@ type Box = {
 - **Order is the array.** Back-to-front order matches how Google Slides [orders page elements](https://hexdocs.pm/google_api_slides/GoogleApi.Slides.V1.Model.UpdatePageElementsZOrderRequest.html), so stacking commands only reorder the array.
 - **Room to grow.** `elements` is a union with one member in v1. Images, shapes and groups are added as new members without migrating existing decks. `width` already accepts a number for the later width rules.
 - **Schema version.** `schemaVersion` plus migration functions run on load. The same schema validates the document on the server at save time.
-- **Title is not in the document.** It lives on the `decks` row so renaming from `/projects` touches no revision.
+- **Title is not in the document.** It lives on the `decks` row so renaming from `/presentations` touches no revision.
 - **Revisions.** Each `:w` creates an immutable revision with the next version number. The deck row points at the head. Versions give the save path its conflict check, and give export a fixed input. The PRD has no history screen, so revisions are not shown to users.
 
 ## Save path
@@ -96,7 +96,7 @@ Postgres holds metadata and the pointer to each deck's head revision, and a priv
 
 | Table | Key columns | Purpose |
 | --- | --- | --- |
-| `decks` | `id`, `owner_id`, `title`, `head_version`, `head_revision_id`, `created_at`, `updated_at` | One row per presentation. `/projects` lists these. |
+| `decks` | `id`, `owner_id`, `title`, `head_version`, `head_revision_id`, `created_at`, `updated_at` | One row per presentation. `/presentations` lists these. |
 | `deck_revisions` | `id`, `deck_id`, `version`, `storage_path`, `content_hash`, `size_bytes`, `schema_version`, `created_at` | One row per saved revision, unique on `(deck_id, version)`. |
 | `exports` | `id`, `deck_id`, `version`, `format`, `status`, `storage_path`, `error`, `requested_at`, `finished_at` | One row per export job. The client watches it. |
 | `profiles` | `id`, `first_name` | Added when registration collects a first name. |
@@ -118,7 +118,7 @@ The queue is one pgmq queue named `exports`, described under queue and workers.
 The route guard only decides what the interface shows. Row Level Security, storage policies and the save function's JWT check decide what a user can actually read or write.
 
 - **Sign-in.** Supabase Auth through the shadcn component, as built. The Supabase client keeps the session in the browser and attaches the JWT to every request.
-- **Route guard.** The `_authenticated` layout checks the session before `/projects` and any other private route loads. This is a convenience for the user, since client code can be altered.
+- **Route guard.** The `_authenticated` layout checks the session before `/presentations` and any other private route loads. This is a convenience for the user, since client code can be altered.
 - **Database and storage.** Owner-only policies on every table and on the `decks` bucket, keyed on the user id in the JWT.
 - **Save function.** The Edge Function reads the user from the verified JWT and never trusts an owner id sent in the request body.
 - **Service key.** It exists only in the save function and the export worker, never in the client bundle. It [bypasses storage policies entirely](https://supabase.com/docs/guides/storage/security/access-control), so the code that holds it must scope every query to the requesting user itself.
@@ -144,7 +144,7 @@ A Postgres queue carries work that should not block a request, and in v1 that wo
 
 **A cheaper v1 option.** The browser's own print-to-PDF with a print stylesheet needs no worker. The output then depends on the user's browser, and the queue has no consumer until a second job type exists. This design assumes the worker, because the same worker is where thumbnails and import conversion would go. The choice is listed under decisions.
 
-**Other jobs.** Thumbnails for `/projects` (not in the PRD), import conversion (later), and a scheduled cleanup of files that never got a revision row.
+**Other jobs.** Thumbnails for `/presentations` (not in the PRD), import conversion (later), and a scheduled cleanup of files that never got a revision row.
 
 ## Desktop path
 
@@ -168,7 +168,7 @@ Nine choices in this document are assumptions of mine, not decisions of yours ye
 - [ ] **Losing draft.** The PRD says the cloud wins. This design also keeps the losing local draft as a backup until the user dismisses it, so a conflict does not silently destroy work. Confirm the backup.
 - [ ] **First name storage.** A `profiles` table (assumed, queryable), or Supabase user metadata (lighter).
 - [ ] **Revision retention.** Keep every revision, or keep the last few. The PRD has no history screen.
-- [ ] **Thumbnails.** Whether `/projects` shows slide previews. They are not in the PRD.
+- [ ] **Thumbnails.** Whether `/presentations` shows slide previews. They are not in the PRD.
 - [ ] **Undo in v1.** In-session undo and redo only, since persisted history is out of v1.
 
 **Risks**

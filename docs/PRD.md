@@ -10,7 +10,7 @@ It solves one problem: editing slides in Google Slides or PowerPoint is slow and
 
 The product is keyboard first. The mouse works and stays available, but nothing about the core workflow depends on it.
 
-**Stack:** TypeScript, React with Vite, Tailwind v4, shadcn, TanStack Router, Supabase (auth and cloud storage). Current state: a working skeleton with Supabase auth, a public layout, a protected layout and a `/projects` route.
+**Stack:** TypeScript, React with Vite, Tailwind v4, shadcn, TanStack Router, Supabase (auth and cloud storage). Current state: a working skeleton with Supabase auth, a public layout, a protected layout and a `/presentations` route.
 
 ## Users and differentiator
 
@@ -51,7 +51,7 @@ v1 lets a logged-in user build a multi-slide deck of text boxes using only the k
 
 **In v1**
 
-- Auth and `/projects`: create, open, rename and delete a presentation. A project is one presentation.
+- Auth and `/presentations`: create, open, rename and delete a presentation. A project is one presentation.
 - 16:9 slides: add, delete, reorder, navigate.
 - Text boxes: create, delete, edit text, move, change stacking order. Boxes auto-fit to their text.
 - Text styling: font size and color.
@@ -91,10 +91,10 @@ Every interaction in v1 is a key sequence, so this section defines the sequences
 The cloud copy changes only when the user writes it with `:w`, and the app keeps a local working copy in between, the way Vim keeps swap files.
 
 - **Accounts are required.** The product does not work without logging in. Accounts exist for cloud storage and access from anywhere.
-- **No autosave to the cloud.** Supabase receives a presentation only when the user runs `:w`. `:wq` writes and then returns to `/projects`.
+- **No autosave to the cloud.** Supabase receives a presentation only when the user runs `:w`. `:wq` writes and then returns to `/presentations`.
 - **Local working copy.** The web app keeps drafts on the device between writes. Undo and redo history is persisted locally too. Whether it gets its own undo file, as Vim does, is not decided.
 - **Draft conflicts.** If the local draft and the cloud copy differ, for example after editing on two devices, the cloud copy wins.
-- **`:q`** returns to the `/projects` route. With unsaved changes it refuses until the user runs `:q!`, as in Vim.
+- **`:q`** returns to the `/presentations` route. With unsaved changes it refuses until the user runs `:q!`, as in Vim.
 - **Desktop later.** The planned end state is a desktop application that creates local-first files and writes them to the cloud with `:w`. The web version comes first because developing inside a desktop framework this early would slow the work down.
 - **Browser keys.** Ctrl-R is the only browser-reserved key the design expects to use. It is likely to be interceptable by the page, unlike Ctrl-W, Ctrl-T and Ctrl-N, but this needs testing in the target browsers.
 

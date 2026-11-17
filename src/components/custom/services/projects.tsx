@@ -37,13 +37,13 @@ import {
   ItemTitle,
 } from "@/components/ui/item"
 
-export type Project = Database["public"]["Tables"]["projects"]["Row"]
-export type ProjectInsert = Database["public"]["Tables"]["projects"]["Insert"]
+export type Presentation = Database["public"]["Tables"]["presentations"]["Row"]
+export type ProjectInsert = Database["public"]["Tables"]["presentations"]["Insert"]
 
 export function ProjectsList(
   { user, projects, projectsCreateFn }:
   {
-    projects: Project[]
+    projects: Presentation[]
     user: User
     projectsCreateFn: UseMutateAsyncFunction<void, Error, ProjectInsert>
   }
@@ -76,7 +76,7 @@ export function ProjectsList(
       <div className="flex justify-between min-w-full items-center h-full">
         <div>
           <header className="text-2xl font-semibold tracking-[-0.045em] text-balance sm:text-3xl text-primary font-special">
-            Projects
+            Presentations
           </header>
           <p className="text-accent-foreground text-sm sm:text-base font-sans">
             All your projects - manage them here.
@@ -98,7 +98,7 @@ export function ProjectsList(
                   // TODO: add `preview_url` to DB schema - not in the database
                   // Temporarily serving a placeholder image
                   src={p?.preview_url ?? "https://images.unsplash.com/photo-1650804068570-7fb2e3dbf888?q=80&w=640&auto=format&fit=crop"}
-                  alt={`Project - ${p.title}`}
+                  alt={`Presentation - ${p.title}`}
                   className="aspect-video rounded-sm object-cover"
                 />
               </ItemHeader>
@@ -136,10 +136,10 @@ export function EmptyProjectsList({
     <div>
       <Empty>
         <EmptyHeader>
-          <EmptyTitle>No Projects Yet</EmptyTitle>
+          <EmptyTitle>No Presentations Yet</EmptyTitle>
           <EmptyDescription>
             You haven&apos;t created any projects yet. Get started by creating
-            your first project.
+            your first presentation.
           </EmptyDescription>
         </EmptyHeader>
         <EmptyContent className="flex-row justify-center gap-2">
@@ -186,9 +186,9 @@ function CreateProjectSheet(
       <SheetTrigger render={<Button>Create</Button>} />
       <SheetContent>
         <SheetHeader>
-          <SheetTitle>Create a new project</SheetTitle>
+          <SheetTitle>Create a new presentation</SheetTitle>
           <SheetDescription>
-            Fill out basic metadata for your new project.
+            Fill out basic metadata for your new presentation.
           </SheetDescription>
         </SheetHeader>
         <div className="grid flex-1 auto-rows-min gap-6 px-4">
@@ -228,7 +228,7 @@ function CreateProjectSheet(
                 setSheetTitle("")
                 setSheetDesc("")
               } catch (error) {
-                console.error("Failed to create project:", error)
+                console.error("Failed to create presentation:", error)
               }
             }}>Confirm</Button>
           <SheetClose render={<Button variant="outline">Close</Button>} />

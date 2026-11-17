@@ -9,10 +9,10 @@ import {
 import { supabase } from "@/lib/supabase/client"
 
 export const Route = createFileRoute("/_authenticated/projects")({
-  component: Projects,
+  component: Presentations,
 })
 
-function Projects() {
+function Presentations() {
   const user = useRouteContext({ from: "/_authenticated" })
   // Access the client
   const queryClient = useQueryClient()
@@ -33,8 +33,8 @@ function Projects() {
   })
   // Mutations
   const projectMutation = useMutation({
-    mutationFn: async (project: ProjectInsert) => {
-      const { error } = await supabase.from("projects").insert(project)
+    mutationFn: async (presentation: ProjectInsert) => {
+      const { error } = await supabase.from("projects").insert(presentation)
       if (error)
         throw new Error(`Error: ${error.message} \nCause: ${error.cause}`)
     },
