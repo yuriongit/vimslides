@@ -47,6 +47,7 @@ import {
   ItemGroup,
   ItemTitle,
 } from "@/components/ui/item"
+import { toast } from "@/components/ui/toast"
 
 export type Presentation = Database["public"]["Tables"]["presentations"]["Row"]
 export type PresentationId = Database["public"]["Tables"]["presentations"]["Row"]["id"]
@@ -94,7 +95,12 @@ export function PresentationsList(
                   <AlertDialogCancel>Cancel</AlertDialogCancel>
                   <AlertDialogAction
                     variant={"destructive"}
-                    onClick={async () => await deleteFn(id)}>Confirm</AlertDialogAction>
+                    onClick={() => {
+                      toast.promise(deleteFn(id), {loading: "Deleting presentation", error: "Failed to delete presentation", success: "Successfully deleted presentation"
+                      })
+                    }}>
+                    Confirm
+                  </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
