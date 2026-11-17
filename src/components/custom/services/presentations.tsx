@@ -223,8 +223,7 @@ function CreatePresentationSheet(
   const [sheetTitle, setSheetTitle] = useState("Vim is the Best!")
   const [sheetDesc, setSheetDesc] = useState("The best way to edit text.")
 
-  async function handleCreatePresentationConfirmation() {
-    try {
+  async function createPresentationConfirmation() {
       await createFn({
         user_id: user.id,
         title: sheetTitle,
@@ -236,9 +235,15 @@ function CreatePresentationSheet(
       setSheetOpen(false)
       setSheetTitle("")
       setSheetDesc("")
-    } catch (error) {
-      console.error("Failed to create presentation:", error)
-    }
+  }
+  
+  function handleCreatePresentation() {
+    toast.promise(createPresentationConfirmation(), createPresentationToast)
+  }
+  const createPresentationToast = {
+    loading: "Creating presentation",
+    success: "Successfully created presentation",
+    error: "Failed to create presentation"
   }
   
   return (
@@ -256,7 +261,7 @@ function CreatePresentationSheet(
             <Label htmlFor="sheet-title-label">Title</Label>
             <Input
               value={sheetTitle}
-              onEnter={handleCreatePresentationConfirmation}
+              onEnter={handleCreatePresentation}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSheetTitle(e.target.value)}
               id="sheet-title-input"
               placeholder="Vim is the Best!"
@@ -271,7 +276,7 @@ function CreatePresentationSheet(
               //   console.log(5)
               // }}
               value={sheetDesc}
-              onEnter={handleCreatePresentationConfirmation}
+              onEnter={handleCreatePresentation}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSheetDesc(e.target.value)}
               id="sheet-desc-input"
               placeholder="Optional"
@@ -281,7 +286,7 @@ function CreatePresentationSheet(
         <SheetFooter>
           <Button
             type="submit"
-            onClick={handleCreatePresentationConfirmation}>Confirm</Button>
+            onClick={handleCreatePresentation}>Confirm</Button>
           <SheetClose render={<Button variant="outline">Close</Button>} />
         </SheetFooter>
       </SheetContent>
