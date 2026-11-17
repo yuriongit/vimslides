@@ -6,7 +6,15 @@ import { ThemeProvider } from "./components/theme-provider"
 import { getRouter } from "./router"
 
 const router = getRouter()
-const queryClient = new QueryClient()
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5000 * 60, // 5 minute
+      refetchOnWindowFocus: true,
+      retry: 1,
+    },
+  },
+})
 
 // biome-ignore lint: --
 const rootElement = document.getElementById("app")!
