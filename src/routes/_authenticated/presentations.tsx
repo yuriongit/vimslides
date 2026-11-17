@@ -27,6 +27,7 @@ function Presentations() {
         .from("presentations")
         .select("*")
         .eq("user_id", user.user.id) // not strictly necessary due to RLS policy
+        .order("created_at")
       if (error) return `Error: ${error.message} \nCause: ${error.cause}`
 
       return data
