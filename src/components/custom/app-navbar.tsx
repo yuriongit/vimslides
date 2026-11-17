@@ -32,7 +32,7 @@ export function AppNavbar() {
         <ModeToggle />
       </div>
 
-      <Link to="/projects" className="font-special text-xl font-semibold">
+      <Link to="/presentations" className="font-special text-xl font-semibold">
         <span className="text-primary">Vim</span>
         Slides
       </Link>

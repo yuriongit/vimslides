@@ -1,7 +1,7 @@
 #:schema https://supabase.com/schemas/config/v1.json
 # For detailed configuration reference documentation, visit:
 # https://supabase.com/docs/guides/local-development/cli/config
-# A string used to distinguish different Supabase projects on the same host. Defaults to the
+# A string used to distinguish different Supabase presentations on the same host. Defaults to the
 # working directory name when running `supabase init`.
 project_id = "vimslides"
 

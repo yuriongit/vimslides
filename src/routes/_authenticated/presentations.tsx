@@ -19,11 +19,11 @@ function Presentations() {
 
   // Queries
   const projectsQuery = useQuery({
-    queryKey: ["projects"],
+    queryKey: ["presentations"],
     queryFn: async () => {
       // TODO: create API for such methods - GET /user_project
       const { data, error } = await supabase
-        .from("projects")
+        .from("presentations")
         .select("*")
         .eq("user_id", user.user.id) // not strictly necessary due to RLS policy
       if (error) return `Error: ${error.message} \nCause: ${error.cause}`
@@ -34,13 +34,13 @@ function Presentations() {
   // Mutations
   const projectMutation = useMutation({
     mutationFn: async (presentation: ProjectInsert) => {
-      const { error } = await supabase.from("projects").insert(presentation)
+      const { error } = await supabase.from("presentations").insert(presentation)
       if (error)
         throw new Error(`Error: ${error.message} \nCause: ${error.cause}`)
     },
     onSuccess: () => {
       // Invalidate and refetch
-      queryClient.invalidateQueries({ queryKey: ["projects"] })
+      queryClient.invalidateQueries({ queryKey: ["presentations"] })
     },
   })
 
@@ -61,7 +61,7 @@ function Presentations() {
         <ProjectsList
           user={user.user}
           projectsCreateFn={projectMutation.mutateAsync}
-          projects={projectsQuery.data}
+          presentations={projectsQuery.data}
         />
       )}
     </div>

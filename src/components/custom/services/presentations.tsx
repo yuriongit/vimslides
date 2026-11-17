@@ -41,9 +41,9 @@ export type Presentation = Database["public"]["Tables"]["presentations"]["Row"]
 export type ProjectInsert = Database["public"]["Tables"]["presentations"]["Insert"]
 
 export function ProjectsList(
-  { user, projects, projectsCreateFn }:
+  { user, presentations, projectsCreateFn }:
   {
-    projects: Presentation[]
+    presentations: Presentation[]
     user: User
     projectsCreateFn: UseMutateAsyncFunction<void, Error, ProjectInsert>
   }
@@ -79,7 +79,7 @@ export function ProjectsList(
             Presentations
           </header>
           <p className="text-accent-foreground text-sm sm:text-base font-sans">
-            All your projects - manage them here.
+            All your presentations - manage them here.
           </p>
         </div>
         <CreateProjectSheet
@@ -88,7 +88,7 @@ export function ProjectsList(
       </div>
       <Separator/>
       <ItemGroup className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4overflow-hidden overflow-y-auto scrollbar-none min-h-full h-full w-full min-w-full mt-2 ">
-        {projects.map((p, idx) => {
+        {presentations.map((p, idx) => {
           idx+=1
           return (
             <Item key={p.id} variant={"muted"}>
@@ -138,7 +138,7 @@ export function EmptyProjectsList({
         <EmptyHeader>
           <EmptyTitle>No Presentations Yet</EmptyTitle>
           <EmptyDescription>
-            You haven&apos;t created any projects yet. Get started by creating
+            You haven&apos;t created any presentations yet. Get started by creating
             your first presentation.
           </EmptyDescription>
         </EmptyHeader>
