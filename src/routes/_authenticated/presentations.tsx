@@ -5,10 +5,10 @@ import {
   EmptyProjectsList,
   type ProjectInsert,
   ProjectsList,
-} from "@/components/custom/services/projects"
+} from "#/components/custom/services/presentations"
 import { supabase } from "@/lib/supabase/client"
 
-export const Route = createFileRoute("/_authenticated/projects")({
+export const Route = createFileRoute("/_authenticated/presentations")({
   component: Presentations,
 })
 
