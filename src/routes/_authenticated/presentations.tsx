@@ -8,6 +8,7 @@ import {
   PresentationsList,
 } from "#/components/custom/services/presentations"
 import { supabase } from "@/lib/supabase/client"
+import { MINUTE } from "#/constants/constants"
 
 export const Route = createFileRoute("/_authenticated/presentations")({
   component: Presentations,
@@ -32,6 +33,9 @@ function Presentations() {
 
       return data
     },
+    staleTime: MINUTE * 5,
+    refetchInterval: MINUTE * 20,
+    refetchIntervalInBackground: false,
   })
   // Mutations
   const presentationCreateMutation = useMutation({
