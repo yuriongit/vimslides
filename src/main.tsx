@@ -9,7 +9,8 @@ import { getRouter } from "./router"
 const router = getRouter()
 const queryClient = new QueryClient({
   defaultOptions: {
-    queries: { // global query client configuration
+    queries: {
+      // global query client configuration
       staleTime: MINUTE * 5, // 5 minutes
       refetchOnWindowFocus: true,
       refetchOnMount: true,

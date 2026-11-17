@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { createFileRoute, useRouteContext } from "@tanstack/react-router"
+import { Loading } from "@/components/custom/loading"
 import {
   EmptyPresentationsList,
   type PresentationId,
@@ -7,7 +8,6 @@ import {
   PresentationsList,
 } from "@/components/custom/services/presentations"
 import { MINUTE } from "@/constants/constants"
-import { Loading } from "@/components/custom/loading"
 import { supabase } from "@/lib/supabase/client"
 
 export const Route = createFileRoute("/_authenticated/presentations")({
@@ -40,7 +40,9 @@ function Presentations() {
   // Mutations
   const presentationCreateMutation = useMutation({
     mutationFn: async (presentation: PresentationInsert) => {
-      const { error } = await supabase.from("presentations").insert(presentation)
+      const { error } = await supabase
+        .from("presentations")
+        .insert(presentation)
       if (error)
         throw new Error(`Error: ${error.message} \nCause: ${error.cause}`)
     },
@@ -51,7 +53,10 @@ function Presentations() {
   })
   const presentationDeleteMutation = useMutation({
     mutationFn: async (id: PresentationId) => {
-      const { error } = await supabase.from("presentations").delete().eq("id", id)
+      const { error } = await supabase
+        .from("presentations")
+        .delete()
+        .eq("id", id)
       if (error)
         throw new Error(`Error: ${error.message} \nCause: ${error.cause}`)
     },
