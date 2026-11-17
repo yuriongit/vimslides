@@ -1,5 +1,5 @@
 import { createFileRoute, redirect } from "@tanstack/react-router"
-import { LoginForm } from "#/components/login-form"
+import { LoginForm } from "@/components/login-form"
 import { supabase } from "@/lib/supabase/client"
 
 export const Route = createFileRoute("/_public/login")({

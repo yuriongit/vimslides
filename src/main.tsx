@@ -2,9 +2,9 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
 import { RouterProvider } from "@tanstack/react-router"
 import ReactDOM from "react-dom/client"
+import { MINUTE } from "@/constants/constants"
 import { ThemeProvider } from "./components/theme-provider"
 import { getRouter } from "./router"
-import { MINUTE } from "@/constants/constants"
 
 const router = getRouter()
 const queryClient = new QueryClient({
