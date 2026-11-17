@@ -10,7 +10,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { safeNextPath } from "@/lib/safe-next-path"
-import { createClient } from "@/lib/supabase/client"
+import { supabase } from "@/lib/supabase/client"
 import { cn } from "@/lib/utils"
 
 export function LoginForm({
@@ -21,7 +21,6 @@ export function LoginForm({
   const [password, setPassword] = useState("")
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
-  const supabase = createClient()
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()

@@ -3,10 +3,11 @@ import { LoginForm } from "#/components/login-form"
 import { supabase } from "@/lib/supabase/client"
 
 export const Route = createFileRoute("/_public/login")({
-  validateSearch: (search: Record<string, unknown>) => {
+  validateSearch: (search: Record<string, unknown>): { redirect?: string } => {
     const r = search.redirect
     const safe =
       typeof r === "string" && r.startsWith("/") && !r.startsWith("//")
+
     return { redirect: safe ? r : undefined }
   },
   beforeLoad: async ({ search }) => {
