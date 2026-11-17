@@ -4,13 +4,15 @@ import { RouterProvider } from "@tanstack/react-router"
 import ReactDOM from "react-dom/client"
 import { ThemeProvider } from "./components/theme-provider"
 import { getRouter } from "./router"
+import { MINUTE } from "@/constants/constants"
 
 const router = getRouter()
 const queryClient = new QueryClient({
   defaultOptions: {
-    queries: {
-      staleTime: 5000 * 60, // 5 minute
+    queries: { // global query client configuration
+      staleTime: MINUTE * 5, // 5 minutes
       refetchOnWindowFocus: true,
+      refetchOnMount: true,
       retry: 1,
     },
   },
