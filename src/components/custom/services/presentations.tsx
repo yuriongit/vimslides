@@ -1,5 +1,16 @@
 import { Separator } from "@/components/ui/separator"
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
@@ -23,7 +34,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet"
 import type { UseMutateAsyncFunction } from "@tanstack/react-query"
-import { ArrowUpRightIcon, Ellipsis, EllipsisVertical, Pencil, Trash } from "lucide-react"
+import { ArrowUpRightIcon, Ellipsis, Pencil, Trash } from "lucide-react"
 import type { Database } from "@/../database.types"
 import { useState } from "react"
 import type { User } from "@supabase/supabase-js"
@@ -36,19 +47,27 @@ import {
   ItemGroup,
   ItemTitle,
 } from "@/components/ui/item"
+import { toast } from "@/components/ui/toast"
 
 export type Presentation = Database["public"]["Tables"]["presentations"]["Row"]
-export type ProjectInsert = Database["public"]["Tables"]["presentations"]["Insert"]
+export type PresentationId = Database["public"]["Tables"]["presentations"]["Row"]["id"]
+export type PresentationInsert = Database["public"]["Tables"]["presentations"]["Insert"]
 
-export function ProjectsList(
-  { user, presentations, projectsCreateFn }:
+export function PresentationsList(
+  {
+    user,
+    presentations,
+    createFn,
+    deleteFn
+  }:
   {
     presentations: Presentation[]
     user: User
-    projectsCreateFn: UseMutateAsyncFunction<void, Error, ProjectInsert>
+    createFn: UseMutateAsyncFunction<void, Error, PresentationInsert>
+    deleteFn: UseMutateAsyncFunction<void, Error, PresentationId>
   }
 ) {
-  function ProjectActionsDropdown() {
+  function PresentationActionsDropdown({id}: {id: PresentationId}) {
     return (
       <DropdownMenu>
         <DropdownMenuTrigger className={buttonVariants({size: "sm", variant: "ghost"})}>
@@ -61,10 +80,32 @@ export function ProjectsList(
               <Pencil/> Edit metadata
             </DropdownMenuItem>
           </DropdownMenuGroup>
-          <DropdownMenuItem variant="destructive">
-            <Trash />
-              Delete
-            </DropdownMenuItem>
+          <DropdownMenuItem className={"w-full"} render={
+            <AlertDialog>
+            <AlertDialogTrigger render={<Button className={buttonVariants({variant: "destructive", className: "w-full justify-start"})}><Trash /> Delete </Button>} />
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This action cannot be undone. This will permanently delete your
+                    presentation from our servers.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    variant={"destructive"}
+                    onClick={() => {
+                      toast.promise(deleteFn(id), {loading: "Deleting presentation", error: "Failed to delete presentation", success: "Successfully deleted presentation"
+                      })
+                    }}>
+                    Confirm
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          }>
+          </DropdownMenuItem>
          </DropdownMenuContent>
       </DropdownMenu>
     )
@@ -82,9 +123,9 @@ export function ProjectsList(
             All your presentations - manage them here.
           </p>
         </div>
-        <CreateProjectSheet
+        <CreatePresentationSheet
           user={user}
-          projectsCreateFn={projectsCreateFn} />
+          createFn={createFn} />
       </div>
       <Separator/>
       <ItemGroup className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4overflow-hidden overflow-y-auto scrollbar-none min-h-full h-full w-full min-w-full mt-2 ">
@@ -97,6 +138,7 @@ export function ProjectsList(
                   loading="lazy"
                   // TODO: add `preview_url` to DB schema - not in the database
                   // Temporarily serving a placeholder image
+                  //@ts-expect-error - TODO: replace
                   src={p?.preview_url ?? "https://images.unsplash.com/photo-1650804068570-7fb2e3dbf888?q=80&w=640&auto=format&fit=crop"}
                   alt={`Presentation - ${p.title}`}
                   className="aspect-video rounded-sm object-cover"
@@ -115,7 +157,7 @@ export function ProjectsList(
               </ItemContent>
 
               <ItemActions>
-                <ProjectActionsDropdown/>
+                <PresentationActionsDropdown id={p.id} />
               </ItemActions>
             </Item>
           )
@@ -125,12 +167,12 @@ export function ProjectsList(
   )
 }
 
-export function EmptyProjectsList({
+export function EmptyPresentationsList({
   user,
-  projectsCreateFn,
+  createFn,
 }: {
   user: User
-  projectsCreateFn: UseMutateAsyncFunction<void, Error, ProjectInsert>
+  createFn: UseMutateAsyncFunction<void, Error, PresentationInsert>
 }) {
   return (
     <div>
@@ -143,9 +185,9 @@ export function EmptyProjectsList({
           </EmptyDescription>
         </EmptyHeader>
         <EmptyContent className="flex-row justify-center gap-2">
-          <CreateProjectSheet
+          <CreatePresentationSheet
             user={user}
-            projectsCreateFn={projectsCreateFn} />
+            createFn={createFn} />
           <Button variant="outline">Import</Button>
         </EmptyContent>
         <Button
@@ -170,17 +212,40 @@ export function EmptyProjectsList({
   )
 }
 
-function CreateProjectSheet(
-  { user, projectsCreateFn }:
+function CreatePresentationSheet(
+  { user, createFn }:
     {
       user: User,
-      projectsCreateFn: UseMutateAsyncFunction<void, Error, ProjectInsert>
+      createFn: UseMutateAsyncFunction<void, Error, PresentationInsert>
     }
 ) {
   const [sheetOpen, setSheetOpen] = useState(false)
   const [sheetTitle, setSheetTitle] = useState("Vim is the Best!")
   const [sheetDesc, setSheetDesc] = useState("The best way to edit text.")
 
+  async function createPresentationConfirmation() {
+      await createFn({
+        user_id: user.id,
+        title: sheetTitle,
+        description: sheetDesc || null,
+        slide_count: 0,
+        // Workers will update the presentation entry's URL with the new file (from queue work)
+        file_url: "",
+      })
+      setSheetOpen(false)
+      setSheetTitle("")
+      setSheetDesc("")
+  }
+  
+  function handleCreatePresentation() {
+    toast.promise(createPresentationConfirmation(), createPresentationToast)
+  }
+  const createPresentationToast = {
+    loading: "Creating presentation",
+    success: "Successfully created presentation",
+    error: "Failed to create presentation"
+  }
+  
   return (
     <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
       <SheetTrigger render={<Button>Create</Button>} />
@@ -196,6 +261,7 @@ function CreateProjectSheet(
             <Label htmlFor="sheet-title-label">Title</Label>
             <Input
               value={sheetTitle}
+              onEnter={handleCreatePresentation}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSheetTitle(e.target.value)}
               id="sheet-title-input"
               placeholder="Vim is the Best!"
@@ -204,7 +270,13 @@ function CreateProjectSheet(
           <div className="grid gap-3">
             <Label htmlFor="sheet-desc-label">Description</Label>
             <Input
+              // onKeyDown example usage:
+              // onKeyDown={(e) => {
+              //   if (e.key == "e")
+              //   console.log(5)
+              // }}
               value={sheetDesc}
+              onEnter={handleCreatePresentation}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSheetDesc(e.target.value)}
               id="sheet-desc-input"
               placeholder="Optional"
@@ -214,23 +286,7 @@ function CreateProjectSheet(
         <SheetFooter>
           <Button
             type="submit"
-            onClick={async () => {
-              try {
-                await projectsCreateFn({
-                  user_id: user.id,
-                  title: sheetTitle,
-                  description: sheetDesc || null,
-                  slide_count: 0,
-                  // Workers will update the project entry's URL with the new file (from queue work)
-                  file_url: "",
-                })
-                setSheetOpen(false)
-                setSheetTitle("")
-                setSheetDesc("")
-              } catch (error) {
-                console.error("Failed to create presentation:", error)
-              }
-            }}>Confirm</Button>
+            onClick={handleCreatePresentation}>Confirm</Button>
           <SheetClose render={<Button variant="outline">Close</Button>} />
         </SheetFooter>
       </SheetContent>

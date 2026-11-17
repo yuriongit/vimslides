@@ -11,7 +11,7 @@
       "**",
       "!**/supabase",
       "!**/*.gen.ts",
-      "!src/components",
+      "!src/components/*",
       "src/components/custom/**"
     ]
   },

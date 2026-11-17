@@ -1,5 +1,6 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router"
 import { AppNavbar } from "@/components/custom/app-navbar"
+import { Toaster } from "@/components/ui/toast"
 import { supabase } from "@/lib/supabase/client"
 
 export const Route = createFileRoute("/_authenticated")({
@@ -26,6 +27,7 @@ function AuthenticatedLayout() {
       <AppNavbar />
       <main className="mx-auto flex flex-col justify-center w-full max-w-7xl flex-1 px-6 py-6">
         <Outlet />
+        <Toaster />
       </main>
     </div>
   )

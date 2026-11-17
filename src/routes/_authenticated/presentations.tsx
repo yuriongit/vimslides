@@ -2,10 +2,12 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { createFileRoute, useRouteContext } from "@tanstack/react-router"
 import { Loading } from "@/components/custom/loading"
 import {
-  EmptyProjectsList,
-  type ProjectInsert,
-  ProjectsList,
-} from "#/components/custom/services/presentations"
+  EmptyPresentationsList,
+  type PresentationId,
+  type PresentationInsert,
+  PresentationsList,
+} from "@/components/custom/services/presentations"
+import { MINUTE } from "@/constants/constants"
 import { supabase } from "@/lib/supabase/client"
 
 export const Route = createFileRoute("/_authenticated/presentations")({
@@ -18,23 +20,43 @@ function Presentations() {
   const queryClient = useQueryClient()
 
   // Queries
-  const projectsQuery = useQuery({
+  const presentationsQuery = useQuery({
     queryKey: ["presentations"],
     queryFn: async () => {
-      // TODO: create API for such methods - GET /user_project
+      // TODO: create API for such methods - GET /user_presentation
       const { data, error } = await supabase
         .from("presentations")
         .select("*")
         .eq("user_id", user.user.id) // not strictly necessary due to RLS policy
+        .order("created_at")
       if (error) return `Error: ${error.message} \nCause: ${error.cause}`
 
       return data
     },
+    staleTime: MINUTE * 5,
+    refetchInterval: MINUTE * 20,
+    refetchIntervalInBackground: false,
   })
   // Mutations
-  const projectMutation = useMutation({
-    mutationFn: async (presentation: ProjectInsert) => {
-      const { error } = await supabase.from("presentations").insert(presentation)
+  const presentationCreateMutation = useMutation({
+    mutationFn: async (presentation: PresentationInsert) => {
+      const { error } = await supabase
+        .from("presentations")
+        .insert(presentation)
+      if (error)
+        throw new Error(`Error: ${error.message} \nCause: ${error.cause}`)
+    },
+    onSuccess: () => {
+      // Invalidate and refetch
+      queryClient.invalidateQueries({ queryKey: ["presentations"] })
+    },
+  })
+  const presentationDeleteMutation = useMutation({
+    mutationFn: async (id: PresentationId) => {
+      const { error } = await supabase
+        .from("presentations")
+        .delete()
+        .eq("id", id)
       if (error)
         throw new Error(`Error: ${error.message} \nCause: ${error.cause}`)
     },
@@ -46,22 +68,23 @@ function Presentations() {
 
   return (
     <div className="flex flex-col items-center justify-center">
-      {projectsQuery.isLoading ? (
+      {presentationsQuery.isLoading ? (
         <Loading />
-      ) : projectsQuery.isError ? (
-        <p>{`Error: ${projectsQuery.error.message}`}</p>
-      ) : projectsQuery.data === undefined
-        || typeof projectsQuery.data === "string"
-        || projectsQuery.data.length === 0 ? (
-        <EmptyProjectsList
+      ) : presentationsQuery.isError ? (
+        <p>{`Error: ${presentationsQuery.error.message}`}</p>
+      ) : presentationsQuery.data === undefined
+        || typeof presentationsQuery.data === "string"
+        || presentationsQuery.data.length === 0 ? (
+        <EmptyPresentationsList
           user={user.user}
-          projectsCreateFn={projectMutation.mutateAsync}
+          createFn={presentationCreateMutation.mutateAsync}
         />
       ) : (
-        <ProjectsList
+        <PresentationsList
           user={user.user}
-          projectsCreateFn={projectMutation.mutateAsync}
-          presentations={projectsQuery.data}
+          createFn={presentationCreateMutation.mutateAsync}
+          deleteFn={presentationDeleteMutation.mutateAsync}
+          presentations={presentationsQuery.data}
         />
       )}
     </div>
@@ -78,5 +101,3 @@ function Presentations() {
 //   id: string
 //   elements: Element[] // array order = back to front
 // }
-
-// export function handleCreateNewProject() {}
