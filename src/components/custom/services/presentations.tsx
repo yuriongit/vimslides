@@ -23,7 +23,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet"
 import type { UseMutateAsyncFunction } from "@tanstack/react-query"
-import { ArrowUpRightIcon, Ellipsis, EllipsisVertical, Pencil, Trash } from "lucide-react"
+import { ArrowUpRightIcon, Ellipsis, Pencil, Trash } from "lucide-react"
 import type { Database } from "@/../database.types"
 import { useState } from "react"
 import type { User } from "@supabase/supabase-js"
@@ -38,17 +38,24 @@ import {
 } from "@/components/ui/item"
 
 export type Presentation = Database["public"]["Tables"]["presentations"]["Row"]
-export type ProjectInsert = Database["public"]["Tables"]["presentations"]["Insert"]
+export type PresentationId = Database["public"]["Tables"]["presentations"]["Row"]["id"]
+export type PresentationInsert = Database["public"]["Tables"]["presentations"]["Insert"]
 
-export function ProjectsList(
-  { user, presentations, projectsCreateFn }:
+export function PresentationsList(
+  {
+    user,
+    presentations,
+    createFn,
+    deleteFn
+  }:
   {
     presentations: Presentation[]
     user: User
-    projectsCreateFn: UseMutateAsyncFunction<void, Error, ProjectInsert>
+    createFn: UseMutateAsyncFunction<void, Error, PresentationInsert>
+    deleteFn: UseMutateAsyncFunction<void, Error, PresentationId>
   }
 ) {
-  function ProjectActionsDropdown() {
+  function PresentationActionsDropdown({id}: {id: PresentationId}) {
     return (
       <DropdownMenu>
         <DropdownMenuTrigger className={buttonVariants({size: "sm", variant: "ghost"})}>
@@ -61,7 +68,7 @@ export function ProjectsList(
               <Pencil/> Edit metadata
             </DropdownMenuItem>
           </DropdownMenuGroup>
-          <DropdownMenuItem variant="destructive">
+          <DropdownMenuItem variant="destructive" onClick={async () => await deleteFn(id)}>
             <Trash />
               Delete
             </DropdownMenuItem>
@@ -82,9 +89,9 @@ export function ProjectsList(
             All your presentations - manage them here.
           </p>
         </div>
-        <CreateProjectSheet
+        <CreatePresentationSheet
           user={user}
-          projectsCreateFn={projectsCreateFn} />
+          createFn={createFn} />
       </div>
       <Separator/>
       <ItemGroup className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4overflow-hidden overflow-y-auto scrollbar-none min-h-full h-full w-full min-w-full mt-2 ">
@@ -97,6 +104,7 @@ export function ProjectsList(
                   loading="lazy"
                   // TODO: add `preview_url` to DB schema - not in the database
                   // Temporarily serving a placeholder image
+                  //@ts-expect-error - TODO: replace
                   src={p?.preview_url ?? "https://images.unsplash.com/photo-1650804068570-7fb2e3dbf888?q=80&w=640&auto=format&fit=crop"}
                   alt={`Presentation - ${p.title}`}
                   className="aspect-video rounded-sm object-cover"
@@ -115,7 +123,7 @@ export function ProjectsList(
               </ItemContent>
 
               <ItemActions>
-                <ProjectActionsDropdown/>
+                <PresentationActionsDropdown id={p.id} />
               </ItemActions>
             </Item>
           )
@@ -125,12 +133,12 @@ export function ProjectsList(
   )
 }
 
-export function EmptyProjectsList({
+export function EmptyPresentationsList({
   user,
-  projectsCreateFn,
+  createFn,
 }: {
   user: User
-  projectsCreateFn: UseMutateAsyncFunction<void, Error, ProjectInsert>
+  createFn: UseMutateAsyncFunction<void, Error, PresentationInsert>
 }) {
   return (
     <div>
@@ -143,9 +151,9 @@ export function EmptyProjectsList({
           </EmptyDescription>
         </EmptyHeader>
         <EmptyContent className="flex-row justify-center gap-2">
-          <CreateProjectSheet
+          <CreatePresentationSheet
             user={user}
-            projectsCreateFn={projectsCreateFn} />
+            createFn={createFn} />
           <Button variant="outline">Import</Button>
         </EmptyContent>
         <Button
@@ -170,11 +178,11 @@ export function EmptyProjectsList({
   )
 }
 
-function CreateProjectSheet(
-  { user, projectsCreateFn }:
+function CreatePresentationSheet(
+  { user, createFn }:
     {
       user: User,
-      projectsCreateFn: UseMutateAsyncFunction<void, Error, ProjectInsert>
+      createFn: UseMutateAsyncFunction<void, Error, PresentationInsert>
     }
 ) {
   const [sheetOpen, setSheetOpen] = useState(false)
@@ -216,12 +224,12 @@ function CreateProjectSheet(
             type="submit"
             onClick={async () => {
               try {
-                await projectsCreateFn({
+                await createFn({
                   user_id: user.id,
                   title: sheetTitle,
                   description: sheetDesc || null,
                   slide_count: 0,
-                  // Workers will update the project entry's URL with the new file (from queue work)
+                  // Workers will update the presentation entry's URL with the new file (from queue work)
                   file_url: "",
                 })
                 setSheetOpen(false)
