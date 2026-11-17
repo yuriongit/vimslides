@@ -11,7 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as PublicRouteImport } from './routes/_public'
-import { Route as AuthenticatedProjectsRouteImport } from './routes/_authenticated/projects'
+import { Route as AuthenticatedPresentationsRouteImport } from './routes/_authenticated/presentations'
 import { Route as PublicIndexRouteImport } from './routes/_public/index'
 import { Route as PublicLoginRouteImport } from './routes/_public/login'
 import { Route as PublicSignUpRouteImport } from './routes/_public/sign-up'
@@ -24,11 +24,12 @@ const PublicRoute = PublicRouteImport.update({
   id: '/_public',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedProjectsRoute = AuthenticatedProjectsRouteImport.update({
-  id: '/projects',
-  path: '/projects',
-  getParentRoute: () => AuthenticatedRoute,
-} as any)
+const AuthenticatedPresentationsRoute =
+  AuthenticatedPresentationsRouteImport.update({
+    id: '/presentations',
+    path: '/presentations',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const PublicIndexRoute = PublicIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -47,13 +48,13 @@ const PublicSignUpRoute = PublicSignUpRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof PublicIndexRoute
-  '/projects': typeof AuthenticatedProjectsRoute
+  '/presentations': typeof AuthenticatedPresentationsRoute
   '/login': typeof PublicLoginRoute
   '/sign-up': typeof PublicSignUpRoute
 }
 export interface FileRoutesByTo {
   '/': typeof PublicIndexRoute
-  '/projects': typeof AuthenticatedProjectsRoute
+  '/presentations': typeof AuthenticatedPresentationsRoute
   '/login': typeof PublicLoginRoute
   '/sign-up': typeof PublicSignUpRoute
 }
@@ -61,21 +62,21 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/_public': typeof PublicRouteWithChildren
-  '/_authenticated/projects': typeof AuthenticatedProjectsRoute
+  '/_authenticated/presentations': typeof AuthenticatedPresentationsRoute
   '/_public/login': typeof PublicLoginRoute
   '/_public/sign-up': typeof PublicSignUpRoute
   '/_public/': typeof PublicIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/projects' | '/login' | '/sign-up'
+  fullPaths: '/' | '/presentations' | '/login' | '/sign-up'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/projects' | '/login' | '/sign-up'
+  to: '/' | '/presentations' | '/login' | '/sign-up'
   id:
     | '__root__'
     | '/_authenticated'
     | '/_public'
-    | '/_authenticated/projects'
+    | '/_authenticated/presentations'
     | '/_public/login'
     | '/_public/sign-up'
     | '/_public/'
@@ -102,11 +103,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PublicRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/projects': {
-      id: '/_authenticated/projects'
-      path: '/projects'
-      fullPath: '/projects'
-      preLoaderRoute: typeof AuthenticatedProjectsRouteImport
+    '/_authenticated/presentations': {
+      id: '/_authenticated/presentations'
+      path: '/presentations'
+      fullPath: '/presentations'
+      preLoaderRoute: typeof AuthenticatedPresentationsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_public/': {
@@ -134,11 +135,11 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteChildren {
-  AuthenticatedProjectsRoute: typeof AuthenticatedProjectsRoute
+  AuthenticatedPresentationsRoute: typeof AuthenticatedPresentationsRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
-  AuthenticatedProjectsRoute: AuthenticatedProjectsRoute,
+  AuthenticatedPresentationsRoute: AuthenticatedPresentationsRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(

@@ -16,7 +16,7 @@ export const Route = createFileRoute("/_public/login")({
     } = await supabase.auth.getSession()
 
     if (session) {
-      throw redirect({ href: search.redirect ?? "/projects" })
+      throw redirect({ href: search.redirect ?? "/presentations" })
     }
   },
   component: Login,

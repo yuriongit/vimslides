@@ -5,25 +5,25 @@ import {
   EmptyProjectsList,
   type ProjectInsert,
   ProjectsList,
-} from "@/components/custom/services/projects"
+} from "#/components/custom/services/presentations"
 import { supabase } from "@/lib/supabase/client"
 
-export const Route = createFileRoute("/_authenticated/projects")({
-  component: Projects,
+export const Route = createFileRoute("/_authenticated/presentations")({
+  component: Presentations,
 })
 
-function Projects() {
+function Presentations() {
   const user = useRouteContext({ from: "/_authenticated" })
   // Access the client
   const queryClient = useQueryClient()
 
   // Queries
   const projectsQuery = useQuery({
-    queryKey: ["projects"],
+    queryKey: ["presentations"],
     queryFn: async () => {
       // TODO: create API for such methods - GET /user_project
       const { data, error } = await supabase
-        .from("projects")
+        .from("presentations")
         .select("*")
         .eq("user_id", user.user.id) // not strictly necessary due to RLS policy
       if (error) return `Error: ${error.message} \nCause: ${error.cause}`
@@ -33,14 +33,14 @@ function Projects() {
   })
   // Mutations
   const projectMutation = useMutation({
-    mutationFn: async (project: ProjectInsert) => {
-      const { error } = await supabase.from("projects").insert(project)
+    mutationFn: async (presentation: ProjectInsert) => {
+      const { error } = await supabase.from("presentations").insert(presentation)
       if (error)
         throw new Error(`Error: ${error.message} \nCause: ${error.cause}`)
     },
     onSuccess: () => {
       // Invalidate and refetch
-      queryClient.invalidateQueries({ queryKey: ["projects"] })
+      queryClient.invalidateQueries({ queryKey: ["presentations"] })
     },
   })
 
@@ -61,7 +61,7 @@ function Projects() {
         <ProjectsList
           user={user.user}
           projectsCreateFn={projectMutation.mutateAsync}
-          projects={projectsQuery.data}
+          presentations={projectsQuery.data}
         />
       )}
     </div>

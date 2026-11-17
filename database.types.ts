@@ -34,7 +34,7 @@ export type Database = {
   }
   public: {
     Tables: {
-      projects: {
+      presentations: {
         Row: {
           created_at: string
           description: string | null
