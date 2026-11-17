@@ -19,7 +19,7 @@ const queryClient = new QueryClient({
   },
 })
 
-// biome-ignore lint: --
+// biome-ignore lint: -- boilerplate
 const rootElement = document.getElementById("app")!
 
 if (!rootElement.innerHTML) {
