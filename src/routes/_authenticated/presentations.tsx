@@ -1,7 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { createFileRoute, useRouteContext } from "@tanstack/react-router"
 import { Loading } from "@/components/custom/loading"
-import { EmptyPresentationsList } from "@/components/custom/services/empty-presentations"
 import type {
   PresentationId,
   PresentationInsert,
@@ -29,7 +28,7 @@ function Presentations() {
         .select("*")
         .eq("user_id", user.user.id) // not strictly necessary due to RLS policy
         .order("created_at")
-      if (error) return `Error: ${error.message} \nCause: ${error.cause}`
+      if (error) throw error.message
 
       return data
     },
@@ -72,19 +71,12 @@ function Presentations() {
         <Loading />
       ) : presentationsQuery.isError ? (
         <p>{`Error: ${presentationsQuery.error.message}`}</p>
-      ) : presentationsQuery.data === undefined
-        || typeof presentationsQuery.data === "string"
-        || presentationsQuery.data.length === 0 ? (
-        <EmptyPresentationsList
-          user={user.user}
-          createFn={presentationCreateMutation.mutateAsync}
-        />
       ) : (
         <PresentationsList
           user={user.user}
           createFn={presentationCreateMutation.mutateAsync}
           deleteFn={presentationDeleteMutation.mutateAsync}
-          presentations={presentationsQuery.data}
+          presentations={presentationsQuery.data ?? []}
         />
       )}
     </div>

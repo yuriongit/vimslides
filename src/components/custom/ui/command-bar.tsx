@@ -70,7 +70,7 @@ export function PresentationsCmdBar({
   return (
     <CommandDialog open={open} onOpenChange={onOpenChange}>
       <Command>
-        <CommandInput placeholder="execute a command…" />
+        <CommandInput className="font-mono" placeholder="Execute a command…" />
 
         <CommandList>
           <CommandEmpty>No results found.</CommandEmpty>

@@ -11,7 +11,7 @@ type PresentationCommands = {
   onClose: () => void
 }
 
-export function usePresentationCommands({
+export function definePresentationCommands({
   onCreate,
   onDelete,
   onSync,
@@ -29,8 +29,8 @@ export function usePresentationCommands({
       execute: onDelete,
     },
     {
-      name: ":refresh",
-      description: "Refresh presentations",
+      name: ":sync",
+      description: "Sync / refresh presentations",
       execute: onSync,
     },
     {
