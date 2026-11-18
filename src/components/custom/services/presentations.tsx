@@ -2,7 +2,10 @@ import type { User } from "@supabase/supabase-js"
 import type { UseMutateAsyncFunction } from "@tanstack/react-query"
 import { Ellipsis, Pencil, Trash } from "lucide-react"
 import { useState } from "react"
-import { CreatePresentationSheet } from "@/components/custom/services/create-presentation"
+import {
+  CreatePresentationSheet,
+  useCreatePresentation,
+} from "@/components/custom/services/create-presentation"
 import type {
   Presentation,
   PresentationId,
@@ -33,17 +36,9 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import {
-  Item,
-  ItemActions,
-  ItemContent,
-  ItemDescription,
-  ItemGroup,
-  ItemHeader,
-  ItemTitle,
-} from "@/components/ui/item"
-import { Separator } from "@/components/ui/separator"
 import { toast } from "@/components/ui/toast"
+import { ItemGroup, Item, ItemHeader, ItemContent, ItemTitle, ItemDescription, ItemActions } from "@/components/ui/item"
+import { Separator } from "@/components/ui/separator"
 
 export function PresentationsList({
   user,
@@ -56,12 +51,18 @@ export function PresentationsList({
   createFn: UseMutateAsyncFunction<void, Error, PresentationInsert>
   deleteFn: UseMutateAsyncFunction<void, Error, PresentationId>
 }) {
+  const {
+    open: createSheetOpen,
+    setOpen: setCreateSheetOpen,
+    openCreatePresentation,
+    createPresentation,
+  } = useCreatePresentation({ user, createFn })
+  
   const [openCmdBar, setOpenCmdBar] = useState(false)
   usePresentationsViewBar(openCmdBar, setOpenCmdBar)
+  
   const commands = definePresentationCommands({
-    onCreate: () => {
-      // Open your create presentation flow
-    },
+    onCreate: openCreatePresentation,
     onDelete: () => {
       // Open your delete presentation flow
     },
@@ -88,10 +89,15 @@ export function PresentationsList({
               All your presentations - manage them here.
             </p>
           </div>
-          <CreatePresentationSheet user={user} createFn={createFn} />
+          <CreatePresentationSheet
+            toggleBtn={true}
+            open={createSheetOpen}
+            onOpenChange={setCreateSheetOpen}
+            onSubmit={createPresentation}
+          />
         </div>
         <Separator />
-        <ItemGroup className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4overflow-hidden overflow-y-auto scrollbar-none min-h-full h-full w-full min-w-full mt-2 ">
+        <ItemGroup className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4overflow-hidden overflow-y-auto scrollbar-none min-h-full h-full w-full min-w-full mt-2">
           {presentations.map((p, idx) => {
             idx += 1
             return (
