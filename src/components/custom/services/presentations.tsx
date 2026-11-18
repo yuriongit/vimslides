@@ -16,17 +16,7 @@ import {
   PresentationsCmdBar,
   usePresentationsViewBar,
 } from "@/components/custom/ui/command-bar"
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
+import { DeletePresentationDialog } from "@/components/custom/services/command-bar/delete-presentation-dialog"
 import { Button, buttonVariants } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -62,11 +52,28 @@ export function PresentationsList({
   const [openCmdBar, setOpenCmdBar] = useState(false)
   usePresentationsViewBar(openCmdBar, setOpenCmdBar)
   
+  // target and open are separate so the title doesn't vanish during the close animation
+  const [deleteTarget, setDeleteTarget] = useState<Presentation | null>(null)
+  const [deleteOpen, setDeleteOpen] = useState(false)
+  
+  function requestDelete(presentation: Presentation) {
+    setDeleteTarget(presentation)
+    setDeleteOpen(true)
+  }
+  
+  function confirmDelete() {
+    if (!deleteTarget) return
+    setDeleteOpen(false)
+    toast.promise(deleteFn(deleteTarget.id), {
+      loading: "Deleting presentation",
+      error: "Failed to delete presentation",
+      success: "Successfully deleted presentation",
+    })
+  }
+  
   const commands = definePresentationCommands({
     onCreate: openCreatePresentation,
-    onDelete: () => {
-      // Open your delete presentation flow
-    },
+    onDelete: requestDelete,
     onSync: () => {
       // Sync (refresh) presentations
     },
@@ -76,10 +83,17 @@ export function PresentationsList({
   return (
     <>
       <PresentationsCmdBar
-        open={openCmdBar}
-        onOpenChange={setOpenCmdBar}
-        commands={commands}
-      />
+          open={openCmdBar}
+          onOpenChange={setOpenCmdBar}
+          commands={commands}
+          presentations={presentations}
+        />
+        <DeletePresentationDialog
+          open={deleteOpen}
+          onOpenChange={setDeleteOpen}
+          title={deleteTarget?.title}
+          onConfirm={confirmDelete}
+        />
       {
         presentations.length >= 1 ?
         // List of projects view
@@ -123,7 +137,6 @@ export function PresentationsList({
   
                   <ItemContent>
                     <ItemTitle>
-                      <code className="font-mono text-primary">:{idx}</code>{" "}
                       {p.title}
                     </ItemTitle>
                     <ItemDescription>
@@ -132,10 +145,7 @@ export function PresentationsList({
                   </ItemContent>
   
                   <ItemActions>
-                    <PresentationActionsDropdown
-                      id={p.id}
-                      deleteFn={deleteFn}
-                    />
+                    <PresentationActionsDropdown onDelete={() => requestDelete(p)} />
                   </ItemActions>
                 </Item>
               )
@@ -183,10 +193,7 @@ export function PresentationsList({
   )
 }
 
-function PresentationActionsDropdown(
-  { id, deleteFn }:
-  { id: PresentationId, deleteFn: UseMutateAsyncFunction<void, Error, PresentationId> }
-) {
+function PresentationActionsDropdown({ onDelete }: { onDelete: () => void }) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
@@ -194,58 +201,16 @@ function PresentationActionsDropdown(
       >
         <Ellipsis />
       </DropdownMenuTrigger>
-      <DropdownMenuContent className={"w-full"}>
+      <DropdownMenuContent className="w-full">
         <DropdownMenuGroup>
           <DropdownMenuLabel>Management</DropdownMenuLabel>
           <DropdownMenuItem>
             <Pencil /> Edit metadata
           </DropdownMenuItem>
         </DropdownMenuGroup>
-        <DropdownMenuItem
-          className={"w-full"}
-          render={
-            <AlertDialog>
-              <AlertDialogTrigger
-                render={
-                  <Button
-                    className={buttonVariants({
-                      variant: "destructive",
-                      className: "w-full justify-start",
-                    })}
-                  >
-                    <Trash /> Delete{" "}
-                  </Button>
-                }
-              />
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>
-                    Are you absolutely sure?
-                  </AlertDialogTitle>
-                  <AlertDialogDescription>
-                    This action cannot be undone. This will permanently delete
-                    your presentation from our servers.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction
-                    variant={"destructive"}
-                    onClick={() => {
-                      toast.promise(deleteFn(id), {
-                        loading: "Deleting presentation",
-                        error: "Failed to delete presentation",
-                        success: "Successfully deleted presentation",
-                      })
-                    }}
-                  >
-                    Confirm
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-          }
-        ></DropdownMenuItem>
+        <DropdownMenuItem variant="destructive" onClick={onDelete}>
+          <Trash /> Delete
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   )
