@@ -1,12 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { createFileRoute, useRouteContext } from "@tanstack/react-router"
 import { Loading } from "@/components/custom/loading"
-import {
-  EmptyPresentationsList,
-  type PresentationId,
-  type PresentationInsert,
-  PresentationsList,
-} from "@/components/custom/services/presentations"
+import { EmptyPresentationsList } from "@/components/custom/services/empty-presentations"
+import type {
+  PresentationId,
+  PresentationInsert,
+} from "@/components/custom/services/presentation.types"
+import { PresentationsList } from "@/components/custom/services/presentations"
 import { MINUTE } from "@/constants/constants"
 import { supabase } from "@/lib/supabase/client"
 
