@@ -115,7 +115,7 @@ export function PresentationsList({
             />
           </div>
           <Separator />
-          <ItemGroup className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4overflow-hidden overflow-y-auto scrollbar-none min-h-full h-full w-full min-w-full mt-2">
+          <ItemGroup className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 overflow-hidden overflow-y-auto scrollbar-none min-h-full h-full w-full min-w-full mt-2">
             {presentations.map((p, idx) => {
               idx += 1
               return (
