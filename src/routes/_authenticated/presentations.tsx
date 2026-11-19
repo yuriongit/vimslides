@@ -3,6 +3,7 @@ import { createFileRoute, useRouteContext } from "@tanstack/react-router"
 import { Loading } from "@/components/custom/loading"
 import { PresentationsList } from "@/components/custom/services/presentations/home/presentations"
 import type {
+  Presentation,
   PresentationId,
   PresentationInsert,
 } from "@/components/custom/services/presentations/presentation.types"
@@ -21,7 +22,7 @@ function Presentations() {
   // Queries
   const presentationsQuery = useQuery({
     queryKey: ["presentations"],
-    queryFn: async () => {
+    queryFn: async (): Promise<Presentation[]> => {
       // TODO: create API for such methods - GET /user_presentation
       const { data, error } = await supabase
         .from("presentations")
@@ -74,9 +75,11 @@ function Presentations() {
       ) : (
         <PresentationsList
           user={user.user}
+          presentations={presentationsQuery.data ?? []}
+          syncFn={() => presentationsQuery.refetch({ throwOnError: true })}
+          // ={presentationsQuery.refetch}
           createFn={presentationCreateMutation.mutateAsync}
           deleteFn={presentationDeleteMutation.mutateAsync}
-          presentations={presentationsQuery.data ?? []}
         />
       )}
     </div>

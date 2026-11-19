@@ -1,6 +1,12 @@
 import type { User } from "@supabase/supabase-js"
 import type { UseMutateAsyncFunction } from "@tanstack/react-query"
-import { ArrowUpRightIcon, Ellipsis, Pencil, Trash } from "lucide-react"
+import {
+  ArrowUpRightIcon,
+  Ellipsis,
+  Pencil,
+  RefreshCcw,
+  Trash,
+} from "lucide-react"
 import { useState } from "react"
 import { DeletePresentationDialog } from "@/components/custom/services/presentations/home/command-bar/delete-presentation-dialog"
 import {
@@ -49,11 +55,13 @@ export function PresentationsList({
   user,
   presentations,
   createFn,
+  syncFn,
   deleteFn,
 }: {
   presentations: Presentation[]
   user: User
   createFn: UseMutateAsyncFunction<void, Error, PresentationInsert>
+  syncFn: () => Promise<unknown>
   deleteFn: UseMutateAsyncFunction<void, Error, PresentationId>
 }) {
   const {
@@ -85,12 +93,18 @@ export function PresentationsList({
     })
   }
 
+  function syncPresentations() {
+    toast.promise(syncFn(), {
+      loading: "Syncing presentations",
+      error: "Failed to sync presentations",
+      success: "Presentations synced",
+    })
+  }
+
   const commands = definePresentationCommands({
     onCreate: openCreatePresentation,
     onDelete: requestDelete,
-    onSync: () => {
-      // Sync (refresh) presentations
-    },
+    onSync: syncPresentations,
     onClose: () => setOpenCmdBar(false),
   })
 
@@ -120,12 +134,17 @@ export function PresentationsList({
                 All your presentations - manage them here.
               </p>
             </div>
-            <CreatePresentationSheet
-              toggleBtn={true}
-              open={createSheetOpen}
-              onOpenChange={setCreateSheetOpen}
-              onSubmit={createPresentation}
-            />
+            <div className="flex gap-1">
+              <Button variant={"ghost"} onClick={syncPresentations}>
+                <RefreshCcw />
+              </Button>
+              <CreatePresentationSheet
+                toggleBtn={true}
+                open={createSheetOpen}
+                onOpenChange={setCreateSheetOpen}
+                onSubmit={createPresentation}
+              />
+            </div>
           </div>
           <Separator />
           <ItemGroup className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 overflow-hidden overflow-y-auto scrollbar-none h-fit w-full min-w-full mt-2">
