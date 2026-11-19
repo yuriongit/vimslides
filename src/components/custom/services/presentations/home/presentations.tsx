@@ -2,21 +2,21 @@ import type { User } from "@supabase/supabase-js"
 import type { UseMutateAsyncFunction } from "@tanstack/react-query"
 import { ArrowUpRightIcon, Ellipsis, Pencil, Trash } from "lucide-react"
 import { useState } from "react"
+import { DeletePresentationDialog } from "@/components/custom/services/presentations/home/command-bar/delete-presentation-dialog"
 import {
   CreatePresentationSheet,
   useCreatePresentation,
 } from "@/components/custom/services/presentations/home/create-presentation"
+import { definePresentationCommands } from "@/components/custom/services/presentations/home/presentation-commands"
 import type {
   Presentation,
   PresentationId,
   PresentationInsert,
 } from "@/components/custom/services/presentations/presentation.types"
-import { definePresentationCommands } from "@/components/custom/services/presentations/home/presentation-commands"
 import {
   PresentationsCmdBar,
   usePresentationsViewBar,
 } from "@/components/custom/ui/command-bar"
-import { DeletePresentationDialog } from "@/components/custom/services/presentations/home/command-bar/delete-presentation-dialog"
 import { Button, buttonVariants } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -26,10 +26,24 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { toast } from "@/components/ui/toast"
-import { ItemGroup, Item, ItemHeader, ItemContent, ItemTitle, ItemDescription, ItemActions } from "@/components/ui/item"
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyTitle,
+} from "@/components/ui/empty"
+import {
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemDescription,
+  ItemGroup,
+  ItemHeader,
+  ItemTitle,
+} from "@/components/ui/item"
 import { Separator } from "@/components/ui/separator"
-import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyTitle } from "@/components/ui/empty"
+import { toast } from "@/components/ui/toast"
 
 export function PresentationsList({
   user,
@@ -48,19 +62,19 @@ export function PresentationsList({
     openCreatePresentation,
     createPresentation,
   } = useCreatePresentation({ user, createFn })
-  
+
   const [openCmdBar, setOpenCmdBar] = useState(false)
   usePresentationsViewBar(openCmdBar, setOpenCmdBar)
-  
+
   // target and open are separate so the title doesn't vanish during the close animation
   const [deleteTarget, setDeleteTarget] = useState<Presentation | null>(null)
   const [deleteOpen, setDeleteOpen] = useState(false)
-  
+
   function requestDelete(presentation: Presentation) {
     setDeleteTarget(presentation)
     setDeleteOpen(true)
   }
-  
+
   function confirmDelete() {
     if (!deleteTarget) return
     setDeleteOpen(false)
@@ -70,7 +84,7 @@ export function PresentationsList({
       success: "Successfully deleted presentation",
     })
   }
-  
+
   const commands = definePresentationCommands({
     onCreate: openCreatePresentation,
     onDelete: requestDelete,
@@ -83,19 +97,18 @@ export function PresentationsList({
   return (
     <>
       <PresentationsCmdBar
-          open={openCmdBar}
-          onOpenChange={setOpenCmdBar}
-          commands={commands}
-          presentations={presentations}
-        />
-        <DeletePresentationDialog
-          open={deleteOpen}
-          onOpenChange={setDeleteOpen}
-          title={deleteTarget?.title}
-          onConfirm={confirmDelete}
-        />
-      {
-        presentations.length >= 1 ?
+        open={openCmdBar}
+        onOpenChange={setOpenCmdBar}
+        commands={commands}
+        presentations={presentations}
+      />
+      <DeletePresentationDialog
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        title={deleteTarget?.title}
+        onConfirm={confirmDelete}
+      />
+      {presentations.length >= 1 ? (
         // List of projects view
         <main className="rounded-sm bg-card p-8 flex flex-col gap-5 xl:h-[53em] min-h-full xl:max-w-8xl w-full">
           <div className="flex justify-between min-w-full items-center">
@@ -133,25 +146,23 @@ export function PresentationsList({
                       className="aspect-video rounded-sm object-cover"
                     />
                   </ItemHeader>
-  
+
                   <ItemContent>
-                    <ItemTitle>
-                      {p.title}
-                    </ItemTitle>
-                    <ItemDescription>
-                      {p.description ?? "N/A"}
-                    </ItemDescription>
+                    <ItemTitle>{p.title}</ItemTitle>
+                    <ItemDescription>{p.description ?? "N/A"}</ItemDescription>
                   </ItemContent>
-  
+
                   <ItemActions>
-                    <PresentationActionsDropdown onDelete={() => requestDelete(p)} />
+                    <PresentationActionsDropdown
+                      onDelete={() => requestDelete(p)}
+                    />
                   </ItemActions>
                 </Item>
               )
             })}
           </ItemGroup>
         </main>
-        :
+      ) : (
         // Empty "list" of projects view
         <Empty>
           <EmptyHeader>
@@ -187,7 +198,7 @@ export function PresentationsList({
             }
           />
         </Empty>
-      }
+      )}
     </>
   )
 }

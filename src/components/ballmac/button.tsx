@@ -1,6 +1,6 @@
-import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
 import { Slot } from "radix-ui"
+import type * as React from "react"
 
 import { cn } from "@/lib/utils"
 
@@ -11,12 +11,14 @@ const buttonVariants = cva(
       variant: {
         default:
           "bg-primary text-primary-foreground shadow-[inset_0_1px_0_0_rgb(255_255_255/0.12),0_1px_2px_0_rgb(0_0_0/0.12)] hover:bg-primary/90",
-        secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+        secondary:
+          "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         outline:
           "border border-border bg-background shadow-xs hover:border-foreground/20 hover:bg-accent hover:text-accent-foreground",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-foreground underline-offset-4 hover:underline",
-        destructive: "bg-destructive text-white hover:bg-destructive/90 dark:bg-destructive/60 dark:hover:bg-destructive/50 focus-visible:ring-destructive/40",
+        destructive:
+          "bg-destructive text-white hover:bg-destructive/90 dark:bg-destructive/60 dark:hover:bg-destructive/50 focus-visible:ring-destructive/40",
       },
       size: {
         sm: "h-[var(--bm-control-h-sm,calc(var(--spacing)*8))] gap-1.5 px-3 text-[13px]",
@@ -31,7 +33,7 @@ const buttonVariants = cva(
       },
     },
     defaultVariants: { variant: "default", size: "default", shape: "default" },
-  }
+  },
 )
 
 type ButtonProps = React.ComponentProps<"button"> &
@@ -65,14 +67,36 @@ function Button({
     >
       {loading && !asChild ? (
         <>
-          <span className="absolute inset-0 flex items-center justify-center" aria-hidden="true">
-            <svg className="size-4 animate-spin" viewBox="0 0 24 24" fill="none">
-              <circle cx="12" cy="12" r="9" stroke="currentColor" strokeOpacity="0.25" strokeWidth="3" />
-              <path d="M21 12a9 9 0 0 0-9-9" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+          <span
+            className="absolute inset-0 flex items-center justify-center"
+            aria-hidden="true"
+          >
+            {/* biome-ignore lint: UI component*/}
+            <svg
+              className="size-4 animate-spin"
+              viewBox="0 0 24 24"
+              fill="none"
+            >
+              <circle
+                cx="12"
+                cy="12"
+                r="9"
+                stroke="currentColor"
+                strokeOpacity="0.25"
+                strokeWidth="3"
+              />
+              <path
+                d="M21 12a9 9 0 0 0-9-9"
+                stroke="currentColor"
+                strokeWidth="3"
+                strokeLinecap="round"
+              />
             </svg>
           </span>
           {/* opacity, not visibility: the label stays in the accessibility tree, so a busy button still has a name */}
-          <span className="inline-flex items-center gap-2 opacity-0">{children}</span>
+          <span className="inline-flex items-center gap-2 opacity-0">
+            {children}
+          </span>
         </>
       ) : (
         children

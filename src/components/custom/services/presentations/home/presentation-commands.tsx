@@ -31,9 +31,29 @@ export function definePresentationCommands({
   onDelete,
 }: PresentationCommands): PresentationCommand[] {
   return [
-    { kind: "action", name: ":newp", description: "Create presentation", execute: onCreate },
-    { kind: "picker", name: ":delp", description: "Delete presentation", onPick: onDelete },
-    { kind: "action", name: ":sync", description: "Sync / refresh presentations", execute: onSync },
-    { kind: "action", name: ":q", description: "Close command bar", execute: onClose },
+    {
+      kind: "action",
+      name: ":newp",
+      description: "Create presentation",
+      execute: onCreate,
+    },
+    {
+      kind: "picker",
+      name: ":delp",
+      description: "Delete presentation",
+      onPick: onDelete,
+    },
+    {
+      kind: "action",
+      name: ":sync",
+      description: "Sync / refresh presentations",
+      execute: onSync,
+    },
+    {
+      kind: "action",
+      name: ":q",
+      description: "Close command bar",
+      execute: onClose,
+    },
   ]
 }
