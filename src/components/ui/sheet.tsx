@@ -1,5 +1,6 @@
 import { Dialog as SheetPrimitive } from "@base-ui/react/dialog"
 import { cn } from "cn"
+import { X } from "lucide-react"
 import type * as React from "react"
 import { Button } from "@/components/ui/button"
 
@@ -24,7 +25,7 @@ function SheetOverlay({ className, ...props }: SheetPrimitive.Backdrop.Props) {
     <SheetPrimitive.Backdrop
       data-slot="sheet-overlay"
       className={cn(
-        "fixed inset-0 z-50 bg-black/10 transition-opacity duration-150 data-ending-style:opacity-0 data-starting-style:opacity-0 supports-backdrop-filter:backdrop-blur-xs",
+        "fixed inset-0 pointer-events-none z-50 bg-black/10 transition-opacity duration-150 data-ending-style:opacity-0 data-starting-style:opacity-0 supports-backdrop-filter:backdrop-blur-xs",
         className,
       )}
       {...props}
@@ -60,7 +61,9 @@ function SheetContent({
                 variant="ghost"
                 className="absolute top-4 right-4"
                 size="icon-sm"
-              />
+              >
+                <X />
+              </Button>
             }
           >
             <span className="sr-only">Close</span>

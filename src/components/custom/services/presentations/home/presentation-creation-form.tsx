@@ -1,22 +1,37 @@
 import type { User } from "@supabase/supabase-js"
+import { useForm } from "@tanstack/react-form"
 import type { UseMutateAsyncFunction } from "@tanstack/react-query"
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import {
-  Sheet,
-  SheetContent,
-  SheetTrigger,
-} from "@/components/ui/sheet"
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from "@/components/ui/field"
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupText,
+  InputGroupTextarea,
+} from "@/components/ui/input-group"
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { toast } from "@/components/ui/toast"
+import { useInputComboShortcut } from "@/hooks/useInputComboShortcut"
 import {
   type PresentationCreationForm,
   PresentationCreationFormSchema,
 } from "../presentation.schemas"
 import type { PresentationInsert } from "../presentation.types"
-import { useForm } from "@tanstack/react-form"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field"
-import { InputGroup, InputGroupAddon, InputGroupText, InputGroupTextarea } from "@/components/ui/input-group"
 
 // Side-effect logic
 export function useCreatePresentation({
@@ -78,18 +93,26 @@ export function CreatePresentationSheet({
       description: "",
     },
     validators: {
-      onSubmit: PresentationCreationFormSchema, 
-      onChange: PresentationCreationFormSchema, 
+      onSubmit: PresentationCreationFormSchema,
+      onChange: PresentationCreationFormSchema,
     },
     onSubmit: async ({ value }) => {
       onSubmit(value)
       form.reset()
     },
   })
+  const onCreateShortcut = useInputComboShortcut({
+    keys: ["ctrl", "enter"],
+    handleSubmit: form.handleSubmit,
+  })
+  
+  const titleMaxLength = PresentationCreationFormSchema.shape.title.maxLength
+  const descriptionMaxLength =
+    PresentationCreationFormSchema.shape.description.options[1].maxLength
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      {toggleBtn && <SheetTrigger render={<Button>Create</Button>} />}
+      {toggleBtn && <SheetTrigger render={<Button shortcut=":newp">Create</Button>} />}
       <SheetContent>
         <Card className="w-full sm:max-w-md">
           <CardHeader>
@@ -122,7 +145,7 @@ export function CreatePresentationSheet({
                             Required.
                           </FieldDescription>
                         </FieldLabel>
-    
+
                         <InputGroup>
                           <InputGroupTextarea
                             id={field.name}
@@ -130,6 +153,7 @@ export function CreatePresentationSheet({
                             value={field.state.value}
                             onBlur={field.handleBlur}
                             onChange={(e) => field.handleChange(e.target.value)}
+                            onKeyDown={onCreateShortcut.onKeyDown}
                             aria-invalid={isInvalid}
                             placeholder="My Awesome Presentation Title…"
                             autoComplete="off"
@@ -138,11 +162,11 @@ export function CreatePresentationSheet({
                           />
                           <InputGroupAddon align="block-end">
                             <InputGroupText className="tabular-nums">
-                              {field.state.value.length}/100 characters
+                              {field.state.value.length}/{titleMaxLength}
                             </InputGroupText>
                           </InputGroupAddon>
                         </InputGroup>
-    
+
                         {isInvalid && (
                           <FieldError errors={field.state.meta.errors} />
                         )}
@@ -174,6 +198,7 @@ export function CreatePresentationSheet({
                             value={field.state.value}
                             onBlur={field.handleBlur}
                             onChange={(e) => field.handleChange(e.target.value)}
+                            onKeyDown={onCreateShortcut.onKeyDown}
                             placeholder="My awesome presentation description…"
                             rows={6}
                             className="min-h-24 resize-none"
@@ -181,7 +206,7 @@ export function CreatePresentationSheet({
                           />
                           <InputGroupAddon align="block-end">
                             <InputGroupText className="tabular-nums">
-                              {field.state.value.length}/250 characters
+                              {field.state.value.length}/{descriptionMaxLength}
                             </InputGroupText>
                           </InputGroupAddon>
                         </InputGroup>
@@ -196,12 +221,21 @@ export function CreatePresentationSheet({
             </form>
           </CardContent>
           <CardFooter>
-            <Field orientation="horizontal">
-              <Button type="button" variant="outline" onClick={() => form.reset()}>
+            <Field orientation="horizontal" className="justify-end">
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => form.reset()}
+              >
                 Reset
               </Button>
-              <Button type="submit" form="presentation-creation-form">
-                Submit
+              <Button
+                type="submit"
+                variant={"outline"}
+                form="presentation-creation-form"
+                shortcut={onCreateShortcut.shortcut}
+              >
+                Create
               </Button>
             </Field>
           </CardFooter>
@@ -210,63 +244,3 @@ export function CreatePresentationSheet({
     </Sheet>
   )
 }
-
-//     <Sheet open={open} onOpenChange={onOpenChange}>
-//       {toggleBtn && <SheetTrigger render={<Button>Create</Button>} />}
-// 
-//       <SheetContent>
-//         <SheetHeader>
-//           <SheetTitle>Create a new presentation</SheetTitle>
-//           <SheetDescription>
-//             Fill out basic metadata for your new presentation.
-//           </SheetDescription>
-//         </SheetHeader>
-// 
-//         <div className="grid flex-1 auto-rows-min gap-6 px-4">
-//           <div className="grid gap-3">
-//             <Label htmlFor="sheet-title-input">Title</Label>
-//             <Input
-//               id="sheet-title-input"
-//               value={presentationTitle}
-//               aria-invalid={!!errors.title}
-//               onEnter={handleCreatePresentation}
-//               onChange={(e) => {
-//                 setPresentationTitle(e.target.value)
-//                 if (errors.title)
-//                   setErrors((prev) => ({ ...prev, title: undefined }))
-//               }}
-//               placeholder="Vim is the Best!"
-//             />
-//             {errors.title && (
-//               <p className="text-sm text-destructive">{errors.title}</p>
-//             )}
-//           </div>
-// 
-//           <div className="grid gap-3">
-//             <Label htmlFor="sheet-desc-input">Description</Label>
-//             <Input
-//               id="sheet-desc-input"
-//               value={presentationDesc}
-//               aria-invalid={!!errors.description}
-//               onEnter={handleCreatePresentation}
-//               onChange={(e) => {
-//                 setPresentationDesc(e.target.value)
-//                 if (errors.description)
-//                   setErrors((prev) => ({ ...prev, description: undefined }))
-//               }}
-//               placeholder="Optional"
-//             />
-//             {errors.description && (
-//               <p className="text-sm text-destructive">{errors.description}</p>
-//             )}
-//           </div>
-//         </div>
-// 
-//         <SheetFooter>
-//           <Button type="submit" onClick={handleCreatePresentation}>
-//             Confirm
-//           </Button>
-//           <SheetClose render={<Button variant="outline">Close</Button>} />
-//         </SheetFooter>
-//       </SheetContent>
-//     </Sheet>

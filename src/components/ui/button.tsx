@@ -43,14 +43,40 @@ function Button({
   className,
   variant = "default",
   size = "default",
+  shortcut,
   ...props
-}: ButtonPrimitive.Props & VariantProps<typeof buttonVariants>) {
+}: ButtonPrimitive.Props &
+  VariantProps<typeof buttonVariants> & {
+    shortcut?: string
+  }) {
+  const shortcutVariants = {
+    default: "text-primary-foreground/60",
+    outline: "text-muted-foreground",
+    secondary: "text-secondary-foreground/60",
+    ghost: "text-muted-foreground",
+    destructive: "text-destructive/60",
+    link: "text-primary/60",
+  }
+
   return (
     <ButtonPrimitive
       data-slot="button"
       className={cn(buttonVariants({ variant, size, className }))}
       {...props}
-    />
+    >
+      {props.children}
+
+      {shortcut && (
+        <span
+          className={cn(
+            "ml-0.5 text-xs font-mono",
+            shortcutVariants[variant ?? "default"],
+          )}
+        >
+          | {shortcut}
+        </span>
+      )}
+    </ButtonPrimitive>
   )
 }
 
