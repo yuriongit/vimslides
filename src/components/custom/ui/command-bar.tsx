@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react"
-import type { Presentation } from "@/components/custom/services/presentations/presentation.types"
 import type {
   PickerCommand,
   PresentationCommand,
 } from "@/components/custom/services/presentations/home/presentation-commands"
+import type { Presentation } from "@/components/custom/services/presentations/presentation.types"
 import {
   Command,
   CommandDialog,
@@ -46,12 +46,12 @@ function formatDate(value?: string | null) {
   if (!value) return "N/A"
   const date = new Date(value)
   const currentDate = new Date()
-  if (date.getFullYear() == currentDate.getFullYear()) {
+  if (date.getFullYear() === currentDate.getFullYear()) {
     return date.toLocaleDateString(undefined, {
       month: "short",
       day: "numeric",
       hour: "2-digit",
-      minute: "2-digit"
+      minute: "2-digit",
     })
   }
   return date.toLocaleDateString(undefined, {
@@ -144,7 +144,7 @@ export function PresentationsCmdBar({
                   </div>
                 </CommandItem>
               </CommandGroup>
-              <CommandSeparator/>
+              <CommandSeparator />
               <CommandGroup heading={activePicker.description}>
                 {presentations.map((p) => (
                   <CommandItem
@@ -160,7 +160,7 @@ export function PresentationsCmdBar({
                           id={String(p.id)}
                         </span>
                       </div>
-                      
+
                       <div className="w-full flex flex-col">
                         <span className="shrink-0 text-xs text-primary">
                           {/*//@ts-expect-error - TODO: Add last_modified once files are available*/}

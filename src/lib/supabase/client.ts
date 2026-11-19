@@ -1,5 +1,5 @@
-import type { Database } from '@/../database.types'
-import { createClient as createSupabaseClient } from "@supabase/supabase-js";
+import { createClient as createSupabaseClient } from "@supabase/supabase-js"
+import type { Database } from "@/../database.types"
 
 export function createClient() {
   return createSupabaseClient<Database>(
@@ -9,8 +9,8 @@ export function createClient() {
       auth: {
         flowType: "pkce",
       },
-    }
-  );
+    },
+  )
 }
 
 export const supabase = createClient()

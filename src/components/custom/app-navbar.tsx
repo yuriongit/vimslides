@@ -10,8 +10,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { ModeToggle } from "../mode-toggle"
 import { supabase } from "@/lib/supabase/client"
+import { ModeToggle } from "../mode-toggle"
 
 export function AppNavbar() {
   const navigate = useNavigate()

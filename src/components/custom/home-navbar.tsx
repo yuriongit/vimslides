@@ -1,10 +1,10 @@
+import { Link } from "@tanstack/react-router"
 import {
   NavigationMenu,
   NavigationMenuItem,
   NavigationMenuLink,
   NavigationMenuList,
 } from "@/components/ui/navigation-menu"
-import { Link } from "@tanstack/react-router"
 import { ModeToggle } from "../mode-toggle"
 import { buttonVariants } from "../ui/button"
 
