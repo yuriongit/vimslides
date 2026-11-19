@@ -3,6 +3,7 @@ import type * as React from "react"
 
 function Label({ className, ...props }: React.ComponentProps<"label">) {
   return (
+    // biome-ignore lint: UI component
     <label
       data-slot="label"
       className={cn(

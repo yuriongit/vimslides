@@ -8,6 +8,7 @@ import { Separator } from "@/components/ui/separator"
 
 function ItemGroup({ className, ...props }: React.ComponentProps<"div">) {
   return (
+    // biome-ignore lint: UI component
     <div
       role="list"
       data-slot="item-group"

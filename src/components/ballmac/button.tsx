@@ -71,6 +71,7 @@ function Button({
             className="absolute inset-0 flex items-center justify-center"
             aria-hidden="true"
           >
+            {/* biome-ignore lint: UI component*/}
             <svg
               className="size-4 animate-spin"
               viewBox="0 0 24 24"
