@@ -1,4 +1,4 @@
-import type { Presentation } from "@/components/custom/services/presentation.types"
+import type { Presentation } from "@/components/custom/services/presentations/presentation.types"
 
 type CommandBase = {
   name: string

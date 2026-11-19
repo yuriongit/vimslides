@@ -25,7 +25,7 @@ function AuthenticatedLayout() {
   return (
     <div className="flex min-h-screen w-full flex-col">
       <AppNavbar />
-      <main className="mx-auto flex flex-col justify-center w-full max-w-7xl flex-1 px-6 py-6">
+      <main className="mx-auto flex flex-col justify-center w-full max-w-8xl flex-1 px-6 py-6">
         <Outlet />
         <Toaster />
       </main>

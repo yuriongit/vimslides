@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react"
-import type { Presentation } from "@/components/custom/services/presentation.types"
+import type { Presentation } from "@/components/custom/services/presentations/presentation.types"
 import type {
   PickerCommand,
   PresentationCommand,
-} from "@/components/custom/services/presentation-commands"
+} from "@/components/custom/services/presentations/home/presentation-commands"
 import {
   Command,
   CommandDialog,
@@ -48,9 +48,10 @@ function formatDate(value?: string | null) {
   const currentDate = new Date()
   if (date.getFullYear() == currentDate.getFullYear()) {
     return date.toLocaleDateString(undefined, {
-      // year: "numeric",
       month: "short",
       day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit"
     })
   }
   return date.toLocaleDateString(undefined, {
@@ -154,16 +155,19 @@ export function PresentationsCmdBar({
                   >
                     <div className="min-w-full">
                       <div className="flex min-w-full items-center justify-between gap-4">
-                        <span className="truncate w-full">{p.title}</span>
+                        <span className="truncate max-w-2xs">{p.title}</span>
                         <span className="shrink-0 font-mono text-xs text-muted-foreground">
                           id={String(p.id)}
                         </span>
                       </div>
                       
-                      <div className="w-full flex justify-between">
-                        <span className="shrink-0 font-mono text-xs text-muted-foreground">
+                      <div className="w-full flex flex-col">
+                        <span className="shrink-0 text-xs text-primary">
                           {/*//@ts-expect-error - TODO: Add last_modified once files are available*/}
-                          Modified: {formatDate(p?.last_modified)} / Created: {formatDate(p.created_at)}
+                          Modified: {formatDate(p?.last_modified)}
+                        </span>
+                        <span className="shrink-0 text-xs text-muted-foreground">
+                          Creation: {formatDate(p.created_at)}
                         </span>
                       </div>
                     </div>
