@@ -53,12 +53,18 @@ function Presentations() {
   })
   const presentationDeleteMutation = useMutation({
     mutationFn: async (id: PresentationId) => {
-      const { error } = await supabase
+      console.log("delete mutation")
+      const { data, error } = await supabase
         .from("presentations")
         .delete()
         .eq("id", id)
-      if (error)
-        throw new Error(`Error: ${error.message} \nCause: ${error.cause}`)
+        .select()
+
+      if (error) throw error
+      if (!data || data.length === 0)
+        // This error handling will happen server side
+        // Frontend will just perform `if (error) throw error`
+        throw new Error("Unauthorized: You do not have permission to perform this action.")
     },
     onSuccess: () => {
       // Invalidate and refetch
