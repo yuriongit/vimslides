@@ -1,19 +1,14 @@
 import type { User } from "@supabase/supabase-js"
 import type { UseMutateAsyncFunction } from "@tanstack/react-query"
-import {
-  ArrowUpRightIcon,
-  Ellipsis,
-  Pencil,
-  RefreshCcw,
-  Trash,
-} from "lucide-react"
+import { ArrowUpRightIcon, RefreshCcw } from "lucide-react"
 import { useState } from "react"
 import { DeletePresentationDialog } from "@/components/custom/services/presentations/home/command-bar/delete-presentation-dialog"
 import {
   CreatePresentationSheet,
   useCreatePresentation,
-} from "@/components/custom/services/presentations/home/create-presentation"
+} from "@/components/custom/services/presentations/home/presentation-creation-form"
 import { definePresentationCommands } from "@/components/custom/services/presentations/home/presentation-commands"
+import { PresentationActionsDropdown } from "@/components/custom/services/presentations/home/presentations-actions-dropdown"
 import type {
   Presentation,
   PresentationId,
@@ -23,15 +18,7 @@ import {
   PresentationsCmdBar,
   usePresentationsViewBar,
 } from "@/components/custom/ui/command-bar"
-import { Button, buttonVariants } from "@/components/ui/button"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+import { Button } from "@/components/ui/button"
 import {
   Empty,
   EmptyContent,
@@ -174,6 +161,7 @@ export function PresentationsList({
                     <ItemDescription>{p.description ?? "N/A"}</ItemDescription>
                   </ItemContent>
 
+                  <Separator />
                   <ItemActions>
                     <PresentationActionsDropdown
                       onDelete={() => requestDelete(p)}
@@ -222,31 +210,5 @@ export function PresentationsList({
         </Empty>
       )}
     </>
-  )
-}
-
-function PresentationActionsDropdown({ onDelete }: { onDelete: () => void }) {
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger
-        className={buttonVariants({ size: "sm", variant: "ghost" })}
-      >
-        <Ellipsis />
-      </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-full">
-        <DropdownMenuGroup>
-          <DropdownMenuLabel>Management</DropdownMenuLabel>
-          <DropdownMenuItem>
-            <Pencil /> Edit metadata
-          </DropdownMenuItem>
-        </DropdownMenuGroup>
-        <DropdownMenuItem onClick={onDelete} variant="destructive">
-          <Trash /> Delete
-        </DropdownMenuItem>
-        {/*<DropdownMenuItem onClick={onDelete} className={buttonVariants({variant: "destructive", className: "w-full justify-start"})}>
-          <Trash /> Delete
-        </DropdownMenuItem>*/}
-      </DropdownMenuContent>
-    </DropdownMenu>
   )
 }

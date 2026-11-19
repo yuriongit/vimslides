@@ -1,6 +1,6 @@
 import { Link, useNavigate, useRouteContext } from "@tanstack/react-router"
 import { Cog, LogOut, Pencil, UserCircle2 } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { Button, buttonVariants } from "@/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -78,10 +78,11 @@ function UserDropdownMenu({ email, onSignOut }: UserDropdownMenuProps) {
         <DropdownMenuSeparator />
 
         <DropdownMenuGroup>
-          <DropdownMenuItem variant="destructive" onClick={onSignOut}>
+          <DropdownMenuItem className={buttonVariants({variant: "destructive", className: "w-full justify-start"})} onClick={onSignOut}>
             <LogOut />
             Log out
           </DropdownMenuItem>
+          
         </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>

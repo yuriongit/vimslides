@@ -1,7 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { createFileRoute, useRouteContext } from "@tanstack/react-router"
 import { Loading } from "@/components/custom/loading"
-import { PresentationsList } from "@/components/custom/services/presentations/home/presentations"
 import type {
   Presentation,
   PresentationId,
@@ -9,6 +8,7 @@ import type {
 } from "@/components/custom/services/presentations/presentation.types"
 import { MINUTE } from "@/constants/constants"
 import { supabase } from "@/lib/supabase/client"
+import { PresentationsList } from "@/components/custom/services/presentations/home/presentations-list"
 
 export const Route = createFileRoute("/_authenticated/presentations")({
   component: Presentations,
@@ -53,7 +53,6 @@ function Presentations() {
   })
   const presentationDeleteMutation = useMutation({
     mutationFn: async (id: PresentationId) => {
-      console.log("delete mutation")
       const { data, error } = await supabase
         .from("presentations")
         .delete()
@@ -64,7 +63,9 @@ function Presentations() {
       if (!data || data.length === 0)
         // This error handling will happen server side
         // Frontend will just perform `if (error) throw error`
-        throw new Error("Unauthorized: You do not have permission to perform this action.")
+        throw new Error(
+          "Unauthorized: You do not have permission to perform this action.",
+        )
     },
     onSuccess: () => {
       // Invalidate and refetch
@@ -83,7 +84,6 @@ function Presentations() {
           user={user.user}
           presentations={presentationsQuery.data ?? []}
           syncFn={() => presentationsQuery.refetch({ throwOnError: true })}
-          // ={presentationsQuery.refetch}
           createFn={presentationCreateMutation.mutateAsync}
           deleteFn={presentationDeleteMutation.mutateAsync}
         />

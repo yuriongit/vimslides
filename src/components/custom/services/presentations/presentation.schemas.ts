@@ -1,11 +1,20 @@
 import z4 from "zod/v4"
 
-export const PresentationCreationSchema = z4.object({
-  title: z4.string().min(1).trim().max(60),
-  description: z4
+export const PresentationCreationFormSchema = z4.object({
+  title: z4
     .string()
     .trim()
-    .pipe(z4.union([z4.literal(""), z4.string().min(1).max(60)])),
+    .min(1, "Presentation title must be at least 1 character.")
+    .max(100, "Presentation title must be at most 100 characters."),
+  description: z4.union([
+    z4.literal(""),
+    z4
+      .string()
+      .trim()
+      .max(250, "Presentation description must be at most 250 characters."),
+  ]),
 })
 
-export type PresentationCreation = z4.infer<typeof PresentationCreationSchema>
+export type PresentationCreationForm = z4.infer<
+  typeof PresentationCreationFormSchema
+>
