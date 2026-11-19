@@ -88,7 +88,10 @@ export function PresentationsList({
     setDeleteOpen(false)
     toast.promise(deleteFn(deleteTarget.id), {
       loading: "Deleting presentation",
-      error: "Failed to delete presentation",
+      error: (err: Error) => ({
+        title: "Failed to delete presentation",
+        description: err?.message,
+      }),
       success: "Successfully deleted presentation",
     })
   }
