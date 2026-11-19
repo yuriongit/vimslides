@@ -9,10 +9,7 @@
     "ignoreUnknown": false,
     "includes": [
       "**",
-      "!**/supabase",
-      "!**/*.gen.ts",
-      "!src/components/*",
-      "src/components/custom/**"
+      "!**/*.gen.ts"
     ]
   },
   "formatter": {
