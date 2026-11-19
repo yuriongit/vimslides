@@ -5,18 +5,18 @@ import { useState } from "react"
 import {
   CreatePresentationSheet,
   useCreatePresentation,
-} from "@/components/custom/services/create-presentation"
+} from "@/components/custom/services/presentations/home/create-presentation"
 import type {
   Presentation,
   PresentationId,
   PresentationInsert,
-} from "@/components/custom/services/presentation.types"
-import { definePresentationCommands } from "@/components/custom/services/presentation-commands"
+} from "@/components/custom/services/presentations/presentation.types"
+import { definePresentationCommands } from "@/components/custom/services/presentations/home/presentation-commands"
 import {
   PresentationsCmdBar,
   usePresentationsViewBar,
 } from "@/components/custom/ui/command-bar"
-import { DeletePresentationDialog } from "@/components/custom/services/command-bar/delete-presentation-dialog"
+import { DeletePresentationDialog } from "@/components/custom/services/presentations/home/command-bar/delete-presentation-dialog"
 import { Button, buttonVariants } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -97,8 +97,8 @@ export function PresentationsList({
       {
         presentations.length >= 1 ?
         // List of projects view
-        <main className="rounded-sm bg-card p-8 flex flex-col gap-5 xl:max-h-180 xl:min-h-180 xl:max-w-7xl w-full">
-          <div className="flex justify-between min-w-full items-center h-full">
+        <main className="rounded-sm bg-card p-8 flex flex-col gap-5 xl:h-[53em] min-h-full xl:max-w-8xl w-full">
+          <div className="flex justify-between min-w-full items-center">
             <div>
               <header className="text-2xl font-semibold tracking-[-0.045em] text-balance sm:text-3xl text-primary font-special">
                 Presentations
@@ -115,9 +115,8 @@ export function PresentationsList({
             />
           </div>
           <Separator />
-          <ItemGroup className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 overflow-hidden overflow-y-auto scrollbar-none min-h-full h-full w-full min-w-full mt-2">
-            {presentations.map((p, idx) => {
-              idx += 1
+          <ItemGroup className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 overflow-hidden overflow-y-auto scrollbar-none h-fit w-full min-w-full mt-2">
+            {presentations.map((p) => {
               return (
                 <Item key={p.id} variant={"muted"}>
                   <ItemHeader>
@@ -208,9 +207,12 @@ function PresentationActionsDropdown({ onDelete }: { onDelete: () => void }) {
             <Pencil /> Edit metadata
           </DropdownMenuItem>
         </DropdownMenuGroup>
-        <DropdownMenuItem variant="destructive" onClick={onDelete}>
+        <DropdownMenuItem onClick={onDelete} variant="destructive">
           <Trash /> Delete
         </DropdownMenuItem>
+        {/*<DropdownMenuItem onClick={onDelete} className={buttonVariants({variant: "destructive", className: "w-full justify-start"})}>
+          <Trash /> Delete
+        </DropdownMenuItem>*/}
       </DropdownMenuContent>
     </DropdownMenu>
   )

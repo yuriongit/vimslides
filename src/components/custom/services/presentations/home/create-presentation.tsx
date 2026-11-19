@@ -15,7 +15,8 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet"
 import { toast } from "@/components/ui/toast"
-import type { PresentationInsert } from "./presentation.types"
+import type { PresentationInsert } from "../presentation.types"
+import { PresentationCreationSchema, type PresentationCreation } from "../presentation.schemas"
 
 // Side-effect logic
 export function useCreatePresentation({
@@ -31,7 +32,7 @@ export function useCreatePresentation({
     setOpen(true)
   }
 
-  async function createPresentation(title: string, description: string) {
+  async function createPresentation({title, description}: PresentationCreation) {
     await toast.promise(
       createFn({
         user_id: user.id,
@@ -66,15 +67,32 @@ export function CreatePresentationSheet({
   toggleBtn: boolean
   open: boolean
   onOpenChange: (open: boolean) => void
-  onSubmit: (title: string, description: string) => Promise<void>
+  onSubmit: (data: PresentationCreation) => Promise<void>
 }) {
-  const [sheetTitle, setSheetTitle] = useState("Vim is the Best!")
-  const [sheetDesc, setSheetDesc] = useState("The best way to edit text.")
+  const [presentationTitle, setPresentationTitle] = useState("Vim is the Best!") // defaults set for dev purposes 
+  const [presentationDesc, setPresentationDesc] = useState("The best way to edit text.") // defaults set for dev purposes
 
+  const [errors, setErrors] = useState<{ title?: string; description?: string }>({})
+  
   async function handleCreatePresentation() {
-    await onSubmit(sheetTitle, sheetDesc)
-    setSheetTitle("")
-    setSheetDesc("")
+    const result = PresentationCreationSchema.safeParse({
+      title: presentationTitle,
+      description: presentationDesc,
+    })
+  
+    if (!result.success) {
+      const fieldErrors = result.error.flatten().fieldErrors
+      setErrors({
+        title: fieldErrors.title?.[0],
+        description: fieldErrors.description?.[0],
+      })
+      return
+    }
+  
+    setErrors({})
+    await onSubmit(result.data)
+    setPresentationTitle("")
+    setPresentationDesc("")
   }
 
   return (
@@ -93,23 +111,37 @@ export function CreatePresentationSheet({
           <div className="grid gap-3">
             <Label htmlFor="sheet-title-input">Title</Label>
             <Input
-              value={sheetTitle}
-              onEnter={handleCreatePresentation}
-              onChange={(e) => setSheetTitle(e.target.value)}
               id="sheet-title-input"
+              value={presentationTitle}
+              aria-invalid={!!errors.title}
+              onEnter={handleCreatePresentation}
+              onChange={(e) => {
+                setPresentationTitle(e.target.value)
+                if (errors.title) setErrors((prev) => ({ ...prev, title: undefined }))
+              }}
               placeholder="Vim is the Best!"
             />
+            {errors.title && (
+              <p className="text-sm text-destructive">{errors.title}</p>
+            )}
           </div>
-
+          
           <div className="grid gap-3">
             <Label htmlFor="sheet-desc-input">Description</Label>
             <Input
-              value={sheetDesc}
-              onEnter={handleCreatePresentation}
-              onChange={(e) => setSheetDesc(e.target.value)}
               id="sheet-desc-input"
+              value={presentationDesc}
+              aria-invalid={!!errors.description}
+              onEnter={handleCreatePresentation}
+              onChange={(e) => {
+                setPresentationDesc(e.target.value)
+                if (errors.description) setErrors((prev) => ({ ...prev, description: undefined }))
+              }}
               placeholder="Optional"
             />
+            {errors.description && (
+              <p className="text-sm text-destructive">{errors.description}</p>
+            )}
           </div>
         </div>
 
