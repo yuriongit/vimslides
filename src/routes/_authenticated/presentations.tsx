@@ -53,7 +53,6 @@ function Presentations() {
   })
   const presentationDeleteMutation = useMutation({
     mutationFn: async (id: PresentationId) => {
-      console.log("delete mutation")
       const { data, error } = await supabase
         .from("presentations")
         .delete()
