@@ -1,10 +1,12 @@
-import {
-  type PresentationCreationForm,
-  PresentationCreationFormSchema,
-} from "@repo/shared"
+import type { EdenFetchError } from "@elysia/eden"
 import type { User } from "@supabase/supabase-js"
 import { useForm } from "@tanstack/react-form"
 import type { UseMutateAsyncFunction } from "@tanstack/react-query"
+import {
+  type PresentationCreationForm,
+  PresentationCreationFormSchema,
+  type PresentationInsertion,
+} from "@vss/shared"
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import {
@@ -31,7 +33,6 @@ import {
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { toast } from "@/components/ui/toast"
 import { useInputComboShortcut } from "@/hooks/useInputComboShortcut"
-import type { PresentationInsert } from "../presentation.types"
 
 // Side-effect logic
 export function useCreatePresentation({
@@ -39,7 +40,7 @@ export function useCreatePresentation({
   createFn,
 }: {
   user: User
-  createFn: UseMutateAsyncFunction<void, Error, PresentationInsert>
+  createFn: UseMutateAsyncFunction<EdenFetchError, Error, PresentationInsertion>
 }) {
   const [open, setOpen] = useState(false)
 
@@ -62,7 +63,10 @@ export function useCreatePresentation({
       {
         loading: "Creating presentation",
         success: "Successfully created presentation",
-        error: "Failed to create presentation",
+        error: (err) => ({
+          title: "Failed to create presentation",
+          description: err.message
+        })
       },
     )
   }

@@ -1,13 +1,14 @@
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { createFileRoute, useRouteContext } from "@tanstack/react-router"
 import type {
   Presentation,
   PresentationId,
-  PresentationInsert,
-} from "@repo/shared"
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { createFileRoute, useRouteContext } from "@tanstack/react-router"
+  PresentationInsertion,
+} from "@vss/shared"
 import { Loading } from "@/components/custom/loading"
 import { PresentationsList } from "@/components/custom/services/presentations/home/presentations-list"
 import { MINUTE } from "@/constants/constants"
+import { api } from "@/lib/api"
 import { supabase } from "@/lib/supabase/client"
 
 export const Route = createFileRoute("/_authenticated/presentations")({
@@ -39,16 +40,24 @@ function Presentations() {
   })
   // Mutations
   const presentationCreateMutation = useMutation({
-    mutationFn: async (presentation: PresentationInsert) => {
-      const { error } = await supabase
-        .from("presentations")
-        .insert(presentation)
-      if (error)
-        throw new Error(`Error: ${error.message} \nCause: ${error.cause}`)
+    mutationFn: async (presentation: PresentationInsertion) => {
+      const { data, error } = await api.presentations.post(presentation)
+      console.log(error?.status)
+      if (error) throw error.value
+      return data
     },
     onSuccess: () => {
       // Invalidate and refetch
       queryClient.invalidateQueries({ queryKey: ["presentations"] })
+    },
+    onError: (err) => {
+      if (err.cause === 422) {
+        // validation failure, err.value is Elysia's validation object
+        // 422 === Unprocessable Content
+      } else if (err.cause === 500) {
+        console.log(err.message)
+        // err.value.message is the string you returned from status(500, ...)
+      }
     },
   })
   const presentationDeleteMutation = useMutation({

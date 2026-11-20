@@ -1,16 +1,20 @@
 {
-  "name": "@repo/api",
+  "name": "@vss/api",
   "private": true,
   "type": "module",
-  "exports": { ".": "./src/app.ts" },
+  "exports": {
+    ".": "./src/index.ts"
+  },
   "scripts": {
     "dev": "bun --watch src/index.ts",
     "typecheck": "tsc -p tsconfig.json"
   },
   "dependencies": {
-    "@repo/shared": "workspace:*",
-    "elysia": "catalog:",
+    "@vss/shared": "workspace:*",
+    "@supabase/supabase-js": "catalog:",
     "@elysiajs/cors": "catalog:",
+    "elysia": "catalog:",
+    "supabase": "^3.2.0",
     "zod": "catalog:"
   },
   "devDependencies": {

@@ -1,5 +1,7 @@
+import type { EdenFetchError } from "@elysia/eden"
 import type { User } from "@supabase/supabase-js"
 import type { UseMutateAsyncFunction } from "@tanstack/react-query"
+import type { PresentationInsertion } from "@vss/shared"
 import { ArrowUpRightIcon, RefreshCcw } from "lucide-react"
 import { useState } from "react"
 import { DeletePresentationDialog } from "@/components/custom/services/presentations/home/command-bar/delete-presentation-dialog"
@@ -12,7 +14,6 @@ import { PresentationActionsDropdown } from "@/components/custom/services/presen
 import type {
   Presentation,
   PresentationId,
-  PresentationInsert,
 } from "@/components/custom/services/presentations/presentation.types"
 import {
   PresentationsCmdBar,
@@ -47,7 +48,7 @@ export function PresentationsList({
 }: {
   presentations: Presentation[]
   user: User
-  createFn: UseMutateAsyncFunction<void, Error, PresentationInsert>
+  createFn: UseMutateAsyncFunction<EdenFetchError, Error, PresentationInsertion>
   syncFn: () => Promise<unknown>
   deleteFn: UseMutateAsyncFunction<void, Error, PresentationId>
 }) {
@@ -197,6 +198,7 @@ export function PresentationsList({
             size="sm"
             nativeButton={false}
             render={
+              // biome-ignore lint: ...
               <a
                 href={`https://github.com/yuriongit/vimslides`}
                 target="_blank"

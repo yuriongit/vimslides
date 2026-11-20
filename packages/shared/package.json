@@ -1,5 +1,5 @@
 {
-  "name": "@repo/shared",
+  "name": "@vss/shared",
   "private": true,
   "type": "module",
   "exports": { ".": "./src/index.ts" },
