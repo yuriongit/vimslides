@@ -14,6 +14,19 @@
   "scripts": {
     "dev:web": "bun run --filter @repo/web dev",
     "dev:api": "bun run --filter @repo/api dev",
-    "typecheck": "bun run --filter '*' typecheck"
+    "build:web": "bun run --filter @repo/web build",
+    "build:api": "bun run --filter @repo/api build",
+
+    "typecheck": "bun run --filter '*' typecheck",
+
+    "format": "biome format",
+    "format:w": "biome format --write",
+    "lint": "biome lint",
+    "lint:w": "biome lint --write",
+    "check": "biome check",
+    "check:w": "biome check --write"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.6.8"
   }
 }

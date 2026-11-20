@@ -28,7 +28,13 @@ export function PresentationActionsDropdown({
             <Pencil /> Edit metadata
           </DropdownMenuItem>
         </DropdownMenuGroup>
-        <DropdownMenuItem onClick={onDelete} className={buttonVariants({variant: "destructive", className: "w-full justify-start"})}>
+        <DropdownMenuItem
+          onClick={onDelete}
+          className={buttonVariants({
+            variant: "destructive",
+            className: "w-full justify-start",
+          })}
+        >
           <Trash /> Delete
         </DropdownMenuItem>
       </DropdownMenuContent>

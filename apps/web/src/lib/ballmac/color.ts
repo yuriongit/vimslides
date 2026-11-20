@@ -40,4 +40,4 @@ function observeTheme(onChange: () => void): () => void {
   }
 }
 
-export { resolveCssColor, cssColorToRgba, observeTheme }
+export { cssColorToRgba, observeTheme, resolveCssColor }

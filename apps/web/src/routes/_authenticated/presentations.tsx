@@ -1,14 +1,14 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { createFileRoute, useRouteContext } from "@tanstack/react-router"
-import { Loading } from "@/components/custom/loading"
 import type {
   Presentation,
   PresentationId,
   PresentationInsert,
-} from "@/components/custom/services/presentations/presentation.types"
+} from "@repo/shared"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { createFileRoute, useRouteContext } from "@tanstack/react-router"
+import { Loading } from "@/components/custom/loading"
+import { PresentationsList } from "@/components/custom/services/presentations/home/presentations-list"
 import { MINUTE } from "@/constants/constants"
 import { supabase } from "@/lib/supabase/client"
-import { PresentationsList } from "@/components/custom/services/presentations/home/presentations-list"
 
 export const Route = createFileRoute("/_authenticated/presentations")({
   component: Presentations,

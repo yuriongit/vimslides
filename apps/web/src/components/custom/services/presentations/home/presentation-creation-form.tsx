@@ -1,3 +1,7 @@
+import {
+  type PresentationCreationForm,
+  PresentationCreationFormSchema,
+} from "@repo/shared"
 import type { User } from "@supabase/supabase-js"
 import { useForm } from "@tanstack/react-form"
 import type { UseMutateAsyncFunction } from "@tanstack/react-query"
@@ -27,10 +31,6 @@ import {
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { toast } from "@/components/ui/toast"
 import { useInputComboShortcut } from "@/hooks/useInputComboShortcut"
-import {
-  type PresentationCreationForm,
-  PresentationCreationFormSchema,
-} from "../presentation.schemas"
 import type { PresentationInsert } from "../presentation.types"
 
 // Side-effect logic
@@ -105,14 +105,16 @@ export function CreatePresentationSheet({
     keys: ["ctrl", "enter"],
     handleSubmit: form.handleSubmit,
   })
-  
+
   const titleMaxLength = PresentationCreationFormSchema.shape.title.maxLength
   const descriptionMaxLength =
     PresentationCreationFormSchema.shape.description.options[1].maxLength
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      {toggleBtn && <SheetTrigger render={<Button shortcut=":newp">Create</Button>} />}
+      {toggleBtn && (
+        <SheetTrigger render={<Button shortcut=":newp">Create</Button>} />
+      )}
       <SheetContent>
         <Card className="w-full sm:max-w-md">
           <CardHeader>

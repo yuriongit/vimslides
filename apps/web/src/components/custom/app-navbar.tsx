@@ -78,11 +78,16 @@ function UserDropdownMenu({ email, onSignOut }: UserDropdownMenuProps) {
         <DropdownMenuSeparator />
 
         <DropdownMenuGroup>
-          <DropdownMenuItem className={buttonVariants({variant: "destructive", className: "w-full justify-start"})} onClick={onSignOut}>
+          <DropdownMenuItem
+            className={buttonVariants({
+              variant: "destructive",
+              className: "w-full justify-start",
+            })}
+            onClick={onSignOut}
+          >
             <LogOut />
             Log out
           </DropdownMenuItem>
-          
         </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>

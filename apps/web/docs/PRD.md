@@ -22,12 +22,12 @@ The nearest alternatives (Marp, Slidev, reveal.js) have you edit markdown that b
 
 The editor has four modes and two scopes, and a separate command line for ex commands.
 
-| Mode | What it does |
-| --- | --- |
-| Normal | Navigate and act on the current target. A border around a box shows it is the target. |
-| Insert | Type text into a box. |
-| Visual | Select text. Selecting several boxes comes in a later version. |
-| Command-line | Entered with `:`. Runs ex commands. |
+| Mode         | What it does                                                                          |
+| ------------ | ------------------------------------------------------------------------------------- |
+| Normal       | Navigate and act on the current target. A border around a box shows it is the target. |
+| Insert       | Type text into a box.                                                                 |
+| Visual       | Select text. Selecting several boxes comes in a later version.                        |
+| Command-line | Entered with `:`. Runs ex commands.                                                   |
 
 **Scopes.** A scope decides what the motion keys move through. v1 has two:
 

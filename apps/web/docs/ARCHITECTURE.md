@@ -26,14 +26,14 @@ Seven requirements from the PRD decide most of the architecture.
 
 The client is a React app around a framework-independent editor core, and nothing in the editing path waits on the network.
 
-| Layer | Responsibility | Choice |
-| --- | --- | --- |
-| Editor core | Document model, commands, undo stack, mode and scope state machine, key dispatch | Plain TypeScript, no React or browser APIs |
-| Text editing | Vim motions and typing inside one box | One CodeMirror 6 editor per box in text scope, with [@replit/codemirror-vim](https://github.com/replit/codemirror-vim) |
-| Rendering | Slides on screen, in present mode and in export | Absolutely positioned DOM on a fixed 1920 by 1080 canvas, scaled to fit |
-| UI shell | Routes, auth, `/presentations`, status line | React, TanStack Router, shadcn, as built |
-| Draft store | Local working copy between saves | IndexedDB behind a `DraftStore` interface |
-| Cloud client | `:w`, open and `:export` | Supabase client plus one Edge Function call |
+| Layer        | Responsibility                                                                   | Choice                                                                                                                 |
+| ------------ | -------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| Editor core  | Document model, commands, undo stack, mode and scope state machine, key dispatch | Plain TypeScript, no React or browser APIs                                                                             |
+| Text editing | Vim motions and typing inside one box                                            | One CodeMirror 6 editor per box in text scope, with [@replit/codemirror-vim](https://github.com/replit/codemirror-vim) |
+| Rendering    | Slides on screen, in present mode and in export                                  | Absolutely positioned DOM on a fixed 1920 by 1080 canvas, scaled to fit                                                |
+| UI shell     | Routes, auth, `/presentations`, status line                                      | React, TanStack Router, shadcn, as built                                                                               |
+| Draft store  | Local working copy between saves                                                 | IndexedDB behind a `DraftStore` interface                                                                              |
+| Cloud client | `:w`, open and `:export`                                                         | Supabase client plus one Edge Function call                                                                            |
 
 **Commands.** Every change is a command with an inverse: move box, set text, set font size, add slide. Undo and redo are a stack of commands, a draft is the serialized document, and later features such as persisted undo or collaboration build on the same commands.
 
@@ -52,23 +52,23 @@ A deck is one JSON document of slides, and each slide holds its elements in back
 ```ts
 type Deck = {
   schemaVersion: number
-  slide: { width: 1920; height: 1080 }   // 16:9
-  slides: Slide[]                        // array order = slide order
+  slide: { width: 1920; height: 1080 } // 16:9
+  slides: Slide[] // array order = slide order
 }
 
 type Slide = {
   id: string
-  elements: Element[]                    // array order = back to front
+  elements: Element[] // array order = back to front
 }
 
-type Element = Box                       // later: images, shapes, groups
+type Element = Box // later: images, shapes, groups
 
 type Box = {
   type: "box"
   id: string
   x: number
   y: number
-  width: "auto" | number                 // v1 is always "auto"
+  width: "auto" | number // v1 is always "auto"
   text: string
   fontSize: number
   color: string
@@ -94,12 +94,12 @@ The queue is not on this path. The save needs a definite answer before `:wq` can
 
 Postgres holds metadata and the pointer to each deck's head revision, and a private storage bucket holds the revision files and exports.
 
-| Table | Key columns | Purpose |
-| --- | --- | --- |
-| `decks` | `id`, `owner_id`, `title`, `head_version`, `head_revision_id`, `created_at`, `updated_at` | One row per presentation. `/presentations` lists these. |
+| Table            | Key columns                                                                                              | Purpose                                                     |
+| ---------------- | -------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
+| `decks`          | `id`, `owner_id`, `title`, `head_version`, `head_revision_id`, `created_at`, `updated_at`                | One row per presentation. `/presentations` lists these.     |
 | `deck_revisions` | `id`, `deck_id`, `version`, `storage_path`, `content_hash`, `size_bytes`, `schema_version`, `created_at` | One row per saved revision, unique on `(deck_id, version)`. |
-| `exports` | `id`, `deck_id`, `version`, `format`, `status`, `storage_path`, `error`, `requested_at`, `finished_at` | One row per export job. The client watches it. |
-| `profiles` | `id`, `first_name` | Added when registration collects a first name. |
+| `exports`        | `id`, `deck_id`, `version`, `format`, `status`, `storage_path`, `error`, `requested_at`, `finished_at`   | One row per export job. The client watches it.              |
+| `profiles`       | `id`, `first_name`                                                                                       | Added when registration collects a first name.              |
 
 The queue is one pgmq queue named `exports`, described under queue and workers.
 
