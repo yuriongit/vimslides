@@ -40,7 +40,7 @@ export function useCreatePresentation({
   createFn,
 }: {
   user: User
-    createFn: UseMutateAsyncFunction<Ok, Error, PresentationInsertion>
+  createFn: UseMutateAsyncFunction<Ok, Error, PresentationInsertion>
 }) {
   const [open, setOpen] = useState(false)
 
@@ -62,7 +62,7 @@ export function useCreatePresentation({
       {
         loading: "Creating presentation",
         success: "Successfully created presentation",
-        error: (err:EdenFetchError) => ({
+        error: (err: EdenFetchError) => ({
           title: "Failed to create presentation",
           description: err.message,
         }),

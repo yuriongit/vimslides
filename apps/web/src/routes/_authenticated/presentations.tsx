@@ -45,7 +45,7 @@ function Presentations() {
       const { data, error } = await api.presentations.post(presentation, {
         headers,
       })
-  
+
       if (error) throw error.value.message
       return data
     },
