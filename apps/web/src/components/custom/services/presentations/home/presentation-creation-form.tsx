@@ -3,6 +3,7 @@ import type { User } from "@supabase/supabase-js"
 import { useForm } from "@tanstack/react-form"
 import type { UseMutateAsyncFunction } from "@tanstack/react-query"
 import {
+  type Ok,
   type PresentationCreationForm,
   PresentationCreationFormSchema,
   type PresentationInsertion,
@@ -36,11 +37,10 @@ import { useInputComboShortcut } from "@/hooks/useInputComboShortcut"
 
 // Side-effect logic
 export function useCreatePresentation({
-  user,
   createFn,
 }: {
   user: User
-  createFn: UseMutateAsyncFunction<EdenFetchError, Error, PresentationInsertion>
+    createFn: UseMutateAsyncFunction<Ok, Error, PresentationInsertion>
 }) {
   const [open, setOpen] = useState(false)
 
@@ -54,7 +54,6 @@ export function useCreatePresentation({
   }: PresentationCreationForm) {
     await toast.promise(
       createFn({
-        user_id: user.id,
         title,
         description: description || null,
         slide_count: 0,
@@ -63,10 +62,10 @@ export function useCreatePresentation({
       {
         loading: "Creating presentation",
         success: "Successfully created presentation",
-        error: (err) => ({
+        error: (err:EdenFetchError) => ({
           title: "Failed to create presentation",
-          description: err.message
-        })
+          description: err.message,
+        }),
       },
     )
   }

@@ -1,45 +1,27 @@
-import { cors } from "@elysiajs/cors"
 import { PresentationInsertionSchema } from "@vss/shared"
 import { Elysia } from "elysia"
-import { supabase } from "@/lib/supabase/client"
-// import { createUserSchema } from "@vss/shared";
+import { supabaseEntries } from "@/lib/supabase/client"
+import { supabaseCtx, wrapElysia } from "./lib/supabase/supabase-middleware"
 
-export const app = new Elysia()
-  .use(
-    cors({
-      origin: "http://localhost:3001",
-      preflight: true,
-      methods: "*",
-    }),
-  )
-  .post(
-    "/presentations",
-    async ({ body, status }) => {
-      const { error } = await supabase
-        .from("presentations")
-        .insert(body)
-        .eq("user_id", body.user_id)
-        
+export const app = new Elysia().use(supabaseCtx<typeof supabaseEntries>()).post(
+  "/presentations",
+  async ({ body, supabase, jwtClaims }) => {
+    const { error } = await supabase.from("presentations").insert({
+      ...body,
+      user_id: jwtClaims.sub,
+    })
 
-      if (error) {
-        console.error(error)
-        const code = Number(error.code.replace("42", ""))
-        return status(code, {
-          message: error.message,
-        })
-      }
+    if (error) {
+      throw error
+    }
 
-      return { ok: true }
-    },
-    { body: PresentationInsertionSchema },
-  )
-  // .get("/presentations", async ({ body: req }) => {
-  //   const { data, error } = await supabase
-  //     .from("presentations")
-  //     .select("*")
-  //     .eq("user_id", req?.user_id)
-  //   if (error) return error.message
-  // })
-  .listen(3000)
+    return { ok: true }
+  },
+  { body: PresentationInsertionSchema },
+)
 
 export type App = typeof app
+
+export default {
+  fetch: wrapElysia(supabaseEntries, (req) => app.handle(req)),
+}

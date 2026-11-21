@@ -10,9 +10,11 @@
     "typecheck": "tsc -p tsconfig.json"
   },
   "dependencies": {
-    "@vss/shared": "workspace:*",
-    "@supabase/supabase-js": "catalog:",
     "@elysiajs/cors": "catalog:",
+    "@supabase/middleware": "^1.0.0",
+    "@supabase/server": "^1.9.2",
+    "@supabase/supabase-js": "catalog:",
+    "@vss/shared": "workspace:*",
     "elysia": "catalog:",
     "supabase": "^3.2.0",
     "zod": "catalog:"

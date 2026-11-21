@@ -1,7 +1,6 @@
-import type { EdenFetchError } from "@elysia/eden"
 import type { User } from "@supabase/supabase-js"
 import type { UseMutateAsyncFunction } from "@tanstack/react-query"
-import type { PresentationInsertion } from "@vss/shared"
+import type { Ok, PresentationInsertion } from "@vss/shared"
 import { ArrowUpRightIcon, RefreshCcw } from "lucide-react"
 import { useState } from "react"
 import { DeletePresentationDialog } from "@/components/custom/services/presentations/home/command-bar/delete-presentation-dialog"
@@ -48,7 +47,7 @@ export function PresentationsList({
 }: {
   presentations: Presentation[]
   user: User
-  createFn: UseMutateAsyncFunction<EdenFetchError, Error, PresentationInsertion>
+  createFn: UseMutateAsyncFunction<Ok, Error, PresentationInsertion>
   syncFn: () => Promise<unknown>
   deleteFn: UseMutateAsyncFunction<void, Error, PresentationId>
 }) {

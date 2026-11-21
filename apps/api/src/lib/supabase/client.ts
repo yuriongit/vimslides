@@ -1,18 +1,15 @@
-import { createClient as createSupabaseClient } from "@supabase/supabase-js"
-import type { Database } from "@/types/database.types"
+import { withCors } from "@supabase/middleware/cors"
+import { withSupabaseClient } from "@supabase/server/middleware/client"
+import { withRequiredClaims } from "@supabase/server/middleware/required-claims"
+import type { Database } from "@/types/database"
 
-export function createClient() {
-  return createSupabaseClient<Database>(
-    // biome-ignore-start lint: ...
-    import.meta.env.VITE_SUPABASE_URL!,
-    import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY!,
-    // biome-ignore-end lint: ...
-    {
-      auth: {
-        flowType: "pkce",
-      },
-    },
-  )
-}
-
-export const supabase = createClient()
+export const supabaseEntries = [
+  withCors({
+    // biome-ignore lint: ...
+    origin: [process.env.FRONTEND_URL!],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  }),
+  withRequiredClaims(),
+  withSupabaseClient<Database>(),
+] as const

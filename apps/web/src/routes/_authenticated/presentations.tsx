@@ -10,11 +10,11 @@ import { PresentationsList } from "@/components/custom/services/presentations/ho
 import { MINUTE } from "@/constants/constants"
 import { api } from "@/lib/api"
 import { supabase } from "@/lib/supabase/client"
+import { getAuthHeaders } from "@/lib/supabase/get-auth-headers"
 
 export const Route = createFileRoute("/_authenticated/presentations")({
   component: Presentations,
 })
-
 function Presentations() {
   const user = useRouteContext({ from: "/_authenticated" })
   // Access the client
@@ -41,23 +41,17 @@ function Presentations() {
   // Mutations
   const presentationCreateMutation = useMutation({
     mutationFn: async (presentation: PresentationInsertion) => {
-      const { data, error } = await api.presentations.post(presentation)
-      console.log(error?.status)
-      if (error) throw error.value
+      const headers = await getAuthHeaders()
+      const { data, error } = await api.presentations.post(presentation, {
+        headers,
+      })
+  
+      if (error) throw error.value.message
       return data
     },
     onSuccess: () => {
       // Invalidate and refetch
       queryClient.invalidateQueries({ queryKey: ["presentations"] })
-    },
-    onError: (err) => {
-      if (err.cause === 422) {
-        // validation failure, err.value is Elysia's validation object
-        // 422 === Unprocessable Content
-      } else if (err.cause === 500) {
-        console.log(err.message)
-        // err.value.message is the string you returned from status(500, ...)
-      }
     },
   })
   const presentationDeleteMutation = useMutation({

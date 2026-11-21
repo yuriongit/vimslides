@@ -19,3 +19,4 @@ todos.json
 .env.keys
 .env.local
 .env.*.local
+.env.*
