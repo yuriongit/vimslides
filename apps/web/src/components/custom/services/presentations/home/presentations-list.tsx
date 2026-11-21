@@ -1,3 +1,4 @@
+import type { EdenFetchError } from "@elysia/eden"
 import type { User } from "@supabase/supabase-js"
 import type { UseMutateAsyncFunction } from "@tanstack/react-query"
 import type { Ok, PresentationInsertion } from "@vss/shared"
@@ -37,6 +38,7 @@ import {
 } from "@/components/ui/item"
 import { Separator } from "@/components/ui/separator"
 import { toast } from "@/components/ui/toast"
+import { errorMessage } from "@/utils/error-messages"
 
 export function PresentationsList({
   user,
@@ -75,9 +77,9 @@ export function PresentationsList({
     setDeleteOpen(false)
     toast.promise(deleteFn(deleteTarget.id), {
       loading: "Deleting presentation",
-      error: (err: Error) => ({
+      error: (err: EdenFetchError) => ({
         title: "Failed to delete presentation",
-        description: err?.message,
+        description: errorMessage(err),
       }),
       success: "Successfully deleted presentation",
     })

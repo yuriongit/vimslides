@@ -1,4 +1,5 @@
 export * from "./schemas/presentation-creation-form"
-export * from "./schemas/presentation-insert"
+export * from "./schemas/presentation-deletion"
+export * from "./schemas/presentation-insertion"
 export * from "./types/misc"
 export * from "./types/presentations"

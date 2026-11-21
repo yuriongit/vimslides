@@ -43,7 +43,7 @@ function Presentations() {
     mutationFn: async (presentation: PresentationInsertion) => {
       const headers = await getAuthHeaders()
       const { data, error } = await api.presentations.post(presentation, {
-        headers,
+        headers: headers,
       })
 
       if (error) throw error.value.message
@@ -56,19 +56,12 @@ function Presentations() {
   })
   const presentationDeleteMutation = useMutation({
     mutationFn: async (id: PresentationId) => {
-      const { data, error } = await supabase
-        .from("presentations")
-        .delete()
-        .eq("id", id)
-        .select()
-
+      const headers = await getAuthHeaders()
+      const { error } = await api.presentations.delete(
+        { id },
+        { headers: headers },
+      )
       if (error) throw error
-      if (!data || data.length === 0)
-        // This error handling will happen server side
-        // Frontend will just perform `if (error) throw error`
-        throw new Error(
-          "Unauthorized: You do not have permission to perform this action.",
-        )
     },
     onSuccess: () => {
       // Invalidate and refetch
