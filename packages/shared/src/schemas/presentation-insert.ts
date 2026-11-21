@@ -9,8 +9,6 @@ export type DbPresentationInsert = Omit<
 export const PresentationInsertSchema = z4.object({
   title: PresentationSchema.shape.title,
   description: PresentationSchema.shape.description,
-  // slide_count: z4.number().int().nonnegative(),
-  // file_url: z4.string(), // z.url(),
 }) satisfies z4.ZodType<DbPresentationInsert>
 
 export type PresentationInsert = z4.infer<typeof PresentationInsertSchema>
