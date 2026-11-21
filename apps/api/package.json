@@ -1,0 +1,26 @@
+{
+  "name": "@vss/api",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "dev": "bun --watch src/index.ts",
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@elysiajs/cors": "catalog:",
+    "@supabase/middleware": "^1.0.0",
+    "@supabase/server": "^1.9.2",
+    "@supabase/supabase-js": "catalog:",
+    "@vss/shared": "workspace:*",
+    "elysia": "catalog:",
+    "supabase": "^3.2.0",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "typescript": "catalog:"
+  }
+}
