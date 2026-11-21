@@ -1,12 +1,13 @@
-import type { EdenFetchError } from "@elysia/eden"
 import type { User } from "@supabase/supabase-js"
 import { useForm } from "@tanstack/react-form"
 import type { UseMutateAsyncFunction } from "@tanstack/react-query"
 import {
+  DESCRIPTION_MAX_LENGTH,
   type Ok,
   type PresentationCreationForm,
   PresentationCreationFormSchema,
-  type PresentationInsertion,
+  type PresentationInsert,
+  TITLE_MAX_LENGTH,
 } from "@vss/shared"
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
@@ -34,13 +35,14 @@ import {
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { toast } from "@/components/ui/toast"
 import { useInputComboShortcut } from "@/hooks/useInputComboShortcut"
+import { errorMessage } from "@/utils/error-messages"
 
 // Side-effect logic
 export function useCreatePresentation({
   createFn,
 }: {
   user: User
-  createFn: UseMutateAsyncFunction<Ok, Error, PresentationInsertion>
+  createFn: UseMutateAsyncFunction<Ok, Error, PresentationInsert>
 }) {
   const [open, setOpen] = useState(false)
 
@@ -56,15 +58,13 @@ export function useCreatePresentation({
       createFn({
         title,
         description: description || null,
-        slide_count: 0,
-        file_url: "",
       }).then(() => setOpen(false)),
       {
         loading: "Creating presentation",
         success: "Successfully created presentation",
-        error: (err: EdenFetchError) => ({
+        error: (err: unknown) => ({
           title: "Failed to create presentation",
-          description: err.message,
+          description: errorMessage(err),
         }),
       },
     )
@@ -108,10 +108,6 @@ export function CreatePresentationSheet({
     keys: ["ctrl", "enter"],
     handleSubmit: form.handleSubmit,
   })
-
-  const titleMaxLength = PresentationCreationFormSchema.shape.title.maxLength
-  const descriptionMaxLength =
-    PresentationCreationFormSchema.shape.description.options[1].maxLength
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -167,7 +163,7 @@ export function CreatePresentationSheet({
                           />
                           <InputGroupAddon align="block-end">
                             <InputGroupText className="tabular-nums">
-                              {field.state.value.length}/{titleMaxLength}
+                              {field.state.value.length}/{TITLE_MAX_LENGTH}
                             </InputGroupText>
                           </InputGroupAddon>
                         </InputGroup>
@@ -211,7 +207,8 @@ export function CreatePresentationSheet({
                           />
                           <InputGroupAddon align="block-end">
                             <InputGroupText className="tabular-nums">
-                              {field.state.value.length}/{descriptionMaxLength}
+                              {field.state.value.length}/
+                              {DESCRIPTION_MAX_LENGTH}
                             </InputGroupText>
                           </InputGroupAddon>
                         </InputGroup>

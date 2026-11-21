@@ -3,7 +3,7 @@ import { createFileRoute, useRouteContext } from "@tanstack/react-router"
 import type {
   Presentation,
   PresentationId,
-  PresentationInsertion,
+  PresentationInsert,
 } from "@vss/shared"
 import { Loading } from "@/components/custom/loading"
 import { PresentationsList } from "@/components/custom/services/presentations/home/presentations-list"
@@ -40,7 +40,7 @@ function Presentations() {
   })
   // Mutations
   const presentationCreateMutation = useMutation({
-    mutationFn: async (presentation: PresentationInsertion) => {
+    mutationFn: async (presentation: PresentationInsert) => {
       const headers = await getAuthHeaders()
       const { data, error } = await api.presentations.post(presentation, {
         headers: headers,

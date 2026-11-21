@@ -18,13 +18,13 @@ export const errorHandler = new Elysia({ name: "error-handler" })
     }
     if (code === "VALIDATION") {
       set.status = 422
-      return { message: "Invalid request body" }
+      return { message: "Invalid request body (422)" }
     }
     if (code === "NOT_FOUND") {
       set.status = 404
-      return { message: "Not found" }
+      return { message: "Not found (404)" }
     }
     console.error(error)
     set.status = 500
-    return { message: "Something went wrong" }
+    return { message: "Something went wrong (500)" }
   })

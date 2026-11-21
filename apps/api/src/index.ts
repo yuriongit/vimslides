@@ -1,6 +1,7 @@
 import {
-  PresentationDeletionSchema,
-  PresentationInsertionSchema,
+  PresentationDeleteSchema,
+  PresentationInsertSchema,
+  PresentationPatchSchema,
 } from "@vss/shared"
 import { Elysia } from "elysia"
 import { supabaseEntries } from "@/lib/supabase/client"
@@ -14,8 +15,10 @@ export const app = new Elysia()
     "/presentations",
     async ({ body, supabase, jwtClaims }) => {
       const { error } = await supabase.from("presentations").insert({
-        ...body,
         user_id: jwtClaims.sub,
+        slide_count: 0,
+        // file_url: "",
+        ...body,
       })
 
       console.error(error)
@@ -23,7 +26,7 @@ export const app = new Elysia()
 
       return { ok: true }
     },
-    { body: PresentationInsertionSchema },
+    { body: PresentationInsertSchema },
   )
   .delete(
     "/presentations",
@@ -31,20 +34,29 @@ export const app = new Elysia()
       const { error } = await supabase
         .from("presentations")
         .delete()
-        .eq("user_id", jwtClaims.sub)
         .eq("id", body.id)
+        .eq("user_id", jwtClaims.sub)
 
-      if (error) throw error
-      // if (data?.length === 1 || !data) {
-      //   // This error handling will happen server side
-      //   // Frontend will just perform `if (error) throw error`
-      //   throw new Error(
-      //     "Unauthorized: You do not have permission to perform this action.",
-      //   )
-      // }
+      if (error) throw new ApiError(Number(error.code), error.message)
+
       return { ok: true }
     },
-    { body: PresentationDeletionSchema },
+    { body: PresentationDeleteSchema },
+  )
+  .patch(
+    "/presentations",
+    async ({ body, supabase, jwtClaims }) => {
+      const { error } = await supabase
+        .from("presentations")
+        .update(body.fields)
+        .eq("user_id", jwtClaims.sub)
+        .eq("id", body?.id)
+
+      if (error) throw new ApiError(Number(error.code), error.message)
+
+      return { ok: true }
+    },
+    { body: PresentationPatchSchema },
   )
 
 export type App = typeof app

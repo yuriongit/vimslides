@@ -1,4 +1,7 @@
-export function errorMessage(err: unknown, fallback = "Something went wrong") {
+export function errorMessage(
+  err: unknown,
+  fallback = "Something went wrong :(",
+) {
   const value = (err as { value?: unknown } | null)?.value
   if (
     value
