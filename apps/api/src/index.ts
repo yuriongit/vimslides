@@ -17,7 +17,6 @@ export const app = new Elysia()
       const { error } = await supabase.from("presentations").insert({
         user_id: jwtClaims.sub,
         slide_count: 0,
-        // file_url: "",
         ...body,
       })
 

@@ -38,7 +38,7 @@ export type Database = {
         Row: {
           created_at: string
           description: string | null
-          file_url: string
+          file_url: string | null
           id: number
           slide_count: number
           title: string
@@ -48,16 +48,16 @@ export type Database = {
         Insert: {
           created_at?: string
           description?: string | null
-          file_url: string
+          file_url?: string | null
           id?: number
-          slide_count: number
+          slide_count?: number
           title: string
           user_id?: string
         }
         Update: {
           created_at?: string
           description?: string | null
-          file_url?: string
+          file_url?: string | null
           id?: number
           slide_count?: number
           title?: string

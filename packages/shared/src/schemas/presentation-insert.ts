@@ -3,7 +3,7 @@ import type { Database } from "../types/database"
 import { PresentationSchema } from "./presentation"
 export type DbPresentationInsert = Omit<
   Database["public"]["Tables"]["presentations"]["Insert"],
-  "created_at" | "id" | "file_url" | "slide_count"
+  "created_at" | "id" | "file_url" | "slide_count" | "user_id"
 >
 
 export const PresentationInsertSchema = z4.object({
