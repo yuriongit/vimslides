@@ -1,6 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { createFileRoute, useRouteContext } from "@tanstack/react-router"
-import type { PresentationId, PresentationInsert } from "@vss/shared"
+import type {
+  PresentationId,
+  PresentationInsert,
+  PresentationUpdate,
+} from "@vss/shared"
 import { PresentationsList } from "@/components/services/presentations/home/presentations-list"
 import { Loading } from "@/components/ui/loading"
 import { MINUTE } from "@/constants/constants"
@@ -14,7 +18,6 @@ function Presentations() {
   const user = useRouteContext({ from: "/_authenticated" })
   // Access the client
   const queryClient = useQueryClient()
-
   // Queries
   const presentationsQuery = useQuery({
     queryKey: ["presentations"],
@@ -32,9 +35,9 @@ function Presentations() {
   // Mutations
   const presentationCreateMutation = useMutation({
     mutationFn: async (presentation: PresentationInsert) => {
-      const headers = await getAuthHeaders()
+      const authHeaders = await getAuthHeaders()
       const { data, error } = await api.presentations.post(presentation, {
-        headers: headers,
+        headers: authHeaders,
       })
 
       if (error) throw error
@@ -47,12 +50,26 @@ function Presentations() {
   })
   const presentationDeleteMutation = useMutation({
     mutationFn: async (id: PresentationId) => {
-      const headers = await getAuthHeaders()
+      const authHeaders = await getAuthHeaders()
       const { error } = await api.presentations.delete(
         { id },
-        { headers: headers },
+        { headers: authHeaders },
       )
       if (error) throw error
+    },
+    onSuccess: () => {
+      // Invalidate and refetch
+      queryClient.invalidateQueries({ queryKey: ["presentations"] })
+    },
+  })
+  const presentationUpdateMutation = useMutation({
+    mutationKey: ["presentations"],
+    mutationFn: async (presentation: PresentationUpdate) => {
+      const authHeaders = await getAuthHeaders()
+      const { data, error } = await api.presentations.patch(presentation, {headers: authHeaders})
+      
+      if (error) throw error
+      return data
     },
     onSuccess: () => {
       // Invalidate and refetch
@@ -73,6 +90,7 @@ function Presentations() {
           syncFn={() => presentationsQuery.refetch({ throwOnError: true })}
           createFn={presentationCreateMutation.mutateAsync}
           deleteFn={presentationDeleteMutation.mutateAsync}
+          updateFn={presentationUpdateMutation.mutateAsync}
         />
       )}
     </div>

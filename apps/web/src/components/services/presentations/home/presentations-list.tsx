@@ -46,16 +46,18 @@ export function PresentationsList({
   createFn,
   syncFn,
   deleteFn,
+  updateFn
 }: {
   presentations: Presentation[]
   user: User
   createFn: UseMutateAsyncFunction<Ok, Error, PresentationInsert>
   syncFn: () => Promise<unknown>
   deleteFn: UseMutateAsyncFunction<void, Error, PresentationId>
+  updateFn: UseMutateAsyncFunction<Ok, Error, PresentationId>
 }) {
   const {
-    open: createSheetOpen,
-    setOpen: setCreateSheetOpen,
+    open,
+    setOpen,
     openCreatePresentation,
     createPresentation,
   } = useCreatePresentation({ user, createFn })
@@ -135,8 +137,8 @@ export function PresentationsList({
               </Button>
               <CreatePresentationSheet
                 toggleBtn={true}
-                open={createSheetOpen}
-                onOpenChange={setCreateSheetOpen}
+                open={open}
+                onOpenChange={setOpen}
                 onSubmit={createPresentation}
               />
             </div>
@@ -190,8 +192,8 @@ export function PresentationsList({
           <EmptyContent className="flex-row justify-center gap-2">
             <CreatePresentationSheet
               toggleBtn={true}
-              open={createSheetOpen}
-              onOpenChange={setCreateSheetOpen}
+              open={open}
+              onOpenChange={setOpen}
               onSubmit={createPresentation}
             />
             <Button variant="ghost">

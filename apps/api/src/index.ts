@@ -1,7 +1,7 @@
 import {
   PresentationDeleteSchema,
   PresentationInsertSchema,
-  // PresentationPatchSchema,
+  PresentationPatchSchema,
 } from "@vss/shared"
 import { Elysia } from "elysia"
 import { supabaseEntries } from "@/lib/clients/supabase/supabase.client"
@@ -54,21 +54,21 @@ export const app = new Elysia()
 
     return data
   })
-//   .patch(
-//     "/presentations",
-//     async ({ body, supabase, jwtClaims }) => {
-//       const { error } = await supabase
-//         .from("presentations")
-//         .update(body.fields)
-//         .eq("user_id", jwtClaims.sub)
-//         .eq("id", body?.id)
-//
-//       if (error) throw new ApiError(Number(error.code), error.message)
-//
-//       return { ok: true }
-//     },
-//     { body: PresentationPatchSchema },
-//   )
+  .patch(
+    "/presentations",
+    async ({ body, supabase, jwtClaims }) => {
+      const { error } = await supabase
+        .from("presentations")
+        .update(body.fields)
+        .eq("user_id", jwtClaims.sub)
+        .eq("id", body?.id)
+
+      if (error) throw new ApiError(Number(error.code), error.message)
+
+      return { ok: true }
+    },
+    { body: PresentationPatchSchema },
+  )
 
 export type App = typeof app
 
