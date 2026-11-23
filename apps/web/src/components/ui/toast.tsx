@@ -11,6 +11,7 @@ import { HugeiconsIcon } from "@hugeicons/react"
 import { cn } from "cn"
 import type * as React from "react"
 import { Button } from "@/components/ui/button"
+import { LoaderCircle } from "lucide-react"
 
 const toast = ToastPrimitive.createToastManager()
 
@@ -179,11 +180,9 @@ function ToastIcon({ type }: { type: string | undefined }) {
 
   if (type === "loading") {
     icon = (
-      <HugeiconsIcon
-        icon={Loading03Icon}
-        strokeWidth={2}
-        className="animate-spin"
+      <LoaderCircle
         aria-hidden="true"
+        className="animate-spin"
       />
     )
   }

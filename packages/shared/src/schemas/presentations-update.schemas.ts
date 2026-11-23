@@ -1,7 +1,7 @@
 import z4 from "zod/v4"
-import type { Database } from "../types/database"
-import type { PresentationId } from "../types/presentations"
-import { PresentationSchema } from "./presentation"
+import type { Database } from "../types/database.types"
+import type { PresentationId } from "../types/presentations.types"
+import { PresentationSchema } from "./presentations.schemas"
 
 type DbPresentationUpdate = Omit<
   Database["public"]["Tables"]["presentations"]["Update"],

@@ -3,13 +3,13 @@ import {
   DESCRIPTION_MAX_LENGTH,
   TITLE_MAX_LENGTH,
 } from "../constants/presentations"
-import type { Presentation } from "../types/presentations"
+import type { Presentation } from "../types/presentations.types"
 
 export const PresentationSchema = z4.toZod<Presentation>()(
   z4.object({
     user_id: z4.string(),
     created_at: z4.iso.time(),
-    file_url: z4.string(), // z4.url
+    file_url: z4.string().nullable(), // z4.url
     id: z4.number(),
     slide_count: z4.number().nonnegative(),
     title: z4

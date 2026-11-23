@@ -1,6 +1,6 @@
 import { createFileRoute, redirect } from "@tanstack/react-router"
 import { LoginForm } from "@/components/login-form"
-import { supabase } from "@/lib/supabase/client"
+import { supabase } from "@/lib/clients/supabase/supabase.client"
 
 export const Route = createFileRoute("/_public/login")({
   validateSearch: (search: Record<string, unknown>): { redirect?: string } => {

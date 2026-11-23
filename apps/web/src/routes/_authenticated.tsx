@@ -1,7 +1,7 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router"
-import { AppNavbar } from "@/components/custom/app-navbar"
+import { AppNavbar } from "@/components/ui/app-navbar"
 import { Toaster } from "@/components/ui/toast"
-import { supabase } from "@/lib/supabase/client"
+import { supabase } from "@/lib/clients/supabase/supabase.client"
 
 export const Route = createFileRoute("/_authenticated")({
   beforeLoad: async ({ location }) => {

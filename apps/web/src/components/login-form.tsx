@@ -9,8 +9,8 @@ import {
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { supabase } from "@/lib/clients/supabase/supabase.client"
 import { safeNextPath } from "@/lib/safe-next-path"
-import { supabase } from "@/lib/supabase/client"
 import { cn } from "@/lib/utils"
 
 export function LoginForm({

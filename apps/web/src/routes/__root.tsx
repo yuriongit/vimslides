@@ -1,7 +1,7 @@
 import { TanStackDevtools } from "@tanstack/react-devtools"
 import { createRootRoute, Outlet } from "@tanstack/react-router"
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools"
-import "../index.css"
+import "@/index.css"
 
 export const Route = createRootRoute({
   component: RootComponent,

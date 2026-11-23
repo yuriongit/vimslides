@@ -1,9 +1,9 @@
+import type { Presentation } from "@vss/shared"
 import { useEffect, useState } from "react"
 import type {
   PickerCommand,
   PresentationCommand,
-} from "@/components/custom/services/presentations/home/presentation-commands"
-import type { Presentation } from "@/components/custom/services/presentations/presentation.types"
+} from "@/components/services/presentations/home/presentation-commands"
 import {
   Command,
   CommandDialog,

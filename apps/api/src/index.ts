@@ -1,12 +1,15 @@
 import {
   PresentationDeleteSchema,
   PresentationInsertSchema,
-  PresentationPatchSchema,
+  // PresentationPatchSchema,
 } from "@vss/shared"
 import { Elysia } from "elysia"
-import { supabaseEntries } from "@/lib/supabase/client"
+import { supabaseEntries } from "@/lib/clients/supabase/supabase.client"
+import {
+  supabaseCtx,
+  wrapElysia,
+} from "@/lib/clients/supabase/supabase-middleware"
 import { ApiError, errorHandler } from "@/middleware/error"
-import { supabaseCtx, wrapElysia } from "./lib/supabase/supabase-middleware"
 
 export const app = new Elysia()
   .use(errorHandler)
@@ -42,21 +45,32 @@ export const app = new Elysia()
     },
     { body: PresentationDeleteSchema },
   )
-  .patch(
-    "/presentations",
-    async ({ body, supabase, jwtClaims }) => {
-      const { error } = await supabase
-        .from("presentations")
-        .update(body.fields)
-        .eq("user_id", jwtClaims.sub)
-        .eq("id", body?.id)
+  .get("/presentations", async ({ supabase, jwtClaims }) => {
+    const { data, error } = await supabase
+      .from("presentations")
+      .select("*")
+      .eq("user_id", jwtClaims.sub)
+      .order("created_at")
+    if (error) throw error
+    console.log(data)
 
-      if (error) throw new ApiError(Number(error.code), error.message)
-
-      return { ok: true }
-    },
-    { body: PresentationPatchSchema },
-  )
+    return data
+  })
+//   .patch(
+//     "/presentations",
+//     async ({ body, supabase, jwtClaims }) => {
+//       const { error } = await supabase
+//         .from("presentations")
+//         .update(body.fields)
+//         .eq("user_id", jwtClaims.sub)
+//         .eq("id", body?.id)
+// 
+//       if (error) throw new ApiError(Number(error.code), error.message)
+// 
+//       return { ok: true }
+//     },
+//     { body: PresentationPatchSchema },
+//   )
 
 export type App = typeof app
 

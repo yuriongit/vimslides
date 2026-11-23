@@ -1,4 +1,4 @@
-import { supabase } from "./client"
+import { supabase } from "@/lib/clients/supabase/supabase.client"
 
 export async function getAuthHeaders() {
   const {
@@ -10,5 +10,5 @@ export async function getAuthHeaders() {
     throw new Error("Not authenticated")
   }
 
-  return { authorization: `Bearer ${session.access_token}` }
+  return { Authorization: `Bearer ${session.access_token}` }
 }

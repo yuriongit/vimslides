@@ -1,25 +1,26 @@
 import type { EdenFetchError } from "@elysia/eden"
 import type { User } from "@supabase/supabase-js"
 import type { UseMutateAsyncFunction } from "@tanstack/react-query"
-import type { Ok, PresentationInsert } from "@vss/shared"
-import { ArrowUpRightIcon, RefreshCcw } from "lucide-react"
+import type {
+  Ok,
+  Presentation,
+  PresentationId,
+  PresentationInsert,
+} from "@vss/shared"
+import { ArrowUpRightIcon, RefreshCcwIcon } from "lucide-react"
 import { useState } from "react"
-import { DeletePresentationDialog } from "@/components/custom/services/presentations/home/command-bar/delete-presentation-dialog"
-import { definePresentationCommands } from "@/components/custom/services/presentations/home/presentation-commands"
+import { DeletePresentationDialog } from "@/components/services/presentations/home/command-bar/delete-presentation-dialog"
+import { definePresentationCommands } from "@/components/services/presentations/home/presentation-commands"
+import { PresentationActionsDropdown } from "@/components/services/presentations/home/presentations-actions-dropdown"
 import {
   CreatePresentationSheet,
   useCreatePresentation,
-} from "@/components/custom/services/presentations/home/presentation-creation-form"
-import { PresentationActionsDropdown } from "@/components/custom/services/presentations/home/presentations-actions-dropdown"
-import type {
-  Presentation,
-  PresentationId,
-} from "@/components/custom/services/presentations/presentation.types"
+} from "@/components/services/presentations/home/presentations-creation-form"
+import { Button } from "@/components/ui/button"
 import {
   PresentationsCmdBar,
   usePresentationsViewBar,
-} from "@/components/custom/ui/command-bar"
-import { Button } from "@/components/ui/button"
+} from "@/components/ui/command-bar"
 import {
   Empty,
   EmptyContent,
@@ -77,7 +78,7 @@ export function PresentationsList({
     setDeleteOpen(false)
     toast.promise(deleteFn(deleteTarget.id), {
       loading: "Deleting presentation",
-      error: (err: EdenFetchError) => ({
+      error: (err) => ({
         title: "Failed to delete presentation",
         description: errorMessage(err),
       }),
@@ -88,7 +89,10 @@ export function PresentationsList({
   function syncPresentations() {
     toast.promise(syncFn(), {
       loading: "Syncing presentations",
-      error: "Failed to sync presentations",
+      error: (err) => ({
+        title: "Failed to sync presentations",
+        description: errorMessage(err),
+      }),
       success: "Presentations synced",
     })
   }
@@ -116,7 +120,7 @@ export function PresentationsList({
       />
       {presentations.length >= 1 ? (
         // List of projects view
-        <main className="rounded-sm bg-card p-8 flex flex-col gap-5 xl:h-[53em] min-h-full xl:max-w-8xl w-full">
+        <main className="rounded-sm border bg-card p-8 flex flex-col gap-5 xl:h-[53em] min-h-full xl:max-w-7xl w-full">
           <div className="flex justify-between min-w-full items-center">
             <div>
               <header className="text-2xl font-semibold tracking-[-0.045em] text-balance sm:text-3xl text-primary font-special">
@@ -128,7 +132,7 @@ export function PresentationsList({
             </div>
             <div className="flex gap-1">
               <Button variant={"ghost"} onClick={syncPresentations}>
-                <RefreshCcw />
+                <RefreshCcwIcon />
               </Button>
               <CreatePresentationSheet
                 toggleBtn={true}
@@ -191,7 +195,10 @@ export function PresentationsList({
               onOpenChange={setCreateSheetOpen}
               onSubmit={createPresentation}
             />
-            <Button variant="outline">Import</Button>
+            <Button variant="ghost">
+              {/*Sync*/}
+              <RefreshCcwIcon />
+            </Button>
           </EmptyContent>
           <Button
             variant="link"

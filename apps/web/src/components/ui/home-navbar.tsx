@@ -1,12 +1,12 @@
 import { Link } from "@tanstack/react-router"
+import { ModeToggle } from "@/components/mode-toggle"
+import { buttonVariants } from "@/components/ui/button"
 import {
   NavigationMenu,
   NavigationMenuItem,
   NavigationMenuLink,
   NavigationMenuList,
 } from "@/components/ui/navigation-menu"
-import { ModeToggle } from "../mode-toggle"
-import { buttonVariants } from "../ui/button"
 
 export function HomeNavbar() {
   return (
