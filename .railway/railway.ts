@@ -4,7 +4,7 @@ export default defineRailway((ctx) => {
   const isProd = ctx.environment === "production"
 
   // 1. API Service (apps/api)
-  const api = service("api", {
+  const api = service("API", {
     source: github("yuriongit/vimslides", {
       branch: "main",
     }),
@@ -21,7 +21,7 @@ export default defineRailway((ctx) => {
   })
 
   // 2. Web Frontend Service (apps/web)
-  const web = service("web", {
+  const web = service("WEB", {
     source: github("yuriongit/vimslides", {
       branch: "main",
     }),
@@ -38,7 +38,7 @@ export default defineRailway((ctx) => {
     },
   })
 
-  return project("vimslides", {
+  return project("VimSlides", {
     resources: [api, web],
   })
 })

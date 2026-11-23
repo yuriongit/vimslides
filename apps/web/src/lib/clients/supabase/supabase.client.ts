@@ -1,5 +1,5 @@
 import { createClient as createSupabaseClient } from "@supabase/supabase-js"
-import type { Database } from "@/../database.types"
+import type { Database } from "@vss/shared"
 
 export function createClient() {
   return createSupabaseClient<Database>(
