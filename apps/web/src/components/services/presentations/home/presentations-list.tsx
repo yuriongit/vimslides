@@ -5,6 +5,7 @@ import type {
   Presentation,
   PresentationId,
   PresentationInsert,
+  PresentationUpdate,
 } from "@vss/shared"
 import { ArrowUpRightIcon, RefreshCcwIcon } from "lucide-react"
 import { useState } from "react"
@@ -46,21 +47,16 @@ export function PresentationsList({
   createFn,
   syncFn,
   deleteFn,
-  updateFn
 }: {
   presentations: Presentation[]
   user: User
   createFn: UseMutateAsyncFunction<Ok, Error, PresentationInsert>
   syncFn: () => Promise<unknown>
   deleteFn: UseMutateAsyncFunction<void, Error, PresentationId>
-  updateFn: UseMutateAsyncFunction<Ok, Error, PresentationId>
+  updateFn: UseMutateAsyncFunction<Ok, Error, PresentationUpdate>
 }) {
-  const {
-    open,
-    setOpen,
-    openCreatePresentation,
-    createPresentation,
-  } = useCreatePresentation({ user, createFn })
+  const { open, setOpen, openCreatePresentation, createPresentation } =
+    useCreatePresentation({ user, createFn })
 
   const [openCmdBar, setOpenCmdBar] = useState(false)
   usePresentationsViewBar(openCmdBar, setOpenCmdBar)

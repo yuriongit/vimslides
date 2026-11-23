@@ -66,8 +66,10 @@ function Presentations() {
     mutationKey: ["presentations"],
     mutationFn: async (presentation: PresentationUpdate) => {
       const authHeaders = await getAuthHeaders()
-      const { data, error } = await api.presentations.patch(presentation, {headers: authHeaders})
-      
+      const { data, error } = await api.presentations.patch(presentation, {
+        headers: authHeaders,
+      })
+
       if (error) throw error
       return data
     },
