@@ -24,7 +24,7 @@ export const errorHandler = new Elysia({ name: "error-handler" })
       set.status = 404
       return { message: "Not found (404)" }
     }
-    console.error(error)
+    // console.error(error)
     set.status = 500
     return { message: "Something went wrong (500)" }
   })

@@ -1,9 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { createFileRoute, useRouteContext } from "@tanstack/react-router"
-import type {
-  PresentationId,
-  PresentationInsert,
-} from "@vss/shared"
+import type { PresentationId, PresentationInsert } from "@vss/shared"
 import { PresentationsList } from "@/components/services/presentations/home/presentations-list"
 import { Loading } from "@/components/ui/loading"
 import { MINUTE } from "@/constants/constants"
@@ -23,8 +20,8 @@ function Presentations() {
     queryKey: ["presentations"],
     queryFn: async () => {
       const headers = await getAuthHeaders()
-      const { data, error } = await api.presentations.get({headers: headers})
-      
+      const { data, error } = await api.presentations.get({ headers: headers })
+
       if (error) throw error
       return data
     },

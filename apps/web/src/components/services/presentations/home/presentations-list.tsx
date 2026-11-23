@@ -1,4 +1,3 @@
-import type { EdenFetchError } from "@elysia/eden"
 import type { User } from "@supabase/supabase-js"
 import type { UseMutateAsyncFunction } from "@tanstack/react-query"
 import type {

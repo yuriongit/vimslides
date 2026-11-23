@@ -3,7 +3,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite dev --port 3001",
+    "dev": "vite dev --port $PORT",
+    "start": "bunx serve -s dist -l $PORT",
     "generate-routes": "tsr generate",
     "build": "vite build",
     "preview": "vite preview"
@@ -11,7 +12,6 @@
   "dependencies": {
     "@vss/shared": "workspace:*",
     "zod": "catalog:",
-    "supabase": "^3.1.0",
     "@supabase/supabase-js": "catalog:",
     "@base-ui/react": "^1.9.0",
     "@fontsource-variable/geist": "^5.3.0",

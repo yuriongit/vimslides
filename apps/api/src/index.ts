@@ -23,7 +23,6 @@ export const app = new Elysia()
         ...body,
       })
 
-      console.error(error)
       if (error) throw new ApiError(Number(error.code), error.message)
 
       return { ok: true }
@@ -52,7 +51,6 @@ export const app = new Elysia()
       .eq("user_id", jwtClaims.sub)
       .order("created_at")
     if (error) throw error
-    console.log(data)
 
     return data
   })
@@ -64,9 +62,9 @@ export const app = new Elysia()
 //         .update(body.fields)
 //         .eq("user_id", jwtClaims.sub)
 //         .eq("id", body?.id)
-// 
+//
 //       if (error) throw new ApiError(Number(error.code), error.message)
-// 
+//
 //       return { ok: true }
 //     },
 //     { body: PresentationPatchSchema },

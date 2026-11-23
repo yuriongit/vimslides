@@ -20,7 +20,7 @@ export function AppNavbar() {
   async function handleSignOut() {
     const { error } = await supabase.auth.signOut()
     if (error) {
-      console.error("sign out failed:", error.message)
+      // console.error("sign out failed:", error.message)
       return
     }
     await navigate({ to: "/login" })
