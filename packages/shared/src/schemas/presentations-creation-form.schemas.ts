@@ -1,6 +1,6 @@
 import z4 from "zod/v4"
 import { DESCRIPTION_MAX_LENGTH } from "../constants/presentations"
-import { PresentationSchema } from "./presentation"
+import { PresentationSchema } from "./presentations.schemas"
 
 export const PresentationCreationFormSchema = z4.object({
   title: PresentationSchema.shape.title,

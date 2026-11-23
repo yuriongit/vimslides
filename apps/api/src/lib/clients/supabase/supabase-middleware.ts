@@ -33,8 +33,7 @@ function isSupabaseError(value: unknown): value is SupabaseError {
 }
 
 function cleanResponse(err: SupabaseError, status: number, base?: Headers) {
-  console.error(err)
-
+  // console.error(err)
   const headers = new Headers(base)
   headers.delete("content-length")
   headers.delete("content-type")

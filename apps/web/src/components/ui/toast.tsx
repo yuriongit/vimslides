@@ -4,11 +4,11 @@ import {
   Cancel01Icon,
   CheckmarkCircle02Icon,
   InformationCircleIcon,
-  Loading03Icon,
   MultiplicationSignCircleIcon,
 } from "@hugeicons/core-free-icons"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { cn } from "cn"
+import { LoaderCircle } from "lucide-react"
 import type * as React from "react"
 import { Button } from "@/components/ui/button"
 
@@ -178,14 +178,7 @@ function ToastIcon({ type }: { type: string | undefined }) {
   }
 
   if (type === "loading") {
-    icon = (
-      <HugeiconsIcon
-        icon={Loading03Icon}
-        strokeWidth={2}
-        className="animate-spin"
-        aria-hidden="true"
-      />
-    )
+    icon = <LoaderCircle aria-hidden="true" className="animate-spin" />
   }
 
   if (!icon) {

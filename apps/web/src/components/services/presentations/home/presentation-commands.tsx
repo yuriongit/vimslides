@@ -1,4 +1,4 @@
-import type { Presentation } from "@/components/custom/services/presentations/presentation.types"
+import type { Presentation } from "@vss/shared"
 
 type CommandBase = {
   name: string

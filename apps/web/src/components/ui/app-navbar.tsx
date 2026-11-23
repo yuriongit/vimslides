@@ -1,5 +1,6 @@
 import { Link, useNavigate, useRouteContext } from "@tanstack/react-router"
 import { Cog, LogOut, Pencil, UserCircle2 } from "lucide-react"
+import { ModeToggle } from "@/components/mode-toggle"
 import { Button, buttonVariants } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -10,8 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { supabase } from "@/lib/supabase/client"
-import { ModeToggle } from "../mode-toggle"
+import { supabase } from "@/lib/clients/supabase/supabase.client"
 
 export function AppNavbar() {
   const navigate = useNavigate()
@@ -20,7 +20,7 @@ export function AppNavbar() {
   async function handleSignOut() {
     const { error } = await supabase.auth.signOut()
     if (error) {
-      console.error("sign out failed:", error.message)
+      // console.error("sign out failed:", error.message)
       return
     }
     await navigate({ to: "/login" })

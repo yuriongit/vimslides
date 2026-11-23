@@ -1,16 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { createFileRoute, useRouteContext } from "@tanstack/react-router"
-import type {
-  Presentation,
-  PresentationId,
-  PresentationInsert,
-} from "@vss/shared"
-import { Loading } from "@/components/custom/loading"
-import { PresentationsList } from "@/components/custom/services/presentations/home/presentations-list"
+import type { PresentationId, PresentationInsert } from "@vss/shared"
+import { PresentationsList } from "@/components/services/presentations/home/presentations-list"
+import { Loading } from "@/components/ui/loading"
 import { MINUTE } from "@/constants/constants"
-import { api } from "@/lib/api"
-import { supabase } from "@/lib/supabase/client"
-import { getAuthHeaders } from "@/lib/supabase/get-auth-headers"
+import { getAuthHeaders } from "@/lib/auth/get-auth-headers"
+import { api } from "@/lib/clients/api/api.client"
 
 export const Route = createFileRoute("/_authenticated/presentations")({
   component: Presentations,
@@ -23,15 +18,11 @@ function Presentations() {
   // Queries
   const presentationsQuery = useQuery({
     queryKey: ["presentations"],
-    queryFn: async (): Promise<Presentation[]> => {
-      // TODO: create API for such methods - GET /user_presentation
-      const { data, error } = await supabase
-        .from("presentations")
-        .select("*")
-        .eq("user_id", user.user.id) // not strictly necessary due to RLS policy
-        .order("created_at")
-      if (error) throw error.message
+    queryFn: async () => {
+      const headers = await getAuthHeaders()
+      const { data, error } = await api.presentations.get({ headers: headers })
 
+      if (error) throw error
       return data
     },
     staleTime: MINUTE * 5,
@@ -46,7 +37,7 @@ function Presentations() {
         headers: headers,
       })
 
-      if (error) throw error.value.message
+      if (error) throw error
       return data
     },
     onSuccess: () => {

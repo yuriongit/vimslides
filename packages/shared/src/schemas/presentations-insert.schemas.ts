@@ -1,6 +1,6 @@
 import z4 from "zod/v4"
-import type { Database } from "../types/database"
-import { PresentationSchema } from "./presentation"
+import type { Database } from "../types/database.types"
+import { PresentationSchema } from "./presentations.schemas"
 export type DbPresentationInsert = Omit<
   Database["public"]["Tables"]["presentations"]["Insert"],
   "created_at" | "id" | "file_url" | "slide_count" | "user_id"

@@ -1,11 +1,11 @@
 import { Link } from "@tanstack/react-router"
 import type * as React from "react"
-import { buttonVariants } from "@/components/ballmac/button"
+import { buttonVariants } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
 type Action = { label: string; to: string }
 
-type Hero4Props = Omit<React.ComponentProps<"section">, "title"> & {
+type HeroProps = Omit<React.ComponentProps<"section">, "title"> & {
   /** Short line in the pill above the heading. */
   announcement?: string
   /** The heading. */
@@ -24,7 +24,7 @@ type Hero4Props = Omit<React.ComponentProps<"section">, "title"> & {
   mediaAlt?: string
 }
 
-function Hero4({
+function Hero({
   title = "Create your next presentation with",
   description = "Ever wish Google Slides or Microsoft PowerPoint had Vim? Don't wish further.",
   primaryAction = { label: "Start", to: "/login" },
@@ -35,11 +35,11 @@ function Hero4({
   stats = [
     { value: "85%", label: "more productive" }, // 85% is just a placeholder up until verified stats are provided
     { value: "Fast.", label: "avg. latency ~ 40ms" }, // 40ms is just a placeholder up until verified stats are provided
-    { value: "Free", label: "0 cost; MIT license" },
+    { value: "Free;", label: "open source" },
   ],
   className,
   ...props
-}: Hero4Props) {
+}: HeroProps) {
   return (
     <section
       data-slot="hero-4"
@@ -54,20 +54,16 @@ function Hero4({
           <p className="mt-5 max-w-lg text-lg leading-relaxed text-pretty text-muted-foreground">
             {description}
           </p>
-          <div className="mt-8 flex flex-wrap gap-3">
+          <div className="mt-8 flex flex-wrap gap-1">
             <Link
               to={primaryAction.to}
-              className={buttonVariants({ size: "default", shape: "default" })}
+              className={buttonVariants({ size: "default" })}
             >
               {primaryAction.label}
             </Link>
             <a
               href={secondaryAction.to}
-              className={buttonVariants({
-                size: "default",
-                shape: "pill",
-                variant: "outline",
-              })}
+              className={buttonVariants({ variant: "outline" })}
             >
               {secondaryAction.label}
             </a>
@@ -90,4 +86,4 @@ function Hero4({
   )
 }
 
-export { Hero4, type Hero4Props }
+export { Hero, type HeroProps }
