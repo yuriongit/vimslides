@@ -11,8 +11,10 @@ import {
 
 export function PresentationActionsDropdown({
   onDelete,
+  onEdit,
 }: {
   onDelete: () => void
+  onEdit: () => void
 }) {
   return (
     <DropdownMenu>
@@ -24,7 +26,7 @@ export function PresentationActionsDropdown({
       <DropdownMenuContent className="w-full">
         <DropdownMenuGroup>
           <DropdownMenuLabel>Management</DropdownMenuLabel>
-          <DropdownMenuItem>
+          <DropdownMenuItem onClick={onEdit}>
             <Pencil /> Edit metadata
           </DropdownMenuItem>
         </DropdownMenuGroup>

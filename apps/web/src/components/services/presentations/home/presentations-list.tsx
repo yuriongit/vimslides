@@ -5,6 +5,7 @@ import type {
   Presentation,
   PresentationId,
   PresentationInsert,
+  PresentationUpdate,
 } from "@vss/shared"
 import { ArrowUpRightIcon, RefreshCcwIcon } from "lucide-react"
 import { useState } from "react"
@@ -15,6 +16,10 @@ import {
   CreatePresentationSheet,
   useCreatePresentation,
 } from "@/components/services/presentations/home/presentations-creation-form"
+import {
+  UpdatePresentationSheet,
+  useUpdatePresentation,
+} from "@/components/services/presentations/home/presentations-update-form"
 import { Button } from "@/components/ui/button"
 import {
   PresentationsCmdBar,
@@ -46,19 +51,25 @@ export function PresentationsList({
   createFn,
   syncFn,
   deleteFn,
+  updateFn,
 }: {
   presentations: Presentation[]
   user: User
   createFn: UseMutateAsyncFunction<Ok, Error, PresentationInsert>
   syncFn: () => Promise<unknown>
   deleteFn: UseMutateAsyncFunction<void, Error, PresentationId>
+  updateFn: UseMutateAsyncFunction<Ok, Error, PresentationUpdate>
 }) {
+  const { open, setOpen, openCreatePresentation, createPresentation } =
+    useCreatePresentation({ user, createFn })
+
   const {
-    open: createSheetOpen,
-    setOpen: setCreateSheetOpen,
-    openCreatePresentation,
-    createPresentation,
-  } = useCreatePresentation({ user, createFn })
+    open: openEdit,
+    setOpen: setEditOpen,
+    target: editTarget,
+    openUpdatePresentation,
+    updatePresentation,
+  } = useUpdatePresentation({ updateFn })
 
   const [openCmdBar, setOpenCmdBar] = useState(false)
   usePresentationsViewBar(openCmdBar, setOpenCmdBar)
@@ -98,6 +109,7 @@ export function PresentationsList({
 
   const commands = definePresentationCommands({
     onCreate: openCreatePresentation,
+    onEdit: openUpdatePresentation,
     onDelete: requestDelete,
     onSync: syncPresentations,
     onClose: () => setOpenCmdBar(false),
@@ -117,6 +129,12 @@ export function PresentationsList({
         title={deleteTarget?.title}
         onConfirm={confirmDelete}
       />
+      <UpdatePresentationSheet
+        open={openEdit}
+        onOpenChange={setEditOpen}
+        presentation={editTarget}
+        onSubmit={updatePresentation}
+      />
       {presentations.length >= 1 ? (
         // List of projects view
         <main className="rounded-sm border bg-card p-8 flex flex-col gap-5 xl:h-[53em] min-h-full xl:max-w-7xl w-full">
@@ -135,8 +153,8 @@ export function PresentationsList({
               </Button>
               <CreatePresentationSheet
                 toggleBtn={true}
-                open={createSheetOpen}
-                onOpenChange={setCreateSheetOpen}
+                open={open}
+                onOpenChange={setOpen}
                 onSubmit={createPresentation}
               />
             </div>
@@ -170,6 +188,7 @@ export function PresentationsList({
                   <ItemActions>
                     <PresentationActionsDropdown
                       onDelete={() => requestDelete(p)}
+                      onEdit={() => openUpdatePresentation(p)}
                     />
                   </ItemActions>
                 </Item>
@@ -190,8 +209,8 @@ export function PresentationsList({
           <EmptyContent className="flex-row justify-center gap-2">
             <CreatePresentationSheet
               toggleBtn={true}
-              open={createSheetOpen}
-              onOpenChange={setCreateSheetOpen}
+              open={open}
+              onOpenChange={setOpen}
               onSubmit={createPresentation}
             />
             <Button variant="ghost">
