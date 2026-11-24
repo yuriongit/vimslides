@@ -16,6 +16,10 @@ import {
   CreatePresentationSheet,
   useCreatePresentation,
 } from "@/components/services/presentations/home/presentations-creation-form"
+import {
+  UpdatePresentationSheet,
+  useUpdatePresentation,
+} from "@/components/services/presentations/home/presentations-update-form"
 import { Button } from "@/components/ui/button"
 import {
   PresentationsCmdBar,
@@ -47,6 +51,7 @@ export function PresentationsList({
   createFn,
   syncFn,
   deleteFn,
+  updateFn,
 }: {
   presentations: Presentation[]
   user: User
@@ -57,6 +62,14 @@ export function PresentationsList({
 }) {
   const { open, setOpen, openCreatePresentation, createPresentation } =
     useCreatePresentation({ user, createFn })
+
+  const {
+    open: openEdit,
+    setOpen: setEditOpen,
+    target: editTarget,
+    openUpdatePresentation,
+    updatePresentation,
+  } = useUpdatePresentation({ updateFn })
 
   const [openCmdBar, setOpenCmdBar] = useState(false)
   usePresentationsViewBar(openCmdBar, setOpenCmdBar)
@@ -96,6 +109,7 @@ export function PresentationsList({
 
   const commands = definePresentationCommands({
     onCreate: openCreatePresentation,
+    onEdit: openUpdatePresentation,
     onDelete: requestDelete,
     onSync: syncPresentations,
     onClose: () => setOpenCmdBar(false),
@@ -114,6 +128,12 @@ export function PresentationsList({
         onOpenChange={setDeleteOpen}
         title={deleteTarget?.title}
         onConfirm={confirmDelete}
+      />
+      <UpdatePresentationSheet
+        open={openEdit}
+        onOpenChange={setEditOpen}
+        presentation={editTarget}
+        onSubmit={updatePresentation}
       />
       {presentations.length >= 1 ? (
         // List of projects view
@@ -168,6 +188,7 @@ export function PresentationsList({
                   <ItemActions>
                     <PresentationActionsDropdown
                       onDelete={() => requestDelete(p)}
+                      onEdit={() => openUpdatePresentation(p)}
                     />
                   </ItemActions>
                 </Item>
