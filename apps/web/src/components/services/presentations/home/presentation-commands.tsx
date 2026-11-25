@@ -21,6 +21,7 @@ type PresentationCommands = {
   onCreate: () => void
   onSync: () => void
   onClose: () => void
+  onOpen: (presentation: Presentation) => void
   onDelete: (presentation: Presentation) => void
   onEdit: (presentation: Presentation) => void
 }
@@ -29,6 +30,7 @@ export function definePresentationCommands({
   onCreate,
   onSync,
   onClose,
+  onOpen,
   onDelete,
   onEdit,
 }: PresentationCommands): PresentationCommand[] {
@@ -38,6 +40,12 @@ export function definePresentationCommands({
       name: ":newp",
       description: "Create presentation",
       execute: onCreate,
+    },
+    {
+      kind: "picker",
+      name: ":open",
+      description: "Open presentation",
+      onPick: onOpen,
     },
     {
       kind: "picker",

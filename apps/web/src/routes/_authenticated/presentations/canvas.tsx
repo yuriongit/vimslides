@@ -6,5 +6,5 @@ export const Route = createFileRoute("/_authenticated/presentations/canvas")({
 })
 
 function RouteComponent() {
-  return <PresentationCanvas />
+  return <PresentationCanvas presentationId="canvas-beta" />
 }

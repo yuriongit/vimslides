@@ -150,7 +150,12 @@ export function PresentationsCmdBar({
                   <CommandItem
                     key={p.id}
                     value={String(p.id)}
-                    keywords={[p.title, String(p.id), formatDate(p.created_at)]}
+                    keywords={[
+                      p.title,
+                      String(p.id),
+                      formatDate(p.last_modified),
+                      formatDate(p.created_at),
+                    ]}
                     onSelect={() => handleSelectPresentation(p)}
                   >
                     <div className="min-w-full">
@@ -163,8 +168,7 @@ export function PresentationsCmdBar({
 
                       <div className="w-full flex flex-col">
                         <span className="shrink-0 text-xs text-primary">
-                          {/*//@ts-expect-error - TODO: Add last_modified once files are available*/}
-                          Modified: {formatDate(p?.last_modified)}
+                          Modified: {formatDate(p.last_modified)}
                         </span>
                         <span className="shrink-0 text-xs text-muted-foreground">
                           Creation: {formatDate(p.created_at)}

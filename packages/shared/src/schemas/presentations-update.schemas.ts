@@ -5,7 +5,7 @@ import { PresentationSchema } from "./presentations.schemas"
 
 type DbPresentationUpdate = Omit<
   Database["public"]["Tables"]["presentations"]["Update"],
-  "file_url" | "id" | "slide_count" | "user_id" | "created_at"
+  "file_url" | "id" | "last_modified" | "slide_count" | "user_id" | "created_at"
 >
 export type PresentationUpdate = {
   id: PresentationId
@@ -18,6 +18,8 @@ export const PresentationPatchSchema = z4.toZod<PresentationUpdate>()(
     fields: z4.object({
       title: PresentationSchema.shape.title.optional(),
       description: PresentationSchema.shape.description.optional(),
+      schema_version: PresentationSchema.shape.schema_version.optional(),
+      slides: PresentationSchema.shape.slides.optional(),
     }),
   }),
 )

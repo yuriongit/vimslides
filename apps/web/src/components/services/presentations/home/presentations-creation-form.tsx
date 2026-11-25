@@ -3,9 +3,9 @@ import { useForm } from "@tanstack/react-form"
 import type { UseMutateAsyncFunction } from "@tanstack/react-query"
 import {
   DESCRIPTION_MAX_LENGTH,
-  type Ok,
   type PresentationCreationForm,
   PresentationCreationFormSchema,
+  type PresentationId,
   type PresentationInsert,
   TITLE_MAX_LENGTH,
 } from "@vss/shared"
@@ -42,7 +42,7 @@ export function useCreatePresentation({
   createFn,
 }: {
   user: User
-  createFn: UseMutateAsyncFunction<Ok, Error, PresentationInsert>
+  createFn: UseMutateAsyncFunction<PresentationId, Error, PresentationInsert>
 }) {
   const [open, setOpen] = useState(false)
 

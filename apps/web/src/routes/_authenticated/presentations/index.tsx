@@ -1,5 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { createFileRoute, useRouteContext } from "@tanstack/react-router"
+import {
+  createFileRoute,
+  useNavigate,
+  useRouteContext,
+} from "@tanstack/react-router"
 import type {
   PresentationId,
   PresentationInsert,
@@ -16,6 +20,7 @@ export const Route = createFileRoute("/_authenticated/presentations/")({
 })
 function Presentations() {
   const user = useRouteContext({ from: "/_authenticated" })
+  const navigate = useNavigate()
   // Access the client
   const queryClient = useQueryClient()
   // Queries
@@ -34,18 +39,24 @@ function Presentations() {
   })
   // Mutations
   const presentationCreateMutation = useMutation({
-    mutationFn: async (presentation: PresentationInsert) => {
+    mutationFn: async (
+      presentation: PresentationInsert,
+    ): Promise<PresentationId> => {
       const authHeaders = await getAuthHeaders()
       const { data, error } = await api.presentations.post(presentation, {
         headers: authHeaders,
       })
 
       if (error) throw error
-      return data
+      if (!data) throw new Error("Failed to create presentation")
+      return data.id
     },
-    onSuccess: () => {
-      // Invalidate and refetch
+    onSuccess: (id) => {
       queryClient.invalidateQueries({ queryKey: ["presentations"] })
+      void navigate({
+        to: "/presentations/$id",
+        params: { id: String(id) },
+      })
     },
   })
   const presentationDeleteMutation = useMutation({
