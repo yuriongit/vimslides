@@ -1,6 +1,6 @@
 import type { User } from "@supabase/supabase-js"
 import type { UseMutateAsyncFunction } from "@tanstack/react-query"
-import { Link } from "@tanstack/react-router"
+import { Link, useNavigate } from "@tanstack/react-router"
 import type {
   Ok,
   Presentation,
@@ -56,7 +56,7 @@ export function PresentationsList({
 }: {
   presentations: Presentation[]
   user: User
-  createFn: UseMutateAsyncFunction<Ok, Error, PresentationInsert>
+  createFn: UseMutateAsyncFunction<PresentationId, Error, PresentationInsert>
   syncFn: () => Promise<unknown>
   deleteFn: UseMutateAsyncFunction<void, Error, PresentationId>
   updateFn: UseMutateAsyncFunction<Ok, Error, PresentationUpdate>
@@ -73,6 +73,7 @@ export function PresentationsList({
   } = useUpdatePresentation({ updateFn })
 
   const [openCmdBar, setOpenCmdBar] = useState(false)
+  const navigate = useNavigate()
   usePresentationsViewBar(openCmdBar, setOpenCmdBar)
 
   // target and open are separate so the title doesn't vanish during the close animation
@@ -87,7 +88,7 @@ export function PresentationsList({
   function confirmDelete() {
     if (!deleteTarget) return
     setDeleteOpen(false)
-    toast.promise(deleteFn(deleteTarget.id), {
+    toast.promise(deleteFn(deleteTarget.public_id), {
       loading: "Deleting presentation",
       error: (err) => ({
         title: "Failed to delete presentation",
@@ -111,6 +112,11 @@ export function PresentationsList({
   const commands = definePresentationCommands({
     onCreate: openCreatePresentation,
     onEdit: openUpdatePresentation,
+    onOpen: (presentation) =>
+      void navigate({
+        to: "/presentations/$id",
+        params: { id: presentation.public_id },
+      }),
     onDelete: requestDelete,
     onSync: syncPresentations,
     onClose: () => setOpenCmdBar(false),
@@ -152,12 +158,6 @@ export function PresentationsList({
               <Button variant={"ghost"} onClick={syncPresentations}>
                 <RefreshCcwIcon />
               </Button>
-              <Link
-                to="/presentations/canvas"
-                className={buttonVariants({ variant: "outline" })}
-              >
-                Try the Presentation Canvas Beta!
-              </Link>
               <CreatePresentationSheet
                 toggleBtn={true}
                 open={open}
@@ -170,26 +170,35 @@ export function PresentationsList({
           <ItemGroup className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 overflow-hidden overflow-y-auto scrollbar-none h-fit w-full min-w-full mt-2">
             {presentations.map((p) => {
               return (
-                <Item key={p.id} variant={"muted"}>
-                  <ItemHeader>
-                    <img
-                      loading="lazy"
-                      // TODO: add `preview_url` to DB schema - not in the database
-                      // Temporarily serving a placeholder image
-                      src={
-                        //@ts-expect-error - TODO: replace
-                        p?.preview_url
-                        ?? "https://images.unsplash.com/photo-1650804068570-7fb2e3dbf888?q=80&w=640&auto=format&fit=crop"
-                      }
-                      alt={`Presentation - ${p.title}`}
-                      className="aspect-video rounded-sm object-cover"
-                    />
-                  </ItemHeader>
+                <Item key={p.public_id} variant={"muted"}>
+                  <Link
+                    to="/presentations/$id"
+                    params={{ id: p.public_id }}
+                    className="flex w-full flex-wrap rounded-md"
+                    aria-label={`Open ${p.title}`}
+                  >
+                    <ItemHeader>
+                      <img
+                        loading="lazy"
+                        // TODO: add `preview_url` to DB schema - not in the database
+                        // Temporarily serving a placeholder image
+                        src={
+                          //@ts-expect-error - TODO: replace
+                          p?.preview_url
+                          ?? "https://images.unsplash.com/photo-1650804068570-7fb2e3dbf888?q=80&w=640&auto=format&fit=crop"
+                        }
+                        alt={`Presentation - ${p.title}`}
+                        className="aspect-video rounded-sm object-cover"
+                      />
+                    </ItemHeader>
 
-                  <ItemContent>
-                    <ItemTitle>{p.title}</ItemTitle>
-                    <ItemDescription>{p.description ?? "N/A"}</ItemDescription>
-                  </ItemContent>
+                    <ItemContent className="pt-4">
+                      <ItemTitle>{p.title}</ItemTitle>
+                      <ItemDescription>
+                        {p.description ?? "N/A"}
+                      </ItemDescription>
+                    </ItemContent>
+                  </Link>
 
                   <Separator />
                   <ItemActions>

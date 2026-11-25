@@ -40,7 +40,11 @@ export type Database = {
           description: string | null
           file_url: string | null
           id: number
+          last_modified: string
+          public_id: string
+          schema_version: number
           slide_count: number
+          slides: Json
           title: string
           user_id: string
         }
@@ -50,7 +54,11 @@ export type Database = {
           description?: string | null
           file_url?: string | null
           id?: number
+          last_modified?: string
+          public_id?: string
+          schema_version?: number
           slide_count?: number
+          slides?: Json
           title: string
           user_id?: string
         }
@@ -59,7 +67,11 @@ export type Database = {
           description?: string | null
           file_url?: string | null
           id?: number
+          last_modified?: string
+          public_id?: string
+          schema_version?: number
           slide_count?: number
+          slides?: Json
           title?: string
           user_id?: string
         }

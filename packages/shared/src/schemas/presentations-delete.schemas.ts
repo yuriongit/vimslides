@@ -3,5 +3,5 @@ import type { PresentationId } from "../types/presentations.types"
 import { PresentationSchema } from "./presentations.schemas"
 
 export const PresentationDeleteSchema = z4.object({
-  id: z4.toZod<PresentationId>()(PresentationSchema.shape.id),
+  public_id: z4.toZod<PresentationId>()(PresentationSchema.shape.public_id),
 })

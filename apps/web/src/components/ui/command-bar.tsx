@@ -148,23 +148,30 @@ export function PresentationsCmdBar({
               <CommandGroup heading={activePicker.description}>
                 {presentations.map((p) => (
                   <CommandItem
-                    key={p.id}
-                    value={String(p.id)}
-                    keywords={[p.title, String(p.id), formatDate(p.created_at)]}
+                    key={p.public_id}
+                    value={p.public_id}
+                    keywords={[
+                      p.title,
+                      p.public_id,
+                      formatDate(p.last_modified),
+                      formatDate(p.created_at),
+                    ]}
                     onSelect={() => handleSelectPresentation(p)}
                   >
                     <div className="min-w-full">
                       <div className="flex min-w-full items-center justify-between gap-4">
                         <span className="truncate max-w-2xs">{p.title}</span>
-                        <span className="shrink-0 font-mono text-xs text-muted-foreground">
-                          id={String(p.id)}
+                        <span
+                          className="max-w-36 shrink-0 truncate font-mono text-xs text-muted-foreground"
+                          title={p.public_id}
+                        >
+                          id={p.public_id}
                         </span>
                       </div>
 
                       <div className="w-full flex flex-col">
                         <span className="shrink-0 text-xs text-primary">
-                          {/*//@ts-expect-error - TODO: Add last_modified once files are available*/}
-                          Modified: {formatDate(p?.last_modified)}
+                          Modified: {formatDate(p.last_modified)}
                         </span>
                         <span className="shrink-0 text-xs text-muted-foreground">
                           Creation: {formatDate(p.created_at)}

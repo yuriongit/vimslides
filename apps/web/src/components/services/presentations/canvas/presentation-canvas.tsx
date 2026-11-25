@@ -390,6 +390,7 @@ export function PresentationCanvas({
         >
           <ResizablePanel defaultSize="20%" minSize="15%" maxSize="35%">
             <SlideFilmstrip
+              title={title}
               slides={slides}
               activeIndex={activeSlideIndex}
               onSelectSlide={(idx) => {
@@ -1168,12 +1169,14 @@ function ScopeBadge({ scope }: { scope: EditorScope }) {
   )
 }
 interface SlideFilmstripProps {
+  title: string
   slides: Slide[]
   activeIndex: number
   onSelectSlide: (index: number) => void
   onAddSlide: () => void
 }
 function SlideFilmstrip({
+  title,
   slides,
   activeIndex,
   onSelectSlide,
@@ -1188,10 +1191,18 @@ function SlideFilmstrip({
   }, [activeIndex])
   return (
     <aside className="flex h-full flex-col bg-muted/20">
-      <div className="flex items-center justify-between border-b border-border px-3 py-2">
-        <span className="text-xs font-medium text-muted-foreground">
-          Slides ({slides.length})
-        </span>
+      <div className="flex items-center justify-between gap-2 border-b border-border px-3 py-2">
+        <div className="min-w-0">
+          <div
+            className="truncate text-sm font-medium text-foreground"
+            title={title}
+          >
+            {title}
+          </div>
+          <div className="text-xs font-medium text-muted-foreground">
+            Slides ({slides.length})
+          </div>
+        </div>
         <Button
           variant="ghost"
           size="icon"

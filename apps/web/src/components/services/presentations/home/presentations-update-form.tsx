@@ -59,7 +59,7 @@ export function useUpdatePresentation({
 
     await toast.promise(
       updateFn({
-        id: target.id,
+        public_id: target.public_id,
         fields: { title, description: description || null },
       }).then(() => setOpen(false)),
       {
@@ -254,7 +254,7 @@ export function UpdatePresentationSheet({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent>
         <UpdatePresentationForm
-          key={presentation.id}
+          key={presentation.public_id}
           presentation={presentation}
           onSubmit={onSubmit}
         />
