@@ -20,9 +20,27 @@ const TextBoxSchema = z.object({
   align: z.enum(["left", "center", "right"]).optional(),
 })
 
+const ImageBoxSchema = z.object({
+  id: z.string(),
+  x: z.number(),
+  y: z.number(),
+  src: z
+    .url()
+    .refine(
+      (value) => ["http:", "https:"].includes(new URL(value).protocol),
+      "Image URL must be http or https",
+    ),
+  width: z.number().positive(),
+  size: z.number().int().min(1).max(500).default(100),
+  alt: z.string().optional(),
+  zIndex: z.number(),
+})
+
+const BoxSchema = z.union([TextBoxSchema, ImageBoxSchema])
+
 const SlideSchema = z.object({
   id: z.string(),
-  boxes: z.array(TextBoxSchema),
+  boxes: z.array(BoxSchema),
   background: z.string().optional(),
 })
 

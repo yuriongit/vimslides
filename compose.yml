@@ -6,6 +6,7 @@ services:
     environment:
       - SERVICES=s3
       - DEBUG=0
+    env_file: ./apps/api/.env.local
     volumes:
       - "./.localstack:/var/lib/localstack"
       - "./scripts/init-s3.sh:/etc/localstack/init/ready.d/init-s3.sh"
