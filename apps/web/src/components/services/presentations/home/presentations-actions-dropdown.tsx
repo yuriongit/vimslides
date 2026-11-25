@@ -19,7 +19,7 @@ export function PresentationActionsDropdown({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
-        className={buttonVariants({ size: "xs", variant: "outline" })}
+        className={buttonVariants({ size: "xs", variant: "secondary" })}
       >
         Actions
       </DropdownMenuTrigger>

@@ -112,7 +112,13 @@ export function CreatePresentationSheet({
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       {toggleBtn && (
-        <SheetTrigger render={<Button shortcut=":newp">Create</Button>} />
+        <SheetTrigger
+          render={
+            <Button shortcut=":newp" variant={"default"}>
+              Create
+            </Button>
+          }
+        />
       )}
       <SheetContent>
         <Card className="w-full sm:max-w-md">
