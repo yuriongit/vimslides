@@ -7,7 +7,6 @@ import { Separator } from "@/components/ui/separator"
 
 function ItemGroup({ className, ...props }: React.ComponentProps<"div">) {
   return (
-    // biome-ignore lint: UI component
     <div
       role="list"
       data-slot="item-group"
@@ -19,7 +18,6 @@ function ItemGroup({ className, ...props }: React.ComponentProps<"div">) {
     />
   )
 }
-
 function ItemSeparator({
   className,
   ...props
@@ -33,9 +31,8 @@ function ItemSeparator({
     />
   )
 }
-
 const itemVariants = cva(
-  "group/item flex w-full flex-wrap items-center rounded-md border text-sm transition-colors duration-100 outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 [a]:transition-colors [a]:hover:bg-muted",
+  "group/item flex w-full flex-wrap items-center rounded-md border text-sm transition-colors duration-100 outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 [a]:transition-colors [a]:hover:bg-muted border-transparent",
   {
     variants: {
       variant: {
@@ -48,38 +45,38 @@ const itemVariants = cva(
         sm: "gap-2.5 px-3 py-2.5",
         xs: "gap-2 px-2.5 py-2 in-data-[slot=dropdown-menu-content]:p-0",
       },
+      hover: { true: "", false: "" },
     },
-    defaultVariants: {
-      variant: "default",
-      size: "default",
-    },
+    compoundVariants: [
+      { variant: "default", hover: true, className: "hover:border-border" },
+      { variant: "outline", hover: true, className: "hover:border-primary/50" },
+      {
+        variant: "muted",
+        hover: true,
+        className: "hover:border-muted-foreground/30",
+      },
+    ],
+    defaultVariants: { variant: "default", size: "default", hover: false },
   },
 )
-
 function Item({
   className,
   variant = "default",
   size = "default",
+  hover = false,
   render,
   ...props
 }: useRender.ComponentProps<"div"> & VariantProps<typeof itemVariants>) {
   return useRender({
     defaultTagName: "div",
     props: mergeProps<"div">(
-      {
-        className: cn(itemVariants({ variant, size, className })),
-      },
+      { className: cn(itemVariants({ variant, size, hover, className })) },
       props,
     ),
     render,
-    state: {
-      slot: "item",
-      variant,
-      size,
-    },
+    state: { slot: "item", variant, size, hover },
   })
 }
-
 const itemMediaVariants = cva(
   "flex shrink-0 items-center justify-center gap-2 group-has-data-[slot=item-description]/item:translate-y-0.5 group-has-data-[slot=item-description]/item:self-start [&_svg]:pointer-events-none",
   {
@@ -91,12 +88,9 @@ const itemMediaVariants = cva(
           "size-10 overflow-hidden rounded-sm group-data-[size=sm]/item:size-8 group-data-[size=xs]/item:size-6 [&_img]:size-full [&_img]:object-cover",
       },
     },
-    defaultVariants: {
-      variant: "default",
-    },
+    defaultVariants: { variant: "default" },
   },
 )
-
 function ItemMedia({
   className,
   variant = "default",
@@ -111,7 +105,6 @@ function ItemMedia({
     />
   )
 }
-
 function ItemContent({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
@@ -124,7 +117,6 @@ function ItemContent({ className, ...props }: React.ComponentProps<"div">) {
     />
   )
 }
-
 function ItemTitle({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
@@ -137,7 +129,6 @@ function ItemTitle({ className, ...props }: React.ComponentProps<"div">) {
     />
   )
 }
-
 function ItemDescription({ className, ...props }: React.ComponentProps<"p">) {
   return (
     <p
@@ -150,7 +141,6 @@ function ItemDescription({ className, ...props }: React.ComponentProps<"p">) {
     />
   )
 }
-
 function ItemActions({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
@@ -160,7 +150,6 @@ function ItemActions({ className, ...props }: React.ComponentProps<"div">) {
     />
   )
 }
-
 function ItemHeader({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
@@ -173,7 +162,6 @@ function ItemHeader({ className, ...props }: React.ComponentProps<"div">) {
     />
   )
 }
-
 function ItemFooter({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div

@@ -170,7 +170,7 @@ export function PresentationsList({
           <ItemGroup className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 overflow-hidden overflow-y-auto scrollbar-none h-fit w-full min-w-full mt-2">
             {presentations.map((p) => {
               return (
-                <Item key={p.public_id} variant={"muted"}>
+                <Item key={p.public_id} variant={"muted"} hover>
                   <Link
                     to="/presentations/$id"
                     params={{ id: p.public_id }}
