@@ -11,7 +11,7 @@ import { MINUTE } from "@/constants/constants"
 import { getAuthHeaders } from "@/lib/auth/get-auth-headers"
 import { api } from "@/lib/clients/api/api.client"
 
-export const Route = createFileRoute("/_authenticated/presentations")({
+export const Route = createFileRoute("/_authenticated/presentations/")({
   component: Presentations,
 })
 function Presentations() {
@@ -98,14 +98,3 @@ function Presentations() {
     </div>
   )
 }
-
-// type Deck = {
-//   schemaVersion: number
-//   slide: { width: 1920; height: 1080 } // 16:9
-//   slides: Slide[] // array order = slide order
-// }
-//
-// type Slide = {
-//   id: string
-//   elements: Element[] // array order = back to front
-// }

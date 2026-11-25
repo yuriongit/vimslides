@@ -1,5 +1,6 @@
 import type { User } from "@supabase/supabase-js"
 import type { UseMutateAsyncFunction } from "@tanstack/react-query"
+import { Link } from "@tanstack/react-router"
 import type {
   Ok,
   Presentation,
@@ -20,7 +21,7 @@ import {
   UpdatePresentationSheet,
   useUpdatePresentation,
 } from "@/components/services/presentations/home/presentations-update-form"
-import { Button } from "@/components/ui/button"
+import { Button, buttonVariants } from "@/components/ui/button"
 import {
   PresentationsCmdBar,
   usePresentationsViewBar,
@@ -137,20 +138,26 @@ export function PresentationsList({
       />
       {presentations.length >= 1 ? (
         // List of projects view
-        <main className="rounded-sm border bg-card p-8 flex flex-col gap-5 xl:h-[53em] min-h-full xl:max-w-7xl w-full">
+        <main className="rounded-sm bg-sidebar p-8 flex flex-col gap-5 xl:h-[53em] min-h-full xl:max-w-7xl w-full">
           <div className="flex justify-between min-w-full items-center">
-            <div>
-              <header className="text-2xl font-semibold tracking-[-0.045em] text-balance sm:text-3xl text-primary font-special">
-                Presentations
-              </header>
-              <p className="text-accent-foreground text-sm sm:text-base font-sans">
+            {/*<div>*/}
+            <header className="text-2xl font-semibold tracking-[-0.045em] text-balance sm:text-3xl text-primary font-special">
+              Presentations
+            </header>
+            {/*<p className="text-accent-foreground text-sm sm:text-base font-sans">
                 All your presentations - manage them here.
-              </p>
-            </div>
+              </p>*/}
+            {/*</div>*/}
             <div className="flex gap-1">
               <Button variant={"ghost"} onClick={syncPresentations}>
                 <RefreshCcwIcon />
               </Button>
+              <Link
+                to="/presentations/canvas"
+                className={buttonVariants({ variant: "outline" })}
+              >
+                Try the Presentation Canvas Beta!
+              </Link>
               <CreatePresentationSheet
                 toggleBtn={true}
                 open={open}
