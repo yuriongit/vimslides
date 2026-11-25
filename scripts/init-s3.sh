@@ -1,62 +1,10 @@
 #!/bin/bash
-awslocal s3api create-bucket --bucket vimslides-assets-local
+aws --endpoint-url=http://localhost:4566 s3api create-bucket --bucket vimslides-assets-local 2>/dev/null || true
 
-awslocal s3api put-bucket-cors --bucket vimslides-assets-local --cors-configuration '{
+aws --endpoint-url=http://localhost:4566 s3api put-bucket-cors --bucket vimslides-assets-local --cors-configuration '{
   "CORSRules": [
     {
-      "AllowedOrigins": ["http://localhost:3000"],
-      "AllowedMethods": ["GET", "PUT", "HEAD"],
-      "AllowedHeaders": ["*"],
-      "ExposeHeaders": ["ETag"],
-      "MaxAgeSeconds": 3000
-    }
-  ]
-}'#!/bin/bash
-awslocal s3api create-bucket --bucket vimslides-assets-local
-
-awslocal s3api put-bucket-cors --bucket vimslides-assets-local --cors-configuration '{
-  "CORSRules": [
-    {
-      "AllowedOrigins": ["http://localhost:3000"],
-      "AllowedMethods": ["GET", "PUT", "HEAD"],
-      "AllowedHeaders": ["*"],
-      "ExposeHeaders": ["ETag"],
-      "MaxAgeSeconds": 3000
-    }
-  ]
-}'#!/bin/bash
-awslocal s3api create-bucket --bucket vimslides-assets-local
-
-awslocal s3api put-bucket-cors --bucket vimslides-assets-local --cors-configuration '{
-  "CORSRules": [
-    {
-      "AllowedOrigins": ["http://localhost:3000"],
-      "AllowedMethods": ["GET", "PUT", "HEAD"],
-      "AllowedHeaders": ["*"],
-      "ExposeHeaders": ["ETag"],
-      "MaxAgeSeconds": 3000
-    }
-  ]
-}'#!/bin/bash
-awslocal s3api create-bucket --bucket vimslides-assets-local
-
-awslocal s3api put-bucket-cors --bucket vimslides-assets-local --cors-configuration '{
-  "CORSRules": [
-    {
-      "AllowedOrigins": ["http://localhost:3000"],
-      "AllowedMethods": ["GET", "PUT", "HEAD"],
-      "AllowedHeaders": ["*"],
-      "ExposeHeaders": ["ETag"],
-      "MaxAgeSeconds": 3000
-    }
-  ]
-}'#!/bin/bash
-awslocal s3api create-bucket --bucket vimslides-assets-local
-
-awslocal s3api put-bucket-cors --bucket vimslides-assets-local --cors-configuration '{
-  "CORSRules": [
-    {
-      "AllowedOrigins": ["http://localhost:3000"],
+      "AllowedOrigins": ["http://localhost:3000", "http://localhost:3001"],
       "AllowedMethods": ["GET", "PUT", "HEAD"],
       "AllowedHeaders": ["*"],
       "ExposeHeaders": ["ETag"],
