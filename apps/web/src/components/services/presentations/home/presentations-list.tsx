@@ -88,7 +88,7 @@ export function PresentationsList({
   function confirmDelete() {
     if (!deleteTarget) return
     setDeleteOpen(false)
-    toast.promise(deleteFn(deleteTarget.id), {
+    toast.promise(deleteFn(deleteTarget.public_id), {
       loading: "Deleting presentation",
       error: (err) => ({
         title: "Failed to delete presentation",
@@ -115,7 +115,7 @@ export function PresentationsList({
     onOpen: (presentation) =>
       void navigate({
         to: "/presentations/$id",
-        params: { id: String(presentation.id) },
+        params: { id: presentation.public_id },
       }),
     onDelete: requestDelete,
     onSync: syncPresentations,
@@ -158,12 +158,6 @@ export function PresentationsList({
               <Button variant={"ghost"} onClick={syncPresentations}>
                 <RefreshCcwIcon />
               </Button>
-              <Link
-                to="/presentations/canvas"
-                className={buttonVariants({ variant: "outline" })}
-              >
-                Try the Presentation Canvas Beta!
-              </Link>
               <CreatePresentationSheet
                 toggleBtn={true}
                 open={open}
@@ -176,13 +170,13 @@ export function PresentationsList({
           <ItemGroup className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 overflow-hidden overflow-y-auto scrollbar-none h-fit w-full min-w-full mt-2">
             {presentations.map((p) => {
               return (
-                <Link
-                  key={p.id}
-                  to="/presentations/$id"
-                  params={{ id: String(p.id) }}
-                  className="block"
-                >
-                  <Item variant={"muted"}>
+                <Item key={p.public_id} variant={"muted"}>
+                  <Link
+                    to="/presentations/$id"
+                    params={{ id: p.public_id }}
+                    className="flex w-full flex-wrap rounded-md"
+                    aria-label={`Open ${p.title}`}
+                  >
                     <ItemHeader>
                       <img
                         loading="lazy"
@@ -198,22 +192,22 @@ export function PresentationsList({
                       />
                     </ItemHeader>
 
-                    <ItemContent>
+                    <ItemContent className="pt-4">
                       <ItemTitle>{p.title}</ItemTitle>
                       <ItemDescription>
                         {p.description ?? "N/A"}
                       </ItemDescription>
                     </ItemContent>
+                  </Link>
 
-                    <Separator />
-                    <ItemActions onClick={(e) => e.stopPropagation()}>
-                      <PresentationActionsDropdown
-                        onDelete={() => requestDelete(p)}
-                        onEdit={() => openUpdatePresentation(p)}
-                      />
-                    </ItemActions>
-                  </Item>
-                </Link>
+                  <Separator />
+                  <ItemActions>
+                    <PresentationActionsDropdown
+                      onDelete={() => requestDelete(p)}
+                      onEdit={() => openUpdatePresentation(p)}
+                    />
+                  </ItemActions>
+                </Item>
               )
             })}
           </ItemGroup>

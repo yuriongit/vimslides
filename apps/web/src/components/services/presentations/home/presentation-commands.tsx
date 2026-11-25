@@ -43,7 +43,7 @@ export function definePresentationCommands({
     },
     {
       kind: "picker",
-      name: ":open",
+      name: ":openp",
       description: "Open presentation",
       onPick: onOpen,
     },

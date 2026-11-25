@@ -26,8 +26,8 @@ const SlideSchema = z.object({
   background: z.string().optional(),
 })
 
-const IdParamsSchema = z.object({
-  id: z.coerce.number().int().positive(),
+const PublicIdParamsSchema = z.object({
+  id: z.uuid(),
 })
 
 const AssetBodySchema = z.object({
@@ -71,7 +71,9 @@ export const presentationRoutes = new Elysia()
           description: body.description ?? null,
           slides: defaultInitialSlides(body.title) as Json,
         })
-        .select("id, title, description, slide_count, slides, last_modified")
+        .select(
+          "id, public_id, title, description, slide_count, slides, last_modified",
+        )
         .single()
 
       if (error) throw new ApiError(Number(error.code), error.message)
@@ -91,8 +93,10 @@ export const presentationRoutes = new Elysia()
     async ({ params, supabase, jwtClaims }) => {
       const { data, error } = await supabase
         .from("presentations")
-        .select("id, title, description, slide_count, slides, last_modified")
-        .eq("id", params.id)
+        .select(
+          "id, public_id, title, description, slide_count, slides, last_modified",
+        )
+        .eq("public_id", params.id)
         .eq("user_id", jwtClaims.sub)
         .single()
 
@@ -106,7 +110,7 @@ export const presentationRoutes = new Elysia()
 
       return data
     },
-    { params: IdParamsSchema },
+    { params: PublicIdParamsSchema },
   )
   .patch(
     "/presentations/:id",
@@ -117,9 +121,9 @@ export const presentationRoutes = new Elysia()
           ...(body.title !== undefined ? { title: body.title } : {}),
           ...(body.slides !== undefined ? { slides: body.slides as Json } : {}),
         })
-        .eq("id", params.id)
+        .eq("public_id", params.id)
         .eq("user_id", jwtClaims.sub)
-        .select("id, slide_count, last_modified")
+        .select("public_id, slide_count, last_modified")
         .single()
 
       if (error) {
@@ -133,7 +137,7 @@ export const presentationRoutes = new Elysia()
       return data
     },
     {
-      params: IdParamsSchema,
+      params: PublicIdParamsSchema,
       body: z.object({
         title: z.string().min(1).max(100).optional(),
         slides: z.array(SlideSchema).optional(),
@@ -145,8 +149,8 @@ export const presentationRoutes = new Elysia()
     async ({ params, body, supabase, jwtClaims }) => {
       const { data, error } = await supabase
         .from("presentations")
-        .select("id")
-        .eq("id", params.id)
+        .select("public_id")
+        .eq("public_id", params.id)
         .eq("user_id", jwtClaims.sub)
         .single()
 
@@ -165,7 +169,7 @@ export const presentationRoutes = new Elysia()
         contentType: body.contentType,
       })
     },
-    { params: IdParamsSchema, body: AssetBodySchema },
+    { params: PublicIdParamsSchema, body: AssetBodySchema },
   )
   .delete(
     "/presentations",
@@ -173,7 +177,7 @@ export const presentationRoutes = new Elysia()
       const { error } = await supabase
         .from("presentations")
         .delete()
-        .eq("id", body.id)
+        .eq("public_id", body.public_id)
         .eq("user_id", jwtClaims.sub)
 
       if (error) throw new ApiError(Number(error.code), error.message)
@@ -199,7 +203,7 @@ export const presentationRoutes = new Elysia()
         .from("presentations")
         .update(body.fields)
         .eq("user_id", jwtClaims.sub)
-        .eq("id", body.id)
+        .eq("public_id", body.public_id)
 
       if (error) throw new ApiError(Number(error.code), error.message)
 

@@ -148,11 +148,11 @@ export function PresentationsCmdBar({
               <CommandGroup heading={activePicker.description}>
                 {presentations.map((p) => (
                   <CommandItem
-                    key={p.id}
-                    value={String(p.id)}
+                    key={p.public_id}
+                    value={p.public_id}
                     keywords={[
                       p.title,
-                      String(p.id),
+                      p.public_id,
                       formatDate(p.last_modified),
                       formatDate(p.created_at),
                     ]}
@@ -161,8 +161,11 @@ export function PresentationsCmdBar({
                     <div className="min-w-full">
                       <div className="flex min-w-full items-center justify-between gap-4">
                         <span className="truncate max-w-2xs">{p.title}</span>
-                        <span className="shrink-0 font-mono text-xs text-muted-foreground">
-                          id={String(p.id)}
+                        <span
+                          className="max-w-36 shrink-0 truncate font-mono text-xs text-muted-foreground"
+                          title={p.public_id}
+                        >
+                          id={p.public_id}
                         </span>
                       </div>
 

@@ -1,5 +1,6 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { createFileRoute, useNavigate } from "@tanstack/react-router"
+import { z } from "zod"
 import { PresentationCanvas } from "@/components/services/presentations/canvas/presentation-canvas"
 import type { Slide } from "@/components/services/presentations/canvas/vim-slides.types"
 import { Loading } from "@/components/ui/loading"
@@ -14,16 +15,15 @@ function PresentationEditor() {
   const { id } = Route.useParams()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
-  const presentationId = Number(id)
-  const isValidId = Number.isInteger(presentationId) && presentationId > 0
+  const isValidId = z.uuid().safeParse(id).success
 
   const presentationQuery = useQuery({
-    queryKey: ["presentation", presentationId],
+    queryKey: ["presentation", id],
     enabled: isValidId,
     queryFn: async () => {
       const headers = await getAuthHeaders()
       const { data, error, status } = await api
-        .presentations({ id: presentationId })
+        .presentations({ id })
         .get({ headers })
 
       if (error || !data) {
@@ -53,17 +53,17 @@ function PresentationEditor() {
       initialCloudSlides={cloudSlides}
       onCloudWrite={async (slides) => {
         const { error } = await api
-          .presentations({ id: presentation.id })
+          .presentations({ id: presentation.public_id })
           .patch({ slides }, { headers: await getAuthHeaders() })
 
         if (error) throw new Error("Cloud write failed")
 
         await queryClient.invalidateQueries({
-          queryKey: ["presentation", presentation.id],
+          queryKey: ["presentation", presentation.public_id],
         })
         await queryClient.invalidateQueries({ queryKey: ["presentations"] })
       }}
-      presentationId={String(presentation.id)}
+      presentationId={presentation.public_id}
       title={presentation.title}
       onExitToDashboard={() => void navigate({ to: "/presentations" })}
     />

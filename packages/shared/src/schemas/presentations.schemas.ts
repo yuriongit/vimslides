@@ -15,6 +15,7 @@ export const PresentationSchema = z4.toZod<Presentation>()(
     file_url: z4.string().nullable(), // z4.url
     id: z4.number(),
     last_modified: z4.string(),
+    public_id: z4.uuid(),
     schema_version: z4.number().int(),
     slide_count: z4.number().nonnegative(),
     slides: JsonValueSchema,

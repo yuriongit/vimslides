@@ -49,7 +49,7 @@ function Presentations() {
 
       if (error) throw error
       if (!data) throw new Error("Failed to create presentation")
-      return data.id
+      return data.public_id
     },
     onSuccess: (id) => {
       queryClient.invalidateQueries({ queryKey: ["presentations"] })
@@ -63,7 +63,7 @@ function Presentations() {
     mutationFn: async (id: PresentationId) => {
       const authHeaders = await getAuthHeaders()
       const { error } = await api.presentations.delete(
-        { id },
+        { public_id: id },
         { headers: authHeaders },
       )
       if (error) throw error

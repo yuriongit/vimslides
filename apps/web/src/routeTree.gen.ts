@@ -16,7 +16,6 @@ import { Route as PublicLoginRouteImport } from './routes/_public/login'
 import { Route as PublicSignUpRouteImport } from './routes/_public/sign-up'
 import { Route as AuthenticatedPresentationsIndexRouteImport } from './routes/_authenticated/presentations/index'
 import { Route as AuthenticatedPresentationsIdRouteImport } from './routes/_authenticated/presentations/$id'
-import { Route as AuthenticatedPresentationsCanvasRouteImport } from './routes/_authenticated/presentations/canvas'
 
 const AuthenticatedRoute = AuthenticatedRouteImport.update({
   id: '/_authenticated',
@@ -53,19 +52,12 @@ const AuthenticatedPresentationsIdRoute =
     path: '/presentations/$id',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
-const AuthenticatedPresentationsCanvasRoute =
-  AuthenticatedPresentationsCanvasRouteImport.update({
-    id: '/presentations/canvas',
-    path: '/presentations/canvas',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof PublicIndexRoute
   '/login': typeof PublicLoginRoute
   '/sign-up': typeof PublicSignUpRoute
   '/presentations/$id': typeof AuthenticatedPresentationsIdRoute
-  '/presentations/canvas': typeof AuthenticatedPresentationsCanvasRoute
   '/presentations/': typeof AuthenticatedPresentationsIndexRoute
 }
 export interface FileRoutesByTo {
@@ -73,7 +65,6 @@ export interface FileRoutesByTo {
   '/login': typeof PublicLoginRoute
   '/sign-up': typeof PublicSignUpRoute
   '/presentations/$id': typeof AuthenticatedPresentationsIdRoute
-  '/presentations/canvas': typeof AuthenticatedPresentationsCanvasRoute
   '/presentations': typeof AuthenticatedPresentationsIndexRoute
 }
 export interface FileRoutesById {
@@ -84,26 +75,14 @@ export interface FileRoutesById {
   '/_public/sign-up': typeof PublicSignUpRoute
   '/_public/': typeof PublicIndexRoute
   '/_authenticated/presentations/$id': typeof AuthenticatedPresentationsIdRoute
-  '/_authenticated/presentations/canvas': typeof AuthenticatedPresentationsCanvasRoute
   '/_authenticated/presentations/': typeof AuthenticatedPresentationsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    | '/'
-    | '/login'
-    | '/sign-up'
-    | '/presentations/$id'
-    | '/presentations/canvas'
-    | '/presentations/'
+    '/' | '/login' | '/sign-up' | '/presentations/$id' | '/presentations/'
   fileRoutesByTo: FileRoutesByTo
-  to:
-    | '/'
-    | '/login'
-    | '/sign-up'
-    | '/presentations/$id'
-    | '/presentations/canvas'
-    | '/presentations'
+  to: '/' | '/login' | '/sign-up' | '/presentations/$id' | '/presentations'
   id:
     | '__root__'
     | '/_authenticated'
@@ -112,7 +91,6 @@ export interface FileRouteTypes {
     | '/_public/sign-up'
     | '/_public/'
     | '/_authenticated/presentations/$id'
-    | '/_authenticated/presentations/canvas'
     | '/_authenticated/presentations/'
   fileRoutesById: FileRoutesById
 }
@@ -172,25 +150,16 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPresentationsIdRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/presentations/canvas': {
-      id: '/_authenticated/presentations/canvas'
-      path: '/presentations/canvas'
-      fullPath: '/presentations/canvas'
-      preLoaderRoute: typeof AuthenticatedPresentationsCanvasRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
   }
 }
 
 interface AuthenticatedRouteChildren {
   AuthenticatedPresentationsIdRoute: typeof AuthenticatedPresentationsIdRoute
-  AuthenticatedPresentationsCanvasRoute: typeof AuthenticatedPresentationsCanvasRoute
   AuthenticatedPresentationsIndexRoute: typeof AuthenticatedPresentationsIndexRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedPresentationsIdRoute: AuthenticatedPresentationsIdRoute,
-  AuthenticatedPresentationsCanvasRoute: AuthenticatedPresentationsCanvasRoute,
   AuthenticatedPresentationsIndexRoute: AuthenticatedPresentationsIndexRoute,
 }
 

@@ -41,6 +41,7 @@ export type Database = {
           file_url: string | null
           id: number
           last_modified: string
+          public_id: string
           schema_version: number
           slide_count: number
           slides: Json
@@ -54,6 +55,7 @@ export type Database = {
           file_url?: string | null
           id?: number
           last_modified?: string
+          public_id?: string
           schema_version?: number
           slide_count?: number
           slides?: Json
@@ -66,6 +68,7 @@ export type Database = {
           file_url?: string | null
           id?: number
           last_modified?: string
+          public_id?: string
           schema_version?: number
           slide_count?: number
           slides?: Json
