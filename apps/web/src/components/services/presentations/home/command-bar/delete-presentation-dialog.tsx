@@ -26,7 +26,7 @@ export function DeletePresentationDialog({
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Delete "{title}"?</AlertDialogTitle>
+          <AlertDialogTitle>Delete <span className="text-primary">{title}</span>?</AlertDialogTitle>
           <AlertDialogDescription>
             This action cannot be undone. This will permanently delete your
             presentation from our servers.

@@ -50,13 +50,13 @@ type UserDropdownMenuProps = {
 function UserDropdownMenu({ email, onSignOut }: UserDropdownMenuProps) {
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger render={<Button variant="outline" size="sm" />}>
+      <DropdownMenuTrigger render={<Button variant="outline" size="icon-sm" />}>
         <UserCircle2 />
       </DropdownMenuTrigger>
 
       <DropdownMenuContent className="max-w-40 w-full min-w-40">
         <DropdownMenuGroup>
-          <DropdownMenuLabel className="flex flex-col items-start gap-0">
+          <DropdownMenuLabel className="flex flex-col items-start gap-0 font-medium">
             My Account
             {email && (
               <span className="text-xs font-normal text-muted-foreground truncate text-ellipsis w-full">
@@ -79,10 +79,6 @@ function UserDropdownMenu({ email, onSignOut }: UserDropdownMenuProps) {
 
         <DropdownMenuGroup>
           <DropdownMenuItem
-            className={buttonVariants({
-              variant: "destructive",
-              className: "w-full justify-start",
-            })}
             onClick={onSignOut}
           >
             <LogOut />
