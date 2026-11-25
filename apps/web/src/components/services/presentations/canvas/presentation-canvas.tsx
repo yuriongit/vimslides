@@ -433,7 +433,7 @@ export function PresentationCanvas({
                         >
                           <Minus className="h-3 w-3" />
                         </Button>
-                        <span className="min-w-[2.5rem] text-center font-mono text-xs tabular-nums text-foreground">
+                        <span className="min-w-10 text-center font-mono text-xs tabular-nums text-foreground">
                           {selectedBox.fontSize}px
                         </span>
                         <Button
@@ -569,7 +569,7 @@ export function PresentationCanvas({
                         !currentSlide?.background && "bg-secondary",
                       )}
                     />
-                    <span className="max-w-[6.5rem] truncate text-foreground">
+                    <span className="max-w-26 truncate text-foreground">
                       {currentSlide?.background ?? "Default"}
                     </span>
                     {currentSlide?.background && (
@@ -717,7 +717,7 @@ export function PresentationCanvas({
                     type="button"
                     onClick={resetZoom}
                     title="Reset zoom to 100% (0)"
-                    className="min-w-[3.5rem] rounded px-1.5 py-0.5 text-center font-mono text-xs tabular-nums text-secondary-foreground hover:bg-background/50"
+                    className="min-w-14 rounded px-1.5 py-0.5 text-center font-mono text-xs tabular-nums text-secondary-foreground hover:bg-background/50"
                   >
                     {zoom}%
                   </button>
@@ -999,7 +999,7 @@ function FreeFormTextBox({
       <span
         ref={textMeasureRef}
         className={cn(
-          "relative block whitespace-pre-wrap break-words",
+          "relative block whitespace-pre-wrap wrap-break-word",
           typographyClasses,
         )}
       >
@@ -1022,7 +1022,7 @@ function FreeFormTextBox({
                   data-char-idx={idx}
                   className={cn(
                     "inline-block w-[0.35em] select-none",
-                    isSelected && "rounded-[2px] bg-primary/30",
+                    isSelected && "rounded-xs bg-primary/30",
                   )}
                 >
                   {"\u200b"}
@@ -1037,7 +1037,7 @@ function FreeFormTextBox({
               data-char-idx={idx}
               className={cn(
                 "transition-colors duration-100",
-                isSelected && "rounded-[2px] bg-primary/30",
+                isSelected && "rounded-xs bg-primary/30",
                 isFresh && "animate-vim-char",
               )}
             >
@@ -1071,7 +1071,7 @@ function FreeFormTextBox({
           : "left 210ms cubic-bezier(0.22, 1, 0.36, 1), top 210ms cubic-bezier(0.22, 1, 0.36, 1), font-size 180ms cubic-bezier(0.22, 1, 0.36, 1), color 160ms ease, transform 160ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 180ms ease",
       }}
       className={cn(
-        "animate-vim-box-enter absolute inline-block max-w-[820px] select-none rounded-[2px] px-2 py-1 leading-snug will-change-[left,top,transform]",
+        "animate-vim-box-enter absolute inline-block max-w-205 select-none rounded-xs px-2 py-1 leading-snug will-change-[left,top,transform]",
         colorProps.className,
         typographyClasses,
         !isInserting && (isDragging ? "cursor-grabbing" : "cursor-move"),
@@ -1094,7 +1094,7 @@ function FreeFormTextBox({
                   "transform 85ms cubic-bezier(0.22, 1, 0.36, 1), width 85ms cubic-bezier(0.22, 1, 0.36, 1), height 85ms cubic-bezier(0.22, 1, 0.36, 1)",
               }}
               className={cn(
-                "pointer-events-none absolute left-0 top-0 z-10 rounded-[2px]",
+                "pointer-events-none absolute left-0 top-0 z-10 rounded-xs",
                 isInserting
                   ? "bg-current shadow-[0_0_8px_currentColor]"
                   : "bg-primary/35 ring-1 ring-primary",
@@ -1120,7 +1120,7 @@ function FreeFormTextBox({
               onKeyUp={(e) => onCursorSync(e.currentTarget.selectionStart ?? 0)}
               onClick={(e) => onCursorSync(e.currentTarget.selectionStart ?? 0)}
               className={cn(
-                "col-start-1 row-start-1 h-full w-full resize-none overflow-hidden whitespace-pre-wrap break-words bg-transparent p-0 leading-snug text-transparent caret-transparent selection:bg-primary/25 focus:outline-none",
+                "col-start-1 row-start-1 h-full w-full resize-none overflow-hidden whitespace-pre-wrap wrap-break-word bg-transparent p-0 leading-snug text-transparent caret-transparent selection:bg-primary/25 focus:outline-none",
                 typographyClasses,
               )}
             />
@@ -1129,7 +1129,7 @@ function FreeFormTextBox({
       ) : (
         <span
           className={cn(
-            "block whitespace-pre-wrap break-words",
+            "block whitespace-pre-wrap wrap-break-word",
             typographyClasses,
           )}
         >
