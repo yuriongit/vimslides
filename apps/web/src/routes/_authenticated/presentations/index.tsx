@@ -9,8 +9,10 @@ import type {
   PresentationInsert,
   PresentationUpdate,
 } from "@vss/shared"
+import { AppSidebar } from "@/components/app-sidebar"
 import { PresentationsList } from "@/components/services/presentations/home/presentations-list"
 import { Loading } from "@/components/ui/loading"
+import { SidebarProvider } from "@/components/ui/sidebar"
 import { MINUTE } from "@/constants/constants"
 import { getAuthHeaders } from "@/lib/auth/get-auth-headers"
 import { api } from "@/lib/clients/api/api.client"
@@ -97,14 +99,17 @@ function Presentations() {
       ) : presentationsQuery.isError ? (
         <p>{`Error: ${presentationsQuery.error.message}`}</p>
       ) : (
-        <PresentationsList
-          user={user.user}
-          presentations={presentationsQuery.data ?? []}
-          syncFn={() => presentationsQuery.refetch({ throwOnError: true })}
-          createFn={presentationCreateMutation.mutateAsync}
-          deleteFn={presentationDeleteMutation.mutateAsync}
-          updateFn={presentationUpdateMutation.mutateAsync}
-        />
+        <SidebarProvider>
+          <AppSidebar />
+          <PresentationsList
+            user={user.user}
+            presentations={presentationsQuery.data ?? []}
+            syncFn={() => presentationsQuery.refetch({ throwOnError: true })}
+            createFn={presentationCreateMutation.mutateAsync}
+            deleteFn={presentationDeleteMutation.mutateAsync}
+            updateFn={presentationUpdateMutation.mutateAsync}
+          />
+        </SidebarProvider>
       )}
     </div>
   )

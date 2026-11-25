@@ -21,7 +21,7 @@ import {
   UpdatePresentationSheet,
   useUpdatePresentation,
 } from "@/components/services/presentations/home/presentations-update-form"
-import { Button, buttonVariants } from "@/components/ui/button"
+import { Button } from "@/components/ui/button"
 import {
   PresentationsCmdBar,
   usePresentationsViewBar,
@@ -43,6 +43,7 @@ import {
   ItemTitle,
 } from "@/components/ui/item"
 import { Separator } from "@/components/ui/separator"
+import { SidebarTrigger } from "@/components/ui/sidebar"
 import { toast } from "@/components/ui/toast"
 import { errorMessage } from "@/utils/error-messages"
 
@@ -146,14 +147,13 @@ export function PresentationsList({
         // List of projects view
         <main className="rounded-sm bg-sidebar p-8 flex flex-col gap-5 xl:h-[53em] min-h-full xl:max-w-7xl w-full">
           <div className="flex justify-between min-w-full items-center">
-            {/*<div>*/}
-            <header className="text-2xl font-semibold tracking-[-0.045em] text-balance sm:text-3xl text-primary font-special">
-              Presentations
-            </header>
-            {/*<p className="text-accent-foreground text-sm sm:text-base font-sans">
-                All your presentations - manage them here.
-              </p>*/}
-            {/*</div>*/}
+            <div className={`flex items-center gap-2.5`}>
+              <SidebarTrigger />
+              <Separator orientation="vertical" className="mr-2" />
+              <header className="text-2xl font-semibold tracking-[-0.045em] text-balance sm:text-3xl text-primary font-special">
+                Presentations
+              </header>
+            </div>
             <div className="flex gap-1">
               <Button variant={"ghost"} onClick={syncPresentations}>
                 <RefreshCcwIcon />
