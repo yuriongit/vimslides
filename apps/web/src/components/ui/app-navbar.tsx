@@ -27,7 +27,7 @@ export function AppNavbar() {
   }
 
   return (
-    <nav className="flex w-full items-center justify-between bg-sidebar px-6 py-3">
+    <nav className="flex w-full items-center justify-between bg-sidebar top-0 sticky px-6 py-3 z-30">
       <div className="flex items-center">
         <ModeToggle />
       </div>
@@ -54,12 +54,12 @@ function UserDropdownMenu({ email, onSignOut }: UserDropdownMenuProps) {
         <UserCircle2 />
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent className="w-fit">
+      <DropdownMenuContent className="max-w-40 w-full min-w-40">
         <DropdownMenuGroup>
           <DropdownMenuLabel className="flex flex-col items-start gap-0">
             My Account
             {email && (
-              <span className="text-xs font-normal text-muted-foreground">
+              <span className="text-xs font-normal text-muted-foreground truncate text-ellipsis w-full">
                 {email}
               </span>
             )}

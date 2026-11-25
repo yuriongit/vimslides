@@ -27,12 +27,17 @@ import {
   type WhichKeyState,
 } from "@/hooks/use-vim-slides"
 import { cn } from "@/lib/utils"
-import type {
-  EditorScope,
-  Slide,
-  TextAlign,
-  TextBox,
-  VimMode,
+import {
+  type CanvasBox,
+  type EditorScope,
+  getImageRenderedWidth,
+  type ImageBox,
+  isImageBox,
+  isTextBox,
+  type Slide,
+  type TextAlign,
+  type TextBox,
+  type VimMode,
 } from "./vim-slides.types"
 
 interface PresentationCanvasProps {
@@ -85,13 +90,51 @@ function getBoxColorProps(rawColor?: string) {
 }
 function getBoxTypographyClasses(box: TextBox): string {
   return cn(
-    box.bold && "font-bold",
+    box.bold && "font-semibold",
     box.italic && "italic",
     box.align === "center"
       ? "text-center"
       : box.align === "right"
         ? "text-right"
         : "text-left",
+  )
+}
+function StaticSlideBox({ box }: { box: CanvasBox }) {
+  if (isImageBox(box)) {
+    return (
+      <img
+        src={box.src}
+        alt={box.alt ?? ""}
+        draggable={false}
+        style={{
+          left: box.x,
+          top: box.y,
+          width: getImageRenderedWidth(box),
+          height: "auto",
+          zIndex: box.zIndex,
+        }}
+        className="absolute object-contain"
+      />
+    )
+  }
+  const colorProps = getBoxColorProps(box.color)
+  return (
+    <div
+      style={{
+        left: box.x,
+        top: box.y,
+        fontSize: box.fontSize,
+        zIndex: box.zIndex,
+        ...colorProps.style,
+      }}
+      className={cn(
+        "absolute whitespace-pre-wrap leading-snug",
+        colorProps.className,
+        getBoxTypographyClasses(box),
+      )}
+    >
+      {box.text}
+    </div>
   )
 }
 const BASE_CHEATSHEET: WhichKeyState = {
@@ -103,6 +146,8 @@ const BASE_CHEATSHEET: WhichKeyState = {
     { key: "H J K L / Tab", label: "Focus adjacent / next box" },
     { key: "gj / i / A / I", label: "Enter TEXT scope / insert" },
     { key: "o", label: "Add new text box" },
+    { key: ":img <url>", label: "Add image from URL" },
+    { key: ":size <1-500|+N|-N>", label: "Set text size / image scale" },
     { key: "dd / cc / yy / P", label: "Delete / clear / yank / paste box" },
     {
       key: "dS / yS / ps / pS",
@@ -117,7 +162,7 @@ const BASE_CHEATSHEET: WhichKeyState = {
       label: "Toggle bold, italic, or text align",
     },
     { key: ":bg <color>", label: "Set or reset slide background" },
-    { key: "> / <", label: "Increase / decrease font size" },
+    { key: "> / <", label: "Increase / decrease text size or image scale" },
     { key: "] [ / } {", label: "Layer forward/back / front/back" },
     { key: "ss / sS / sg / sG", label: "Next / prev / first / last slide" },
     { key: "( / )", label: "Reorder slide up / down" },
@@ -182,6 +227,7 @@ export function PresentationCanvas({
     setIsPresenting,
     addTextBox,
     updateBox,
+    setImageSize,
     setSlideBackground,
     addSlide,
   } = useVimSlides({
@@ -200,7 +246,7 @@ export function PresentationCanvas({
     startBoxY: number
   } | null>(null)
   const [draggingBoxId, setDraggingBoxId] = useState<string | null>(null)
-  const handleBoxMouseDown = (e: React.MouseEvent, box: TextBox) => {
+  const handleBoxMouseDown = (e: React.MouseEvent, box: CanvasBox) => {
     e.stopPropagation()
     setSelectedBoxId(box.id)
     if (mode === "INSERT" && selectedBoxId !== box.id) {
@@ -276,28 +322,9 @@ export function PresentationCanvas({
             !currentSlide.background && "bg-secondary",
           )}
         >
-          {orderedBoxes.map((box) => {
-            const colorProps = getBoxColorProps(box.color)
-            return (
-              <div
-                key={box.id}
-                style={{
-                  left: box.x,
-                  top: box.y,
-                  fontSize: box.fontSize,
-                  zIndex: box.zIndex,
-                  ...colorProps.style,
-                }}
-                className={cn(
-                  "absolute whitespace-pre-wrap leading-snug",
-                  colorProps.className,
-                  getBoxTypographyClasses(box),
-                )}
-              >
-                {box.text}
-              </div>
-            )
-          })}
+          {orderedBoxes.map((box) => (
+            <StaticSlideBox key={box.id} box={box} />
+          ))}
         </div>
         <div className="fixed bottom-4 right-6 rounded-md border border-border bg-secondary/80 px-3 py-1.5 font-mono text-xs text-secondary-foreground backdrop-blur-md">
           {activeSlideIndex + 1} / {slides.length} • j/k navigate • Esc exit
@@ -308,8 +335,12 @@ export function PresentationCanvas({
   const orderedBoxes = [...(currentSlide?.boxes ?? [])].sort(
     (a, b) => a.zIndex - b.zIndex,
   )
-  const resolvedSelectedColor = selectedBox
-    ? resolveAdaptiveColor(selectedBox.color)
+  const selectedTextBox =
+    selectedBox && isTextBox(selectedBox) ? selectedBox : null
+  const selectedImage =
+    selectedBox && isImageBox(selectedBox) ? selectedBox : null
+  const resolvedSelectedColor = selectedTextBox
+    ? resolveAdaptiveColor(selectedTextBox.color)
     : undefined
   const activeWhichKey =
     whichKey
@@ -318,7 +349,7 @@ export function PresentationCanvas({
         ? BASE_CHEATSHEET
         : TEXT_CHEATSHEET
       : null)
-  const activeAlign: TextAlign = selectedBox?.align ?? "left"
+  const activeAlign: TextAlign = selectedTextBox?.align ?? "left"
   return (
     <>
       <main className="h-[85dvh] w-full text-foreground print:hidden">
@@ -404,7 +435,7 @@ export function PresentationCanvas({
           <ResizableHandle withHandle />
           <ResizablePanel defaultSize="80%">
             <div className="relative flex h-full flex-col overflow-hidden bg-muted/30">
-              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border bg-background/80 px-3 py-1.5 backdrop-blur-xs">
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border bg-background/80 px-3 py-3 backdrop-blur-xs">
                 <div className="flex flex-wrap items-center gap-2">
                   <Button
                     variant="ghost"
@@ -413,10 +444,10 @@ export function PresentationCanvas({
                     onClick={() => addTextBox(true)}
                     title="New text box (o)"
                   >
-                    <Type className="h-3.5 w-3.5" />
+                    <Type />
                     Add Text Box
                   </Button>
-                  {selectedBox && (
+                  {(selectedTextBox || selectedImage) && (
                     <>
                       <div className="h-4 w-px bg-border" />
                       <div className="flex items-center gap-1">
@@ -424,42 +455,80 @@ export function PresentationCanvas({
                           variant="ghost"
                           size="icon"
                           className="h-6 w-6"
-                          onClick={() =>
-                            updateBox(selectedBox.id, {
-                              fontSize: Math.max(12, selectedBox.fontSize - 4),
-                            })
+                          onClick={() => {
+                            if (selectedImage) {
+                              setImageSize(
+                                selectedImage.id,
+                                selectedImage.size - 10,
+                              )
+                              return
+                            }
+                            if (selectedTextBox) {
+                              updateBox(selectedTextBox.id, {
+                                fontSize: Math.max(
+                                  12,
+                                  selectedTextBox.fontSize - 4,
+                                ),
+                              })
+                            }
+                          }}
+                          title={
+                            selectedImage
+                              ? "Decrease image size (:size -10)"
+                              : "Decrease font size (:size -4)"
                           }
-                          title="Decrease font size (:size -4)"
                         >
                           <Minus className="h-3 w-3" />
                         </Button>
                         <span className="min-w-10 text-center font-mono text-xs tabular-nums text-foreground">
-                          {selectedBox.fontSize}px
+                          {selectedImage
+                            ? `Size ${selectedImage.size}`
+                            : `${selectedTextBox?.fontSize}px`}
                         </span>
                         <Button
                           variant="ghost"
                           size="icon"
                           className="h-6 w-6"
-                          onClick={() =>
-                            updateBox(selectedBox.id, {
-                              fontSize: Math.min(140, selectedBox.fontSize + 4),
-                            })
+                          onClick={() => {
+                            if (selectedImage) {
+                              setImageSize(
+                                selectedImage.id,
+                                selectedImage.size + 10,
+                              )
+                              return
+                            }
+                            if (selectedTextBox) {
+                              updateBox(selectedTextBox.id, {
+                                fontSize: Math.min(
+                                  140,
+                                  selectedTextBox.fontSize + 4,
+                                ),
+                              })
+                            }
+                          }}
+                          title={
+                            selectedImage
+                              ? "Increase image size (:size +10)"
+                              : "Increase font size (:size +4)"
                           }
-                          title="Increase font size (:size +4)"
                         >
                           <Plus className="h-3 w-3" />
                         </Button>
                       </div>
+                    </>
+                  )}
+                  {selectedTextBox && (
+                    <>
                       <div className="h-4 w-px bg-border" />
                       <div className="flex items-center gap-0.5">
                         <Button
-                          variant={selectedBox.bold ? "secondary" : "ghost"}
+                          variant={selectedTextBox.bold ? "secondary" : "ghost"}
                           size="icon"
                           className="h-6 w-6"
-                          aria-pressed={!!selectedBox.bold}
+                          aria-pressed={!!selectedTextBox.bold}
                           onClick={() =>
-                            updateBox(selectedBox.id, {
-                              bold: !selectedBox.bold,
+                            updateBox(selectedTextBox.id, {
+                              bold: !selectedTextBox.bold,
                             })
                           }
                           title="Toggle bold (:bold)"
@@ -467,13 +536,15 @@ export function PresentationCanvas({
                           <Bold className="h-3 w-3" />
                         </Button>
                         <Button
-                          variant={selectedBox.italic ? "secondary" : "ghost"}
+                          variant={
+                            selectedTextBox.italic ? "secondary" : "ghost"
+                          }
                           size="icon"
                           className="h-6 w-6"
-                          aria-pressed={!!selectedBox.italic}
+                          aria-pressed={!!selectedTextBox.italic}
                           onClick={() =>
-                            updateBox(selectedBox.id, {
-                              italic: !selectedBox.italic,
+                            updateBox(selectedTextBox.id, {
+                              italic: !selectedTextBox.italic,
                             })
                           }
                           title="Toggle italic (:italic)"
@@ -491,7 +562,7 @@ export function PresentationCanvas({
                           className="h-6 w-6"
                           aria-pressed={activeAlign === "left"}
                           onClick={() =>
-                            updateBox(selectedBox.id, { align: "left" })
+                            updateBox(selectedTextBox.id, { align: "left" })
                           }
                           title="Align left (:align left)"
                         >
@@ -505,7 +576,7 @@ export function PresentationCanvas({
                           className="h-6 w-6"
                           aria-pressed={activeAlign === "center"}
                           onClick={() =>
-                            updateBox(selectedBox.id, { align: "center" })
+                            updateBox(selectedTextBox.id, { align: "center" })
                           }
                           title="Align center (:align center)"
                         >
@@ -519,7 +590,7 @@ export function PresentationCanvas({
                           className="h-6 w-6"
                           aria-pressed={activeAlign === "right"}
                           onClick={() =>
-                            updateBox(selectedBox.id, { align: "right" })
+                            updateBox(selectedTextBox.id, { align: "right" })
                           }
                           title="Align right (:align right)"
                         >
@@ -533,7 +604,7 @@ export function PresentationCanvas({
                             key={preset.textClass}
                             type="button"
                             onClick={() =>
-                              updateBox(selectedBox.id, {
+                              updateBox(selectedTextBox.id, {
                                 color: preset.textClass,
                               })
                             }
@@ -625,9 +696,20 @@ export function PresentationCanvas({
                   >
                     {orderedBoxes.map((box) => {
                       const isTarget = box.id === selectedBoxId
+                      const isDragging = draggingBoxId === box.id
+                      if (isImageBox(box)) {
+                        return (
+                          <FreeFormImageBox
+                            key={box.id}
+                            box={box}
+                            isTarget={isTarget}
+                            isDragging={isDragging}
+                            onMouseDown={(e) => handleBoxMouseDown(e, box)}
+                          />
+                        )
+                      }
                       const isTextScope = isTarget && scope === "TEXT"
                       const isInserting = isTarget && mode === "INSERT"
-                      const isDragging = draggingBoxId === box.id
                       return (
                         <FreeFormTextBox
                           key={box.id}
@@ -777,28 +859,9 @@ export function PresentationCanvas({
                 !slide.background && "bg-secondary",
               )}
             >
-              {sorted.map((box) => {
-                const colorProps = getBoxColorProps(box.color)
-                return (
-                  <div
-                    key={box.id}
-                    style={{
-                      left: box.x,
-                      top: box.y,
-                      fontSize: box.fontSize,
-                      zIndex: box.zIndex,
-                      ...colorProps.style,
-                    }}
-                    className={cn(
-                      "absolute whitespace-pre-wrap leading-snug",
-                      colorProps.className,
-                      getBoxTypographyClasses(box),
-                    )}
-                  >
-                    {box.text}
-                  </div>
-                )
-              })}
+              {sorted.map((box) => (
+                <StaticSlideBox key={box.id} box={box} />
+              ))}
             </div>
           )
         })}
@@ -847,6 +910,57 @@ function WhichKeyPopup({ whichKey, isPinned, onClose }: WhichKeyPopupProps) {
         ))}
       </div>
     </div>
+  )
+}
+function FreeFormImageBox({
+  box,
+  isTarget,
+  isDragging,
+  onMouseDown,
+}: {
+  box: ImageBox
+  isTarget: boolean
+  isDragging: boolean
+  onMouseDown: (e: React.MouseEvent) => void
+}) {
+  const [failed, setFailed] = useState(false)
+  return (
+    <button
+      type="button"
+      data-box-id={box.id}
+      aria-label={box.alt ?? "Image"}
+      onMouseDown={onMouseDown}
+      style={{
+        left: box.x,
+        top: box.y,
+        width: getImageRenderedWidth(box),
+        height: "auto",
+        zIndex: isDragging ? 999 : box.zIndex,
+        transition: isDragging
+          ? "transform 140ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 140ms ease"
+          : "left 210ms cubic-bezier(0.22, 1, 0.36, 1), top 210ms cubic-bezier(0.22, 1, 0.36, 1), transform 160ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 180ms ease",
+      }}
+      className={cn(
+        "animate-vim-box-enter absolute cursor-move overflow-hidden rounded-xs border-0 bg-transparent p-0",
+        isDragging && "scale-[1.015] cursor-grabbing shadow-xl",
+        isTarget && "ring-2 ring-primary",
+      )}
+      title={box.src}
+    >
+      {failed ? (
+        <div className="flex w-full items-center justify-center bg-muted px-2 py-2 text-center text-xs text-muted-foreground">
+          Image failed to load
+        </div>
+      ) : (
+        <img
+          src={box.src}
+          alt={box.alt ?? ""}
+          draggable={false}
+          onError={() => setFailed(true)}
+          className="pointer-events-none h-auto w-full select-none"
+        />
+      )}
+    </button>
   )
 }
 interface FreeFormTextBoxProps {
@@ -1191,7 +1305,7 @@ function SlideFilmstrip({
   }, [activeIndex])
   return (
     <aside className="flex h-full flex-col bg-muted/20">
-      <div className="flex items-center justify-between gap-2 border-b border-border px-3 py-2">
+      <div className="flex items-center justify-between gap-2 border-b border-border px-3 py-2 backdrop-blur-sm z-20">
         <div className="min-w-0">
           <div
             className="truncate text-sm font-medium text-foreground"
@@ -1261,28 +1375,9 @@ function SlideFilmstrip({
                     }}
                     className="pointer-events-none relative"
                   >
-                    {ordered.map((box) => {
-                      const colorProps = getBoxColorProps(box.color)
-                      return (
-                        <div
-                          key={box.id}
-                          style={{
-                            left: box.x,
-                            top: box.y,
-                            fontSize: box.fontSize,
-                            zIndex: box.zIndex,
-                            ...colorProps.style,
-                          }}
-                          className={cn(
-                            "absolute whitespace-pre-wrap leading-snug",
-                            colorProps.className,
-                            getBoxTypographyClasses(box),
-                          )}
-                        >
-                          {box.text}
-                        </div>
-                      )
-                    })}
+                    {ordered.map((box) => (
+                      <StaticSlideBox key={box.id} box={box} />
+                    ))}
                   </div>
                 </div>
               </button>

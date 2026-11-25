@@ -1,11 +1,18 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
-import type {
-  EditorScope,
-  PresentationDraft,
-  Slide,
-  TextAlign,
-  TextBox,
-  VimMode,
+import {
+  type CanvasBox,
+  clampImageSize,
+  type EditorScope,
+  getImageRenderedWidth,
+  type ImageBox,
+  isImageBox,
+  isTextBox,
+  normalizeSlides,
+  type PresentationDraft,
+  type Slide,
+  type TextAlign,
+  type TextBox,
+  type VimMode,
 } from "@/components/services/presentations/canvas/vim-slides.types"
 export const LOGICAL_WIDTH = 960
 export const LOGICAL_HEIGHT = 540
@@ -85,6 +92,25 @@ const createBox = (overrides: Partial<TextBox> = {}): TextBox => ({
   zIndex: 1,
   ...overrides,
 })
+const createImageBox = (src: string): ImageBox => ({
+  id: crypto.randomUUID(),
+  x: Math.round((LOGICAL_WIDTH - 360) / 2),
+  y: Math.round((LOGICAL_HEIGHT - 202.5) / 2),
+  src,
+  width: 360,
+  size: 100,
+  alt: "Presentation image",
+  zIndex: 1,
+})
+const parseImageUrl = (value: string): string | null => {
+  try {
+    const url = new URL(value.trim())
+    if (!["http:", "https:"].includes(url.protocol)) return null
+    return url.toString()
+  } catch {
+    return null
+  }
+}
 const createEmptySlide = (): Slide => ({
   id: crypto.randomUUID(),
   boxes: [
@@ -129,6 +155,20 @@ function estimateBoxSize(box: TextBox): { w: number; h: number } {
     w: Math.max(40, longest * box.fontSize * 0.55),
     h: Math.max(30, lines.length * box.fontSize * 1.3),
   }
+}
+function measureBoxSize(box: CanvasBox): { w: number; h: number } {
+  if (!isImageBox(box)) return estimateBoxSize(box)
+  const el =
+    typeof document === "undefined"
+      ? null
+      : document.querySelector<HTMLElement>(`[data-box-id="${box.id}"]`)
+  if (el && el.offsetWidth > 0 && el.offsetHeight > 0) {
+    return { w: el.offsetWidth, h: el.offsetHeight }
+  }
+  const w = getImageRenderedWidth(box)
+  const h =
+    box.height && box.width > 0 ? (box.height / box.width) * w : w * (9 / 16)
+  return { w, h }
 }
 const isWordChar = (ch: string) => /[\w$]/.test(ch)
 const isWhitespace = (ch: string) => /\s/.test(ch)
@@ -554,6 +594,7 @@ function collectHits(slides: Slide[], query: string): SearchHit[] {
   const hits: SearchHit[] = []
   slides.forEach((slide, s) => {
     slide.boxes.forEach((box, b) => {
+      if (!isTextBox(box)) return
       const hay = insensitive ? box.text.toLowerCase() : box.text
       let from = 0
       while (from <= hay.length) {
@@ -628,15 +669,21 @@ export function useVimSlides({
           const parsed = JSON.parse(raw) as PresentationDraft
           if (Array.isArray(parsed.slides) && parsed.slides.length > 0) {
             draftLoadedRef.current = true
-            return parsed.slides
+            return normalizeSlides(parsed.slides)
           }
         }
       } catch {}
     }
-    return cloudSlides && cloudSlides.length > 0
-      ? cloudSlides
-      : [createEmptySlide()]
+    return normalizeSlides(
+      cloudSlides && cloudSlides.length > 0
+        ? cloudSlides
+        : [createEmptySlide()],
+    )
   })
+  const normalizedCloudSlides = useMemo(
+    () => (cloudSlides ? normalizeSlides(cloudSlides) : null),
+    [cloudSlides],
+  )
   const slidesRef = useRef<Slide[]>(slides)
   const undoRef = useRef<Slide[][]>([])
   const redoRef = useRef<Slide[][]>([])
@@ -646,7 +693,9 @@ export function useVimSlides({
   }, [])
   const [lastSavedSnapshot, setLastSavedSnapshot] = useState<string>(() =>
     JSON.stringify(
-      cloudSlides && cloudSlides.length > 0 ? cloudSlides : slides,
+      normalizedCloudSlides && normalizedCloudSlides.length > 0
+        ? normalizedCloudSlides
+        : slides,
     ),
   )
   const hasUnsavedChanges = useMemo(
@@ -654,22 +703,29 @@ export function useVimSlides({
     [slides, lastSavedSnapshot],
   )
   const cloudKey = useMemo(
-    () => (cloudSlides ? JSON.stringify(cloudSlides) : null),
-    [cloudSlides],
+    () =>
+      normalizedCloudSlides ? JSON.stringify(normalizedCloudSlides) : null,
+    [normalizedCloudSlides],
   )
   useEffect(() => {
-    if (cloudKey === null || !cloudSlides || cloudSlides.length === 0) return
+    if (
+      cloudKey === null
+      || !normalizedCloudSlides
+      || normalizedCloudSlides.length === 0
+    ) {
+      return
+    }
     if (cloudKey === lastSavedSnapshot) return
     const localDiffers = JSON.stringify(slidesRef.current) !== lastSavedSnapshot
     if (draftLoadedRef.current || localDiffers) {
       setLastSavedSnapshot(cloudKey)
       return
     }
-    setSlides(cloudSlides)
+    setSlides(normalizedCloudSlides)
     undoRef.current = []
     redoRef.current = []
     setLastSavedSnapshot(cloudKey)
-  }, [cloudKey, cloudSlides, lastSavedSnapshot, setSlides])
+  }, [cloudKey, normalizedCloudSlides, lastSavedSnapshot, setSlides])
   useEffect(() => {
     try {
       const draft: PresentationDraft = {
@@ -690,7 +746,7 @@ export function useVimSlides({
   const [textCursor, setTextCursor] = useState(0)
   const [visualAnchor, setVisualAnchor] = useState<number | null>(null)
   const [isLineVisual, setIsLineVisual] = useState(false)
-  const [boxClipboard, setBoxClipboard] = useState<TextBox | null>(null)
+  const [boxClipboard, setBoxClipboard] = useState<CanvasBox | null>(null)
   const [slideClipboard, setSlideClipboard] = useState<Slide | null>(null)
   const [textClipboard, setTextClipboard] = useState<{
     text: string
@@ -862,15 +918,38 @@ export function useVimSlides({
     },
     [activeSlideIndex, commitSlides, currentSlide?.boxes],
   )
+  const addImageBox = useCallback(
+    (src: string) => {
+      const maxZ =
+        currentSlide?.boxes.reduce((m, b) => Math.max(m, b.zIndex), 0) ?? 0
+      const newBox = createImageBox(src)
+      newBox.zIndex = maxZ + 1
+      commitSlides((prev) =>
+        prev.map((slide, idx) =>
+          idx === activeSlideIndex
+            ? { ...slide, boxes: [...slide.boxes, newBox] }
+            : slide,
+        ),
+      )
+      setSelectedBoxId(newBox.id)
+      setScope("BASE")
+      setMode("NORMAL")
+    },
+    [activeSlideIndex, commitSlides, currentSlide?.boxes],
+  )
   const updateBox = useCallback(
-    (boxId: string, patch: Partial<TextBox>, recordHistory = true) => {
+    (
+      boxId: string,
+      patch: Partial<TextBox> | Partial<ImageBox>,
+      recordHistory = true,
+    ) => {
       const apply = (prev: Slide[]) =>
         prev.map((slide, idx) =>
           idx === activeSlideIndex
             ? {
                 ...slide,
                 boxes: slide.boxes.map((b) =>
-                  b.id === boxId ? { ...b, ...patch } : b,
+                  b.id === boxId ? ({ ...b, ...patch } as CanvasBox) : b,
                 ),
               }
             : slide,
@@ -882,6 +961,14 @@ export function useVimSlides({
       }
     },
     [activeSlideIndex, commitSlides, setSlides],
+  )
+  const setImageSize = useCallback(
+    (boxId: string, rawSize: number) => {
+      const size = clampImageSize(rawSize)
+      updateBox(boxId, { size })
+      showStatus(`Size ${size}`)
+    },
+    [showStatus, updateBox],
   )
   const setSlideBackground = useCallback(
     (background: string | undefined) => {
@@ -915,7 +1002,7 @@ export function useVimSlides({
     }
     const maxZ =
       currentSlide?.boxes.reduce((m, b) => Math.max(m, b.zIndex), 0) ?? 0
-    const clone: TextBox = {
+    const clone: CanvasBox = {
       ...boxClipboard,
       id: crypto.randomUUID(),
       x: Math.min(LOGICAL_WIDTH - 80, boxClipboard.x + 24),
@@ -958,7 +1045,7 @@ export function useVimSlides({
   const alignBox = useCallback(
     (axis: "x" | "y", where: "start" | "center" | "end") => {
       if (!selectedBox) return
-      const { w, h } = estimateBoxSize(selectedBox)
+      const { w, h } = measureBoxSize(selectedBox)
       const size = axis === "x" ? w : h
       const total = axis === "x" ? LOGICAL_WIDTH : LOGICAL_HEIGHT
       const max = axis === "x" ? LOGICAL_WIDTH - 40 : LOGICAL_HEIGHT - 30
@@ -971,7 +1058,7 @@ export function useVimSlides({
       updateBox(selectedBox.id, {
         [axis]: Math.round(Math.max(0, Math.min(max, raw))),
       })
-      showStatus("Aligned (approximate)")
+      showStatus(isImageBox(selectedBox) ? "Aligned" : "Aligned (approximate)")
     },
     [selectedBox, showStatus, updateBox],
   )
@@ -1016,7 +1103,7 @@ export function useVimSlides({
         selectBox(currentSlide.boxes[0].id)
         return
       }
-      let best: TextBox | null = null
+      let best: CanvasBox | null = null
       let bestScore = Infinity
       for (const b of currentSlide.boxes) {
         if (b.id === selectedBox.id) continue
@@ -1283,7 +1370,7 @@ export function useVimSlides({
                 ? {
                     ...slide,
                     boxes: slide.boxes.map((b) =>
-                      sub.whole || b.id === selectedBoxId
+                      isTextBox(b) && (sub.whole || b.id === selectedBoxId)
                         ? { ...b, text: subText(b.text) }
                         : b,
                     ),
@@ -1368,6 +1455,17 @@ export function useVimSlides({
             window.print()
             break
           }
+          case "img":
+          case "image": {
+            const src = parseImageUrl(arg)
+            if (!src) {
+              showStatus("Usage: :img <http(s) image URL>", true)
+              break
+            }
+            addImageBox(src)
+            showStatus("Image added")
+            break
+          }
           case "undo": {
             undo()
             break
@@ -1382,7 +1480,7 @@ export function useVimSlides({
             break
           }
           case "bold": {
-            if (!selectedBox) {
+            if (!selectedBox || !isTextBox(selectedBox)) {
               showStatus("Usage: :bold (with a box selected)", true)
               break
             }
@@ -1392,7 +1490,7 @@ export function useVimSlides({
             break
           }
           case "italic": {
-            if (!selectedBox) {
+            if (!selectedBox || !isTextBox(selectedBox)) {
               showStatus("Usage: :italic (with a box selected)", true)
               break
             }
@@ -1407,9 +1505,9 @@ export function useVimSlides({
               showStatus("Usage: :align <left|center|right>", true)
               break
             }
-            if (!selectedBox) {
+            if (!selectedBox || !isTextBox(selectedBox)) {
               showStatus(
-                "Usage: :align <left|center|right> (with a box selected)",
+                "Usage: :align <left|center|right> (with a text box selected)",
                 true,
               )
               break
@@ -1440,7 +1538,7 @@ export function useVimSlides({
           case "bullets":
           case "bullet":
           case "bull": {
-            if (scope !== "TEXT" || !selectedBox) {
+            if (scope !== "TEXT" || !selectedBox || !isTextBox(selectedBox)) {
               showStatus(
                 "Usage: :bullets <d|c> (enter TEXT scope first with gj)",
                 true,
@@ -1470,8 +1568,21 @@ export function useVimSlides({
           }
           case "size": {
             const relative = /^[+-]\d+$/.test(arg)
+            const numeric = /^[+-]?\d+$/.test(arg)
             const parsed = Number(arg)
-            if (selectedBox && arg && !Number.isNaN(parsed)) {
+            if (!selectedBox || !numeric) {
+              showStatus(
+                "Usage: :size <1-500|+N|-N> (with a text box or image selected)",
+                true,
+              )
+              break
+            }
+            if (isImageBox(selectedBox)) {
+              const next = relative ? selectedBox.size + parsed : parsed
+              setImageSize(selectedBox.id, next)
+              break
+            }
+            if (isTextBox(selectedBox)) {
               const next = relative ? selectedBox.fontSize + parsed : parsed
               if (next >= 10 && next <= 160) {
                 updateBox(selectedBox.id, { fontSize: next })
@@ -1480,13 +1591,13 @@ export function useVimSlides({
               }
             }
             showStatus(
-              "Usage: :size <10-160|+N|-N> (with a box selected)",
+              "Usage: :size <10-160|+N|-N> (with a text box selected)",
               true,
             )
             break
           }
           case "color": {
-            if (!selectedBox || !arg) {
+            if (!selectedBox || !isTextBox(selectedBox) || !arg) {
               showStatus("Usage: :color <theme-token|hex|css-color>", true)
               break
             }
@@ -1576,6 +1687,7 @@ export function useVimSlides({
     },
     [
       activeSlideIndex,
+      addImageBox,
       addSlide,
       changeBoxStackOrder,
       commitSlides,
@@ -1595,6 +1707,7 @@ export function useVimSlides({
       scope,
       selectedBox,
       selectedBoxId,
+      setImageSize,
       setSlideBackground,
       showStatus,
       textCursor,
@@ -1654,7 +1767,8 @@ export function useVimSlides({
           if (document.activeElement instanceof HTMLElement) {
             document.activeElement.blur()
           }
-          const t = selectedBox?.text ?? ""
+          const t =
+            selectedBox && isTextBox(selectedBox) ? selectedBox.text : ""
           setTextCursor((c) => {
             const { lineStart } = getLineBounds(t, c)
             return c > lineStart ? c - 1 : c
@@ -1749,6 +1863,7 @@ export function useVimSlides({
           && !e.isComposing
           && scope === "TEXT"
           && selectedBox
+          && isTextBox(selectedBox)
         ) {
           const t = selectedBox.text
           const pos = Math.max(0, Math.min(t.length, textCursor))
@@ -1775,7 +1890,9 @@ export function useVimSlides({
         return
       }
       if (mode === "COMMAND") {
-        e.preventDefault()
+        const isCopy = (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "c"
+        const isPaste = (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "v"
+        if (!isPaste) e.preventDefault()
         const hist = cmdHistoryRef.current
         if (e.key === "Enter") {
           void executeExCommand(commandBuffer)
@@ -1806,6 +1923,11 @@ export function useVimSlides({
           setCommandBuffer("")
         } else if (e.ctrlKey && e.key === "w") {
           setCommandBuffer((c) => c.replace(/\s*\S+\s*$/, ""))
+        } else if (isCopy) {
+          writeSystemClipboard(commandBuffer)
+          showStatus("Command copied")
+        } else if (isPaste) {
+          // Paste event inserts the clipboard text into the command buffer.
         } else if (e.key.length === 1 && !e.metaKey && !e.ctrlKey) {
           setCommandBuffer((c) => c + e.key)
         }
@@ -1813,7 +1935,7 @@ export function useVimSlides({
       }
       if (e.metaKey || e.ctrlKey || e.altKey) return
       const box = selectedBox
-      const text = box?.text ?? ""
+      const text = box && isTextBox(box) ? box.text : ""
       const visualRange = (): [number, number] | null =>
         mode === "VISUAL" && visualAnchor !== null
           ? getVisualSelectionBounds(
@@ -2054,9 +2176,11 @@ export function useVimSlides({
         e.preventDefault()
         const key = e.key
         if (key === "j") {
-          if (box) {
+          if (box && isTextBox(box)) {
             setScope("TEXT")
             setTextCursor((c) => clampNormal(text, c))
+          } else if (box) {
+            showStatus("Images have no text scope", true)
           }
           resetAllPending()
           return
@@ -2167,10 +2291,14 @@ export function useVimSlides({
         } else if (pendingOperator === "y" && e.key === "S") {
           yankCurrentSlide()
         } else if (pendingOperator === "c" && e.key === "c" && selectedBox) {
-          updateBox(selectedBox.id, { text: "" })
-          setTextCursor(0)
-          setScope("TEXT")
-          setMode("INSERT")
+          if (isTextBox(selectedBox)) {
+            updateBox(selectedBox.id, { text: "" })
+            setTextCursor(0)
+            setScope("TEXT")
+            setMode("INSERT")
+          } else {
+            showStatus("Images have no text scope", true)
+          }
         }
         resetAllPending()
         return
@@ -2295,10 +2423,12 @@ export function useVimSlides({
           case "i":
           case "Enter":
             e.preventDefault()
-            if (selectedBox) {
+            if (selectedBox && isTextBox(selectedBox)) {
               setTextCursor((c) => Math.min(c, selectedBox.text.length))
               setScope("TEXT")
               setMode("INSERT")
+            } else if (selectedBox) {
+              showStatus("Images have no text scope", true)
             } else {
               addTextBox(true)
             }
@@ -2306,19 +2436,23 @@ export function useVimSlides({
             break
           case "I":
             e.preventDefault()
-            if (selectedBox) {
+            if (selectedBox && isTextBox(selectedBox)) {
               setTextCursor(0)
               setScope("TEXT")
               setMode("INSERT")
+            } else if (selectedBox) {
+              showStatus("Images have no text scope", true)
             }
             resetAllPending()
             break
           case "A":
             e.preventDefault()
-            if (selectedBox) {
+            if (selectedBox && isTextBox(selectedBox)) {
               setTextCursor(selectedBox.text.length)
               setScope("TEXT")
               setMode("INSERT")
+            } else if (selectedBox) {
+              showStatus("Images have no text scope", true)
             }
             resetAllPending()
             break
@@ -2371,7 +2505,10 @@ export function useVimSlides({
           case ">":
           case "<":
             e.preventDefault()
-            if (selectedBox) {
+            if (selectedBox && isImageBox(selectedBox)) {
+              const delta = (e.key === ">" ? 10 : -10) * count
+              setImageSize(selectedBox.id, selectedBox.size + delta)
+            } else if (selectedBox && isTextBox(selectedBox)) {
               const delta = (e.key === ">" ? 2 : -2) * count
               const next = Math.max(
                 10,
@@ -2388,7 +2525,7 @@ export function useVimSlides({
             break
           case "~":
             e.preventDefault()
-            if (selectedBox) {
+            if (selectedBox && isTextBox(selectedBox)) {
               updateBox(selectedBox.id, {
                 text: applyCase(selectedBox.text, "toggle"),
               })
@@ -2955,8 +3092,19 @@ export function useVimSlides({
         }
       }
     }
+    const handlePaste = (e: ClipboardEvent) => {
+      if (mode !== "COMMAND") return
+      const pasted = e.clipboardData?.getData("text/plain")?.trim()
+      if (!pasted) return
+      e.preventDefault()
+      setCommandBuffer((c) => c + pasted.replace(/\s+/g, " "))
+    }
     window.addEventListener("keydown", handleKeyDown)
-    return () => window.removeEventListener("keydown", handleKeyDown)
+    window.addEventListener("paste", handlePaste)
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown)
+      window.removeEventListener("paste", handlePaste)
+    }
   })
   const whichKey: WhichKeyState | null = useMemo(() => {
     if (mode === "INSERT" || mode === "COMMAND" || isPresenting) return null
@@ -3164,6 +3312,7 @@ export function useVimSlides({
     && mode === "VISUAL"
     && visualAnchor !== null
     && selectedBox
+    && isTextBox(selectedBox)
       ? getVisualSelectionBounds(
           selectedBox.text,
           visualAnchor,
@@ -3205,6 +3354,7 @@ export function useVimSlides({
     setIsPresenting,
     addTextBox,
     updateBox,
+    setImageSize,
     setSlideBackground,
     addSlide,
     deleteSlide,
