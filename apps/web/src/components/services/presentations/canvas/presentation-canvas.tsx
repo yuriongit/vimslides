@@ -349,35 +349,6 @@ export function PresentationCanvas({
       setFilmstripInitial(false),
     )
   }
-  if (isPresenting && currentSlide) {
-    const orderedBoxes = [...currentSlide.boxes].sort(
-      (a, b) => a.zIndex - b.zIndex,
-    )
-    return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/95 p-6 backdrop-blur-md print:hidden">
-        <div
-          style={{
-            width: LOGICAL_WIDTH,
-            height: LOGICAL_HEIGHT,
-            ...(currentSlide.background
-              ? { backgroundColor: currentSlide.background }
-              : {}),
-          }}
-          className={cn(
-            "relative overflow-hidden rounded-md border border-border text-foreground shadow-2xl scale-110",
-            !currentSlide.background && "bg-secondary",
-          )}
-        >
-          {orderedBoxes.map((box) => (
-            <StaticSlideBox key={box.id} box={box} />
-          ))}
-        </div>
-        <div className="fixed bottom-4 right-6 rounded-md border border-border bg-secondary/80 px-3 py-1.5 font-mono text-xs text-secondary-foreground backdrop-blur-md">
-          {activeSlideIndex + 1} / {slides.length} • j/k navigate • Esc exit
-        </div>
-      </div>
-    )
-  }
   const orderedBoxes = [...(currentSlide?.boxes ?? [])].sort(
     (a, b) => a.zIndex - b.zIndex,
   )
@@ -975,6 +946,30 @@ export function PresentationCanvas({
           )
         })}
       </div>
+      {isPresenting && currentSlide && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background p-6print:hidden">
+          <div
+            style={{
+              width: LOGICAL_WIDTH,
+              height: LOGICAL_HEIGHT,
+              ...(currentSlide.background
+                ? { backgroundColor: currentSlide.background }
+                : {}),
+            }}
+            className={cn(
+              "relative overflow-hidden rounded-md border border-border text-foreground shadow-2xl scale-110",
+              !currentSlide.background && "bg-secondary",
+            )}
+          >
+            {orderedBoxes.map((box) => (
+              <StaticSlideBox key={box.id} box={box} />
+            ))}
+          </div>
+          <p className="fixed bottom-4 right-6 rounded-md border border-border bg-secondary/80 px-3 py-1.5 text-xs text-secondary-foreground">
+            {activeSlideIndex + 1} / {slides.length}
+          </p>
+        </div>
+      )}
     </>
   )
 }
@@ -1433,7 +1428,7 @@ function SlideFilmstrip({
     itemRefs.current[activeIndex]?.scrollIntoView({ block: "nearest" })
   }, [activeIndex])
   return (
-    <aside className="flex h-full flex-col bg-muted/20">
+    <aside className="flex h-full flex-col bg-muted/20 overflow-y-auto scrollbar-none">
       <div className="flex items-center justify-between gap-2 border-b border-border px-3 py-2 backdrop-blur-xs z-20 bg-popover/50 sticky top-0">
         <div className="min-w-0">
           <div
