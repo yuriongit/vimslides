@@ -7,9 +7,11 @@ export const Route = createFileRoute("/_public")({
 
 function PublicLayout() {
   return (
-    <main className="flex min-h-screen w-full flex-col items-center justify-center">
+    <main>
       <HomeNavbar />
-      <Outlet />
+      <div className="min-h-[94vh] flex flex-col justify-center w-full items-center">
+        <Outlet />
+      </div>
     </main>
   )
 }

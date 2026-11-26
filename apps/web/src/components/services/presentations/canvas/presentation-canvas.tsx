@@ -435,7 +435,7 @@ export function PresentationCanvas({
           <ResizableHandle withHandle />
           <ResizablePanel defaultSize="80%">
             <div className="relative flex h-full flex-col overflow-hidden bg-muted/30">
-              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border bg-background/80 px-3 py-3 backdrop-blur-xs">
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border bg-popover/50 px-3 py-3 backdrop-blur-xs">
                 <div className="flex flex-wrap items-center gap-2">
                   <Button
                     variant="ghost"
@@ -1305,7 +1305,7 @@ function SlideFilmstrip({
   }, [activeIndex])
   return (
     <aside className="flex h-full flex-col bg-muted/20">
-      <div className="flex items-center justify-between gap-2 border-b border-border px-3 py-2 backdrop-blur-sm z-20">
+      <div className="flex items-center justify-between gap-2 border-b border-border px-3 py-2 backdrop-blur-xs z-20 bg-popover/50 sticky top-0">
         <div className="min-w-0">
           <div
             className="truncate text-sm font-medium text-foreground"

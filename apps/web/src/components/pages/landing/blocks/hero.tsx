@@ -27,15 +27,15 @@ type HeroProps = Omit<React.ComponentProps<"section">, "title"> & {
 function Hero({
   title = "Create your next presentation with",
   description = "Ever wish Google Slides or Microsoft PowerPoint had Vim? Don't wish further.",
-  primaryAction = { label: "Start", to: "/login" },
+  primaryAction = { label: "Get Started", to: "/sign-up" },
   secondaryAction = {
-    label: "Source",
+    label: "Source Code",
     to: "https://github.com/yuriongit/vimslides",
   },
   stats = [
     { value: "85%", label: "more productive" }, // 85% is just a placeholder up until verified stats are provided
     { value: "Fast.", label: "avg. latency ~ 40ms" }, // 40ms is just a placeholder up until verified stats are provided
-    { value: "Free;", label: "open source" },
+    { value: "Free;", label: "it's open source" },
   ],
   className,
   ...props
@@ -43,10 +43,10 @@ function Hero({
   return (
     <section
       data-slot="hero-4"
-      className={cn("relative isolate overflow-hidden", className)}
+      className={cn("scrollbar-none", className)}
       {...props}
     >
-      <div className="mx-auto justify-center text-center max-w-6xl flex items-center px-4 pt-20 sm:px-6 lg:py-16">
+      <div className="mx-auto justify-center text-center max-w-6xl flex items-center px-4 sm:px-6">
         <div className="relative z-10 py-4 lg:py-24 flex flex-col text-center items-center">
           <h1 className="mt-6 text-4xl leading-[1.04] max-w-2xl font-semibold tracking-[-0.045em] text-balance sm:text-6xl">
             {title} <span className={`text-primary font-special`}>Vim.</span>
@@ -57,13 +57,13 @@ function Hero({
           <div className="mt-8 flex flex-wrap gap-1">
             <Link
               to={primaryAction.to}
-              className={buttonVariants({ size: "default" })}
+              className={buttonVariants({ size: "sm" })}
             >
               {primaryAction.label}
             </Link>
             <a
               href={secondaryAction.to}
-              className={buttonVariants({ variant: "outline" })}
+              className={buttonVariants({ variant: "outline", size: "sm" })}
             >
               {secondaryAction.label}
             </a>
