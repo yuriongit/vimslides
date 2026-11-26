@@ -16,6 +16,8 @@ import { Route as PublicLoginRouteImport } from './routes/_public/login'
 import { Route as PublicSignUpRouteImport } from './routes/_public/sign-up'
 import { Route as AuthenticatedPresentationsIndexRouteImport } from './routes/_authenticated/presentations/index'
 import { Route as AuthenticatedPresentationsIdRouteImport } from './routes/_authenticated/presentations/$id'
+import { Route as PublicDocsIndexRouteImport } from './routes/_public/docs/index'
+import { Route as PublicDocsSlugRouteImport } from './routes/_public/docs/$slug'
 
 const AuthenticatedRoute = AuthenticatedRouteImport.update({
   id: '/_authenticated',
@@ -52,20 +54,34 @@ const AuthenticatedPresentationsIdRoute =
     path: '/presentations/$id',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const PublicDocsIndexRoute = PublicDocsIndexRouteImport.update({
+  id: '/docs/',
+  path: '/docs/',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicDocsSlugRoute = PublicDocsSlugRouteImport.update({
+  id: '/docs/$slug',
+  path: '/docs/$slug',
+  getParentRoute: () => PublicRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof PublicIndexRoute
   '/login': typeof PublicLoginRoute
   '/sign-up': typeof PublicSignUpRoute
   '/presentations/$id': typeof AuthenticatedPresentationsIdRoute
+  '/docs/$slug': typeof PublicDocsSlugRoute
   '/presentations/': typeof AuthenticatedPresentationsIndexRoute
+  '/docs/': typeof PublicDocsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof PublicIndexRoute
   '/login': typeof PublicLoginRoute
   '/sign-up': typeof PublicSignUpRoute
   '/presentations/$id': typeof AuthenticatedPresentationsIdRoute
+  '/docs/$slug': typeof PublicDocsSlugRoute
   '/presentations': typeof AuthenticatedPresentationsIndexRoute
+  '/docs': typeof PublicDocsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -75,14 +91,29 @@ export interface FileRoutesById {
   '/_public/sign-up': typeof PublicSignUpRoute
   '/_public/': typeof PublicIndexRoute
   '/_authenticated/presentations/$id': typeof AuthenticatedPresentationsIdRoute
+  '/_public/docs/$slug': typeof PublicDocsSlugRoute
   '/_authenticated/presentations/': typeof AuthenticatedPresentationsIndexRoute
+  '/_public/docs/': typeof PublicDocsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/login' | '/sign-up' | '/presentations/$id' | '/presentations/'
+    | '/'
+    | '/login'
+    | '/sign-up'
+    | '/presentations/$id'
+    | '/docs/$slug'
+    | '/presentations/'
+    | '/docs/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/sign-up' | '/presentations/$id' | '/presentations'
+  to:
+    | '/'
+    | '/login'
+    | '/sign-up'
+    | '/presentations/$id'
+    | '/docs/$slug'
+    | '/presentations'
+    | '/docs'
   id:
     | '__root__'
     | '/_authenticated'
@@ -91,7 +122,9 @@ export interface FileRouteTypes {
     | '/_public/sign-up'
     | '/_public/'
     | '/_authenticated/presentations/$id'
+    | '/_public/docs/$slug'
     | '/_authenticated/presentations/'
+    | '/_public/docs/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -150,6 +183,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPresentationsIdRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_public/docs/': {
+      id: '/_public/docs/'
+      path: '/docs'
+      fullPath: '/docs/'
+      preLoaderRoute: typeof PublicDocsIndexRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/docs/$slug': {
+      id: '/_public/docs/$slug'
+      path: '/docs/$slug'
+      fullPath: '/docs/$slug'
+      preLoaderRoute: typeof PublicDocsSlugRouteImport
+      parentRoute: typeof PublicRoute
+    }
   }
 }
 
@@ -171,12 +218,16 @@ interface PublicRouteChildren {
   PublicLoginRoute: typeof PublicLoginRoute
   PublicSignUpRoute: typeof PublicSignUpRoute
   PublicIndexRoute: typeof PublicIndexRoute
+  PublicDocsSlugRoute: typeof PublicDocsSlugRoute
+  PublicDocsIndexRoute: typeof PublicDocsIndexRoute
 }
 
 const PublicRouteChildren: PublicRouteChildren = {
   PublicLoginRoute: PublicLoginRoute,
   PublicSignUpRoute: PublicSignUpRoute,
   PublicIndexRoute: PublicIndexRoute,
+  PublicDocsSlugRoute: PublicDocsSlugRoute,
+  PublicDocsIndexRoute: PublicDocsIndexRoute,
 }
 
 const PublicRouteWithChildren =
