@@ -7,12 +7,16 @@ import {
   Keyboard,
   Maximize2,
   Minus,
+  PanelLeftClose,
+  PanelLeftOpen,
   Plus,
   RotateCcw,
   Type,
   X,
 } from "lucide-react"
+import { animate, motion } from "motion/react"
 import { useEffect, useLayoutEffect, useRef, useState } from "react"
+import type { PanelImperativeHandle } from "react-resizable-panels"
 import { Button } from "@/components/ui/button"
 import {
   ResizableHandle,
@@ -20,6 +24,7 @@ import {
   ResizablePanelGroup,
 } from "@/components/ui/resizable"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { Separator } from "@/components/ui/separator"
 import {
   LOGICAL_HEIGHT,
   LOGICAL_WIDTH,
@@ -238,6 +243,13 @@ export function PresentationCanvas({
     onExitToDashboard,
   })
   const [showKeymapGuide, setShowKeymapGuide] = useState(false)
+  const [filmstripOpen, setFilmstripOpen] = useState(true)
+  const [filmstripMounted, setFilmstripMounted] = useState(true)
+  const [filmstripInitial, setFilmstripInitial] = useState(false)
+  const [filmstripAnimating, setFilmstripAnimating] = useState(false)
+  const filmstripPanelRef = useRef<PanelImperativeHandle | null>(null)
+  const filmstripSize = useRef(20)
+  const filmstripAnimation = useRef<{ stop: () => void } | null>(null)
   const dragState = useRef<{
     boxId: string
     startMouseX: number
@@ -303,6 +315,40 @@ export function PresentationCanvas({
       window.removeEventListener("mouseup", handleMouseUp)
     }
   }, [updateBox, zoom])
+  const animateFilmstripSize = (target: number, onComplete?: () => void) => {
+    filmstripAnimation.current?.stop()
+    const from =
+      filmstripPanelRef.current?.getSize().asPercentage ?? filmstripSize.current
+    if (from > 0) filmstripSize.current = from
+    setFilmstripAnimating(true)
+    filmstripAnimation.current = animate(from, target, {
+      type: "spring",
+      stiffness: 350,
+      damping: 35,
+      onUpdate: (size) => {
+        const clamped = Math.max(0, Math.min(100, size))
+        filmstripPanelRef.current?.resize(`${clamped}%`)
+      },
+      onComplete: () => {
+        filmstripAnimation.current = null
+        setFilmstripAnimating(false)
+        onComplete?.()
+      },
+    })
+  }
+  const toggleFilmstrip = () => {
+    if (filmstripOpen) {
+      setFilmstripOpen(false)
+      animateFilmstripSize(0, () => setFilmstripMounted(false))
+      return
+    }
+    setFilmstripInitial(true)
+    setFilmstripMounted(true)
+    setFilmstripOpen(true)
+    animateFilmstripSize(filmstripSize.current, () =>
+      setFilmstripInitial(false),
+    )
+  }
   if (isPresenting && currentSlide) {
     const orderedBoxes = [...currentSlide.boxes].sort(
       (a, b) => a.zIndex - b.zIndex,
@@ -419,24 +465,87 @@ export function PresentationCanvas({
           orientation="horizontal"
           className="flex min-h-full rounded-sm border border-border bg-background"
         >
-          <ResizablePanel defaultSize="20%" minSize="15%" maxSize="35%">
-            <SlideFilmstrip
-              title={title}
-              slides={slides}
-              activeIndex={activeSlideIndex}
-              onSelectSlide={(idx) => {
-                setActiveSlideIndex(idx)
-                setScope("BASE")
-                setMode("NORMAL")
-              }}
-              onAddSlide={() => addSlide(false)}
-            />
+          <ResizablePanel
+            defaultSize="20%"
+            minSize={filmstripAnimating || !filmstripOpen ? "0%" : "15%"}
+            maxSize="35%"
+            panelRef={filmstripPanelRef}
+            className="overflow-hidden"
+          >
+            {filmstripMounted && (
+              <motion.div
+                initial={filmstripInitial ? { opacity: 0 } : false}
+                animate={{ opacity: filmstripOpen ? 1 : 0 }}
+                transition={{
+                  type: "spring",
+                  stiffness: 350,
+                  damping: 35,
+                }}
+                style={{
+                  pointerEvents: filmstripOpen ? "auto" : "none",
+                }}
+                aria-hidden={!filmstripOpen}
+                className="h-full w-full overflow-hidden"
+              >
+                <motion.div
+                  initial={filmstripInitial ? { x: -24 } : false}
+                  animate={{ x: filmstripOpen ? 0 : -24 }}
+                  transition={{
+                    type: "spring",
+                    stiffness: 350,
+                    damping: 35,
+                  }}
+                  className="h-full w-full"
+                >
+                  <SlideFilmstrip
+                    title={title}
+                    slides={slides}
+                    activeIndex={activeSlideIndex}
+                    onSelectSlide={(idx) => {
+                      setActiveSlideIndex(idx)
+                      setScope("BASE")
+                      setMode("NORMAL")
+                    }}
+                    onAddSlide={() => addSlide(false)}
+                  />
+                </motion.div>
+              </motion.div>
+            )}
           </ResizablePanel>
-          <ResizableHandle withHandle />
+          <ResizableHandle
+            withHandle
+            disabled={!filmstripOpen}
+            className={cn(!filmstripMounted && "pointer-events-none opacity-0")}
+          />
           <ResizablePanel defaultSize="80%">
             <div className="relative flex h-full flex-col overflow-hidden bg-muted/30">
               <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border bg-popover/50 px-3 py-3 backdrop-blur-xs">
-                <div className="flex flex-wrap items-center gap-2">
+                <div className="flex flex-wrap items-center gap-3">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="ml-1 h-7 w-7"
+                    onClick={toggleFilmstrip}
+                    aria-label={
+                      filmstripOpen
+                        ? "Collapse slide filmstrip"
+                        : "Expand slide filmstrip"
+                    }
+                    title={
+                      filmstripOpen
+                        ? "Collapse slide filmstrip"
+                        : "Expand slide filmstrip"
+                    }
+                  >
+                    {filmstripOpen ? (
+                      <PanelLeftClose className="h-4 w-4" />
+                    ) : (
+                      <PanelLeftOpen className="h-4 w-4" />
+                    )}
+                  </Button>
+
+                  <Separator orientation="vertical" className="ml-2" />
+
                   <Button
                     variant="ghost"
                     size="sm"
@@ -449,7 +558,7 @@ export function PresentationCanvas({
                   </Button>
                   {(selectedTextBox || selectedImage) && (
                     <>
-                      <div className="h-4 w-px bg-border" />
+                      <Separator orientation="vertical" className="mr-2" />
                       <div className="flex items-center gap-1">
                         <Button
                           variant="ghost"
@@ -519,7 +628,7 @@ export function PresentationCanvas({
                   )}
                   {selectedTextBox && (
                     <>
-                      <div className="h-4 w-px bg-border" />
+                      <Separator orientation="vertical" className="mr-2" />
                       <div className="flex items-center gap-0.5">
                         <Button
                           variant={selectedTextBox.bold ? "secondary" : "ghost"}
@@ -552,7 +661,7 @@ export function PresentationCanvas({
                           <Italic className="h-3 w-3" />
                         </Button>
                       </div>
-                      <div className="h-4 w-px bg-border" />
+                      <Separator orientation="vertical" className="mr-2" />
                       <div className="flex items-center gap-0.5">
                         <Button
                           variant={
@@ -597,7 +706,7 @@ export function PresentationCanvas({
                           <AlignRight className="h-3 w-3" />
                         </Button>
                       </div>
-                      <div className="h-4 w-px bg-border" />
+                      <Separator orientation="vertical" className="mr-2" />
                       <div className="flex items-center gap-1.5">
                         {PRESET_COLORS.map((preset) => (
                           <button
@@ -627,7 +736,7 @@ export function PresentationCanvas({
                     title="Slide background (:bg <css-color>)"
                   >
                     <span className="text-[10px] uppercase tracking-wider">
-                      BG
+                      Bg
                     </span>
                     <span
                       style={
@@ -1297,11 +1406,31 @@ function SlideFilmstrip({
   onAddSlide,
 }: SlideFilmstripProps) {
   const itemRefs = useRef<(HTMLButtonElement | null)[]>([])
+  const listRef = useRef<HTMLDivElement>(null)
+  const hasMounted = useRef(false)
+  useLayoutEffect(() => {
+    const root = listRef.current
+    const thumb = root?.querySelector<HTMLElement>("[data-thumbnail]")
+    if (!root || !thumb) return
+    const update = () => {
+      if (thumb.clientWidth > 0) {
+        root.style.setProperty(
+          "--thumb-scale",
+          String(thumb.clientWidth / LOGICAL_WIDTH),
+        )
+      }
+    }
+    update()
+    const observer = new ResizeObserver(update)
+    observer.observe(thumb)
+    return () => observer.disconnect()
+  }, [slides[0]?.id, slides.length])
   useEffect(() => {
-    itemRefs.current[activeIndex]?.scrollIntoView({
-      block: "nearest",
-      behavior: "smooth",
-    })
+    if (!hasMounted.current) {
+      hasMounted.current = true
+      return
+    }
+    itemRefs.current[activeIndex]?.scrollIntoView({ block: "nearest" })
   }, [activeIndex])
   return (
     <aside className="flex h-full flex-col bg-muted/20">
@@ -1328,8 +1457,9 @@ function SlideFilmstrip({
         </Button>
       </div>
       <ScrollArea className="flex-1">
-        <div className="flex flex-col gap-3 p-3">
-          {slides.map((slide, index) => {
+        <div className="p-3">
+          <div ref={listRef} className="flex flex-col gap-3">
+            {slides.map((slide, index) => {
             const isActive = index === activeIndex
             return (
               <button
@@ -1355,24 +1485,11 @@ function SlideFilmstrip({
               </button>
             )
           })}
+          </div>
         </div>
       </ScrollArea>
     </aside>
   )
-}
-function useElementWidth<T extends HTMLElement>() {
-  const ref = useRef<T | null>(null)
-  const [width, setWidth] = useState(0)
-  useLayoutEffect(() => {
-    const el = ref.current
-    if (!el) return
-    const update = () => setWidth(el.clientWidth)
-    update()
-    const observer = new ResizeObserver(update)
-    observer.observe(el)
-    return () => observer.disconnect()
-  }, [])
-  return [ref, width] as const
 }
 function SlideThumbnail({
   slide,
@@ -1381,12 +1498,10 @@ function SlideThumbnail({
   slide: Slide
   isActive: boolean
 }) {
-  const [ref, width] = useElementWidth<HTMLDivElement>()
-  const scale = width > 0 ? width / LOGICAL_WIDTH : 0.18
   const ordered = [...slide.boxes].sort((a, b) => a.zIndex - b.zIndex)
   return (
     <div
-      ref={ref}
+      data-thumbnail=""
       style={
         slide.background ? { backgroundColor: slide.background } : undefined
       }
@@ -1402,7 +1517,7 @@ function SlideThumbnail({
         style={{
           width: LOGICAL_WIDTH,
           height: LOGICAL_HEIGHT,
-          transform: `scale(${scale})`,
+          transform: "scale(var(--thumb-scale, 0.18))",
           transformOrigin: "top left",
         }}
         className="pointer-events-none relative"
