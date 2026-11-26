@@ -1,0 +1,41 @@
+name: CI
+on:
+  push:
+    branches: [main]
+    paths: ['**.js','**.jsx','**.mjs','**.cjs','**.ts','**.tsx','**.mts','**.cts','**.html','**.css','**.json','**.jsonc','**.yml','**.yaml','bun.lock']
+  pull_request:
+    paths: ['**.js','**.jsx','**.mjs','**.cjs','**.ts','**.tsx','**.mts','**.cts','**.html','**.css','**.json','**.jsonc','**.yml','**.yaml','bun.lock']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: biomejs/setup-biome@v2
+      - run: biome ci --reporter=github .
+  build:
+    needs: lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+      - uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: bun-${{ runner.os }}-${{ hashFiles('bun.lock') }}
+          restore-keys: bun-${{ runner.os }}-
+      - run: bun install --frozen-lockfile
+      - run: bun run build
+      - run: bunx tsc -b
