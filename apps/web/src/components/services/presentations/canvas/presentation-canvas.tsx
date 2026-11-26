@@ -164,7 +164,7 @@ const BASE_CHEATSHEET: WhichKeyState = {
     { key: ":bg <color>", label: "Set or reset slide background" },
     { key: "> / <", label: "Increase / decrease text size or image scale" },
     { key: "] [ / } {", label: "Layer forward/back / front/back" },
-    { key: "ss / sS / sg / sG", label: "Next / prev / first / last slide" },
+    { key: "sj / sk / sg / sG", label: "Next / prev / first / last slide" },
     { key: "( / )", label: "Reorder slide up / down" },
     { key: "m{a-z} / '{a-z} / ''", label: "Set / jump mark / previous slide" },
     { key: "/ ? n N / :%s", label: "Search & substitute across slides" },

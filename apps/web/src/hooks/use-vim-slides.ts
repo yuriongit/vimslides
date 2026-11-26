@@ -2106,8 +2106,8 @@ export function useVimSlides({
         if (k === "s" && scope === "BASE") {
           if (e.key === "g") goToSlide(countBuffer ? count - 1 : 0)
           else if (e.key === "G") goToSlide(slides.length - 1)
-          else if (e.key === "s") goToSlide(activeSlideIndex + count)
-          else if (e.key === "S") goToSlide(activeSlideIndex - count)
+          else if (e.key === "j") goToSlide(activeSlideIndex + count)
+          else if (e.key === "k") goToSlide(activeSlideIndex - count)
           return
         }
         if (k === "S" && scope === "BASE") {
@@ -3219,8 +3219,8 @@ export function useVimSlides({
       return {
         title: "Slide navigation (s)",
         bindings: [
-          { key: "s", label: "Next slide (or {N}ss)" },
-          { key: "S", label: "Previous slide (or {N}sS)" },
+          { key: "j", label: "Next slide (or {N}sj)" },
+          { key: "k", label: "Previous slide (or {N}sk)" },
           { key: "g", label: "First slide (or {N}sg)" },
           { key: "G", label: "Last slide" },
         ],
