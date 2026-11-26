@@ -1978,8 +1978,8 @@ export function useVimSlides({
           ? slice.replace(/^\n/, "").replace(/\n$/, "")
           : slice
         setTextClipboard({ text: register, linewise })
+        writeSystemClipboard(register)
         if (op === "y") {
-          writeSystemClipboard(register)
           showStatus(
             linewise ? "Yanked line(s)" : `Yanked ${slice.length} chars`,
           )
