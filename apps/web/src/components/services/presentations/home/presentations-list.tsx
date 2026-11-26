@@ -50,6 +50,7 @@ import {
 import { Separator } from "@/components/ui/separator"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { toast } from "@/components/ui/toast"
+import { usePresentationsLayout } from "@/hooks/use-presentations-layout"
 import { errorMessage } from "@/utils/error-messages"
 import { formatDate } from "@/utils/format-date"
 export function PresentationsList({
@@ -77,7 +78,7 @@ export function PresentationsList({
     updatePresentation,
   } = useUpdatePresentation({ updateFn })
   const [openCmdBar, setOpenCmdBar] = useState(false)
-  const [layout, setLayout] = useState<"grid" | "list">("grid")
+  const { layout, setLayout } = usePresentationsLayout()
   const navigate = useNavigate()
   usePresentationsViewBar(openCmdBar, setOpenCmdBar)
   const [deleteTarget, setDeleteTarget] = useState<Presentation | null>(null)
@@ -118,6 +119,8 @@ export function PresentationsList({
       }),
     onDelete: requestDelete,
     onSync: syncPresentations,
+    onGrid: () => setLayout("grid"),
+    onList: () => setLayout("list"),
     onClose: () => setOpenCmdBar(false),
   })
   return (
@@ -228,10 +231,10 @@ export function PresentationsList({
               ) : (
                 <Item
                   hover
-                  key = { p.public_id }
-                  variant = "muted"
-                  className = "flex-nowrap items-center justify-between gap-4"
-              >
+                  key={p.public_id}
+                  variant="muted"
+                  className="flex-nowrap items-center justify-between gap-4"
+                >
                   <Link
                     to="/presentations/$id"
                     params={{ id: p.public_id }}
@@ -261,10 +264,10 @@ export function PresentationsList({
                     />
                   </ItemActions>
                 </Item>
-          ),
+              ),
             )}
-        </ItemGroup>
-        </main >
+          </ItemGroup>
+        </main>
       ) : (
         <Empty>
           <EmptyHeader>

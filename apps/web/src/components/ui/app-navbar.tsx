@@ -1,7 +1,7 @@
 import { Link, useNavigate, useRouteContext } from "@tanstack/react-router"
 import { Cog, LogOut, Pencil, UserCircle2 } from "lucide-react"
 import { ModeToggle } from "@/components/mode-toggle"
-import { Button, buttonVariants } from "@/components/ui/button"
+import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -78,9 +78,7 @@ function UserDropdownMenu({ email, onSignOut }: UserDropdownMenuProps) {
         <DropdownMenuSeparator />
 
         <DropdownMenuGroup>
-          <DropdownMenuItem
-            onClick={onSignOut}
-          >
+          <DropdownMenuItem onClick={onSignOut}>
             <LogOut />
             Log out
           </DropdownMenuItem>
