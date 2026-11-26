@@ -8,7 +8,12 @@ import type {
   PresentationInsert,
   PresentationUpdate,
 } from "@vss/shared"
-import { ArrowUpRightIcon, RefreshCcwIcon } from "lucide-react"
+import {
+  ArrowUpRightIcon,
+  LayoutGridIcon,
+  ListIcon,
+  RefreshCcwIcon,
+} from "lucide-react"
 import { useState } from "react"
 import { DeletePresentationDialog } from "@/components/services/presentations/home/command-bar/delete-presentation-dialog"
 import { definePresentationCommands } from "@/components/services/presentations/home/presentation-commands"
@@ -45,8 +50,9 @@ import {
 import { Separator } from "@/components/ui/separator"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { toast } from "@/components/ui/toast"
+import { usePresentationsLayout } from "@/hooks/use-presentations-layout"
 import { errorMessage } from "@/utils/error-messages"
-
+import { formatDate } from "@/utils/format-date"
 export function PresentationsList({
   user,
   presentations,
@@ -64,7 +70,6 @@ export function PresentationsList({
 }) {
   const { open, setOpen, openCreatePresentation, createPresentation } =
     useCreatePresentation({ user, createFn })
-
   const {
     open: openEdit,
     setOpen: setEditOpen,
@@ -72,20 +77,16 @@ export function PresentationsList({
     openUpdatePresentation,
     updatePresentation,
   } = useUpdatePresentation({ updateFn })
-
   const [openCmdBar, setOpenCmdBar] = useState(false)
+  const { layout, setLayout } = usePresentationsLayout()
   const navigate = useNavigate()
   usePresentationsViewBar(openCmdBar, setOpenCmdBar)
-
-  // target and open are separate so the title doesn't vanish during the close animation
   const [deleteTarget, setDeleteTarget] = useState<Presentation | null>(null)
   const [deleteOpen, setDeleteOpen] = useState(false)
-
   function requestDelete(presentation: Presentation) {
     setDeleteTarget(presentation)
     setDeleteOpen(true)
   }
-
   function confirmDelete() {
     if (!deleteTarget) return
     setDeleteOpen(false)
@@ -98,7 +99,6 @@ export function PresentationsList({
       success: "Successfully deleted presentation",
     })
   }
-
   function syncPresentations() {
     toast.promise(syncFn(), {
       loading: "Syncing presentations",
@@ -109,7 +109,6 @@ export function PresentationsList({
       success: "Presentations synced",
     })
   }
-
   const commands = definePresentationCommands({
     onCreate: openCreatePresentation,
     onEdit: openUpdatePresentation,
@@ -120,9 +119,10 @@ export function PresentationsList({
       }),
     onDelete: requestDelete,
     onSync: syncPresentations,
+    onGrid: () => setLayout("grid"),
+    onList: () => setLayout("list"),
     onClose: () => setOpenCmdBar(false),
   })
-
   return (
     <>
       <PresentationsCmdBar
@@ -144,7 +144,6 @@ export function PresentationsList({
         onSubmit={updatePresentation}
       />
       {presentations.length >= 1 ? (
-        // List of projects view
         <main className="rounded-sm bg-sidebar p-8 flex flex-col gap-5 xl:h-[53em] min-h-full xl:max-w-7xl w-full">
           <div className="flex justify-between min-w-full items-center">
             <div className={`flex items-center gap-2.5`}>
@@ -154,8 +153,27 @@ export function PresentationsList({
                 Presentations
               </header>
             </div>
-            <div className="flex gap-1">
-              <Button variant={"ghost"} onClick={syncPresentations}>
+            <div className="flex items-center gap-1">
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label={
+                  layout === "grid"
+                    ? "Switch to list layout"
+                    : "Switch to grid layout"
+                }
+                onClick={() =>
+                  setLayout((l) => (l === "grid" ? "list" : "grid"))
+                }
+              >
+                {layout === "grid" ? <ListIcon /> : <LayoutGridIcon />}
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label="Sync presentations"
+                onClick={syncPresentations}
+              >
                 <RefreshCcwIcon />
               </Button>
               <CreatePresentationSheet
@@ -167,9 +185,15 @@ export function PresentationsList({
             </div>
           </div>
           <Separator />
-          <ItemGroup className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 overflow-hidden overflow-y-auto scrollbar-none h-fit w-full min-w-full mt-2">
-            {presentations.map((p) => {
-              return (
+          <ItemGroup
+            className={
+              layout === "grid"
+                ? "grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 overflow-hidden overflow-y-auto scrollbar-none h-fit w-full min-w-full mt-2"
+                : "flex flex-col gap-2 overflow-hidden overflow-y-auto scrollbar-none h-fit w-full min-w-full mt-2"
+            }
+          >
+            {presentations.map((p) =>
+              layout === "grid" ? (
                 <Item key={p.public_id} variant={"muted"} hover>
                   <Link
                     to="/presentations/$id"
@@ -180,8 +204,6 @@ export function PresentationsList({
                     <ItemHeader>
                       <img
                         loading="lazy"
-                        // TODO: add `preview_url` to DB schema - not in the database
-                        // Temporarily serving a placeholder image
                         src={
                           //@ts-expect-error - TODO: replace
                           p?.preview_url
@@ -191,7 +213,6 @@ export function PresentationsList({
                         className="aspect-video rounded-sm object-cover"
                       />
                     </ItemHeader>
-
                     <ItemContent className="pt-4">
                       <ItemTitle>{p.title}</ItemTitle>
                       <ItemDescription>
@@ -199,7 +220,6 @@ export function PresentationsList({
                       </ItemDescription>
                     </ItemContent>
                   </Link>
-
                   <Separator />
                   <ItemActions>
                     <PresentationActionsDropdown
@@ -208,12 +228,47 @@ export function PresentationsList({
                     />
                   </ItemActions>
                 </Item>
-              )
-            })}
+              ) : (
+                <Item
+                  hover
+                  key={p.public_id}
+                  variant="muted"
+                  className="flex-nowrap items-center justify-between gap-4"
+                >
+                  <Link
+                    to="/presentations/$id"
+                    params={{ id: p.public_id }}
+                    className="flex min-w-0 flex-1 items-center justify-between gap-4 rounded-md"
+                    aria-label={`Open ${p.title}`}
+                  >
+                    <ItemContent className="min-w-0 flex-1">
+                      <ItemTitle className="truncate">{p.title}</ItemTitle>
+                      <ItemDescription className="truncate">
+                        {p.description ?? "N/A"}
+                      </ItemDescription>
+                    </ItemContent>
+                    <div className="flex shrink-0 items-center gap-3 text-xs text-muted-foreground">
+                      <span className="text-xs">
+                        {p.last_modified
+                          ? `Modified: ${formatDate(p.last_modified)}`
+                          : "N/A"}
+                      </span>
+                      {/*<Separator orientation="vertical" className="h-4" />*/}
+                      {/*<span className="font-mono">{p.}</span>*/}
+                    </div>
+                  </Link>
+                  <ItemActions>
+                    <PresentationActionsDropdown
+                      onDelete={() => requestDelete(p)}
+                      onEdit={() => openUpdatePresentation(p)}
+                    />
+                  </ItemActions>
+                </Item>
+              ),
+            )}
           </ItemGroup>
         </main>
       ) : (
-        // Empty "list" of projects view
         <Empty>
           <EmptyHeader>
             <EmptyTitle>No Presentations Yet</EmptyTitle>
@@ -230,7 +285,7 @@ export function PresentationsList({
               onSubmit={createPresentation}
             />
             <Button variant="ghost">
-              {/*Sync*/}
+              {}
               <RefreshCcwIcon />
             </Button>
           </EmptyContent>
@@ -240,7 +295,6 @@ export function PresentationsList({
             size="sm"
             nativeButton={false}
             render={
-              // biome-ignore lint: ...
               <a
                 href={`https://github.com/yuriongit/vimslides`}
                 target="_blank"

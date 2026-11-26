@@ -20,6 +20,8 @@ export type PresentationCommand = ActionCommand | PickerCommand
 type PresentationCommands = {
   onCreate: () => void
   onSync: () => void
+  onGrid: () => void
+  onList: () => void
   onClose: () => void
   onOpen: (presentation: Presentation) => void
   onDelete: (presentation: Presentation) => void
@@ -29,6 +31,8 @@ type PresentationCommands = {
 export function definePresentationCommands({
   onCreate,
   onSync,
+  onGrid,
+  onList,
   onClose,
   onOpen,
   onDelete,
@@ -64,6 +68,18 @@ export function definePresentationCommands({
       name: ":sync",
       description: "Sync / refresh presentations",
       execute: onSync,
+    },
+    {
+      kind: "action",
+      name: ":grid",
+      description: "Switch to grid layout",
+      execute: onGrid,
+    },
+    {
+      kind: "action",
+      name: ":list",
+      description: "Switch to list layout",
+      execute: onList,
     },
     {
       kind: "action",
