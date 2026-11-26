@@ -746,6 +746,7 @@ export function PresentationCanvas({
                   </Button>
                 </div>
               </div>
+              {/* biome-ignore lint/a11y/noStaticElementInteractions lint/a11y/useKeyWithClickEvents: non-focusable backdrop; click resets mode/scope, keyboard equivalent handled by global Esc binding */}
               <div
                 className="flex-1 overflow-auto p-8"
                 onClick={() => {
@@ -754,6 +755,7 @@ export function PresentationCanvas({
                 }}
               >
                 <div className="flex min-h-full min-w-full items-center justify-center">
+                  {/* biome-ignore lint/a11y/noStaticElementInteractions lint/a11y/useKeyWithClickEvents: slide canvas is not a focus stop; click resets editor state, Esc handled by global binding */}
                   <div
                     style={{
                       width: LOGICAL_WIDTH,
@@ -1235,6 +1237,7 @@ function FreeFormTextBox({
             && idx <= freshRange.end
           if (char === "\n") {
             return (
+              // biome-ignore lint/suspicious/noArrayIndexKey: characters keyed by position; stateless leaf spans, no stable alternate key
               <span key={idx} className="inline">
                 <span
                   data-char-idx={idx}
@@ -1275,6 +1278,7 @@ function FreeFormTextBox({
   const showAnimatedLayer = isTextScope || isInserting
   const colorProps = getBoxColorProps(box.color)
   return (
+    // biome-ignore lint/a11y/noStaticElementInteractions: canvas box is not a DOM focus stop; select/edit reached via global vim keys (Tab, Enter)
     <div
       onMouseDown={onMouseDown}
       onDoubleClick={onDoubleClick}
@@ -1405,10 +1409,10 @@ function SlideFilmstrip({
   const hasMounted = useRef(false)
   useLayoutEffect(() => {
     const root = listRef.current
-    const thumb = root?.querySelector<HTMLElement>("[data-thumbnail]")
-    if (!root || !thumb) return
+    if (!root) return
     const update = () => {
-      if (thumb.clientWidth > 0) {
+      const thumb = root.querySelector<HTMLElement>("[data-thumbnail]")
+      if (thumb && thumb.clientWidth > 0) {
         root.style.setProperty(
           "--thumb-scale",
           String(thumb.clientWidth / LOGICAL_WIDTH),
@@ -1417,9 +1421,9 @@ function SlideFilmstrip({
     }
     update()
     const observer = new ResizeObserver(update)
-    observer.observe(thumb)
+    observer.observe(root)
     return () => observer.disconnect()
-  }, [slides[0]?.id, slides.length])
+  }, [])
   useEffect(() => {
     if (!hasMounted.current) {
       hasMounted.current = true

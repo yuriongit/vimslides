@@ -72,6 +72,7 @@ function SidebarProvider({
       } else {
         _setOpen(openState)
       }
+      // biome-ignore lint/suspicious/noDocumentCookie: boolean literal value, static attributes, one write per user toggle; no escaping or hot-path cost
       document.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`
     },
     [setOpenProp, open],
