@@ -1331,7 +1331,6 @@ function SlideFilmstrip({
         <div className="flex flex-col gap-3 p-3">
           {slides.map((slide, index) => {
             const isActive = index === activeIndex
-            const ordered = [...slide.boxes].sort((a, b) => a.zIndex - b.zIndex)
             return (
               <button
                 key={slide.id}
@@ -1352,39 +1351,66 @@ function SlideFilmstrip({
                 >
                   {index + 1}
                 </span>
-                <div
-                  style={
-                    slide.background
-                      ? { backgroundColor: slide.background }
-                      : undefined
-                  }
-                  className={cn(
-                    "relative aspect-video w-full overflow-hidden rounded-sm border text-foreground shadow-xs transition-all",
-                    !slide.background && "bg-secondary",
-                    isActive
-                      ? "border-primary ring-2 ring-primary"
-                      : "border-border group-hover:border-foreground/40",
-                  )}
-                >
-                  <div
-                    style={{
-                      width: LOGICAL_WIDTH,
-                      height: LOGICAL_HEIGHT,
-                      transform: "scale(0.18)",
-                      transformOrigin: "top left",
-                    }}
-                    className="pointer-events-none relative"
-                  >
-                    {ordered.map((box) => (
-                      <StaticSlideBox key={box.id} box={box} />
-                    ))}
-                  </div>
-                </div>
+                <SlideThumbnail slide={slide} isActive={isActive} />
               </button>
             )
           })}
         </div>
       </ScrollArea>
     </aside>
+  )
+}
+function useElementWidth<T extends HTMLElement>() {
+  const ref = useRef<T | null>(null)
+  const [width, setWidth] = useState(0)
+  useLayoutEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const update = () => setWidth(el.clientWidth)
+    update()
+    const observer = new ResizeObserver(update)
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
+  return [ref, width] as const
+}
+function SlideThumbnail({
+  slide,
+  isActive,
+}: {
+  slide: Slide
+  isActive: boolean
+}) {
+  const [ref, width] = useElementWidth<HTMLDivElement>()
+  const scale = width > 0 ? width / LOGICAL_WIDTH : 0.18
+  const ordered = [...slide.boxes].sort((a, b) => a.zIndex - b.zIndex)
+  return (
+    <div
+      ref={ref}
+      style={
+        slide.background ? { backgroundColor: slide.background } : undefined
+      }
+      className={cn(
+        "relative aspect-video w-full overflow-hidden rounded-sm border text-foreground shadow-xs transition-all",
+        !slide.background && "bg-secondary",
+        isActive
+          ? "border-primary ring-2 ring-primary"
+          : "border-border group-hover:border-foreground/40",
+      )}
+    >
+      <div
+        style={{
+          width: LOGICAL_WIDTH,
+          height: LOGICAL_HEIGHT,
+          transform: `scale(${scale})`,
+          transformOrigin: "top left",
+        }}
+        className="pointer-events-none relative"
+      >
+        {ordered.map((box) => (
+          <StaticSlideBox key={box.id} box={box} />
+        ))}
+      </div>
+    </div>
   )
 }
