@@ -38,6 +38,7 @@ import {
 } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { DOCS_PAGES, type DocBlock, type DocSlug } from "./docs-data"
+
 function normalizeSlug(raw?: string): DocSlug {
   const clean = (raw ?? "").replace(/^\/+|\/+$/g, "").replace(/^docs\/?/, "")
   if (
@@ -104,8 +105,10 @@ function FilterableTable({
               </TableRow>
             ) : (
               filtered.map((row, i) => (
+                // biome-ignore lint/suspicious/noArrayIndexKey: static docs rows; stateless cells; filter removes rows but never reorders
                 <TableRow key={i}>
                   {row.map((cell, ci) => (
+                    // biome-ignore-start lint/suspicious/noArrayIndexKey: column index fixed per table; cells stateless
                     <TableCell
                       key={ci}
                       className={
@@ -125,6 +128,7 @@ function FilterableTable({
                         cell
                       )}
                     </TableCell>
+                    // biome-ignore-end lint/suspicious/noArrayIndexKey: column index fixed per table; cells stateless
                   ))}
                 </TableRow>
               ))
@@ -142,27 +146,29 @@ function BlockRenderer({ blocks }: { blocks: DocBlock[] }) {
         switch (block.type) {
           case "p":
             return (
+              // biome-ignore-start lint/suspicious/noArrayIndexKey: static docs config blocks; order never changes at runtime
               <p
                 key={idx}
                 className="text-sm leading-7 text-foreground/90 sm:text-base"
               >
                 {block.text}
               </p>
+              // biome-ignore-end lint/suspicious/noArrayIndexKey: static docs config blocks; order never changes at runtime
             )
           case "callout":
+            // biome-ignore-start lint/suspicious/noArrayIndexKey: static docs config blocks; order never changes at runtime
             return (
               <Alert key={idx} variant={block.variant ?? "default"}>
                 <Info className="h-4 w-4" />
                 <AlertTitle>{block.title}</AlertTitle>
                 <AlertDescription>{block.body}</AlertDescription>
               </Alert>
+              // biome-ignore-end lint/suspicious/noArrayIndexKey: static docs config blocks; order never changes at runtime
             )
           case "cards":
+            // biome-ignore-start lint/suspicious/noArrayIndexKey: static docs config blocks; order never changes at runtime
             return (
-              <div
-                key={idx}
-                className="grid gap-4 lg:grid-cols-1"
-              >
+              <div key={idx} className="grid gap-4 lg:grid-cols-1">
                 {block.items.map((item) => (
                   <Link
                     key={item.to}
@@ -189,8 +195,10 @@ function BlockRenderer({ blocks }: { blocks: DocBlock[] }) {
                   </Link>
                 ))}
               </div>
+              // biome-ignore-end lint/suspicious/noArrayIndexKey: static docs config blocks; order never changes at runtime
             )
           case "table":
+            // biome-ignore-start lint/suspicious/noArrayIndexKey: static docs config blocks; order never changes at runtime
             return (
               <FilterableTable
                 key={idx}
@@ -198,8 +206,10 @@ function BlockRenderer({ blocks }: { blocks: DocBlock[] }) {
                 headers={block.headers}
                 rows={block.rows}
               />
+              // biome-ignore-end lint/suspicious/noArrayIndexKey: static docs config blocks; order never changes at runtime
             )
           case "tabs":
+            // biome-ignore-start lint/suspicious/noArrayIndexKey: static docs config blocks; order never changes at runtime
             return (
               <Tabs
                 key={idx}
@@ -223,8 +233,10 @@ function BlockRenderer({ blocks }: { blocks: DocBlock[] }) {
                   </TabsContent>
                 ))}
               </Tabs>
+              // biome-ignore-end lint/suspicious/noArrayIndexKey: static docs config blocks; order never changes at runtime
             )
           case "steps":
+            // biome-ignore-start lint/suspicious/noArrayIndexKey: static docs config (blocks and ordered steps); order never changes at runtime
             return (
               <div
                 key={idx}
@@ -232,7 +244,7 @@ function BlockRenderer({ blocks }: { blocks: DocBlock[] }) {
               >
                 {block.items.map((step, si) => (
                   <div key={si} className="relative space-y-1.5">
-                    <span className="absolute -left-[33px] top-0.5 flex h-4 w-4 items-center justify-center rounded-full border border-border bg-background font-mono text-[10px] font-semibold text-foreground">
+                    <span className="absolute -left-8.25 top-0.5 flex h-4 w-4 items-center justify-center rounded-full border border-border bg-background font-mono text-[10px] font-semibold text-foreground">
                       {si + 1}
                     </span>
                     <div className="flex flex-wrap items-center gap-2">
@@ -254,7 +266,10 @@ function BlockRenderer({ blocks }: { blocks: DocBlock[] }) {
                   </div>
                 ))}
               </div>
+              // biome-ignore-end lint/suspicious/noArrayIndexKey: static docs config blocks; order never changes at runtime
             )
+          default:
+            return null
         }
       })}
     </div>

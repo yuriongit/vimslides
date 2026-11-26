@@ -15,10 +15,11 @@
   "scripts": {
     "start:web": "bun run --filter @vss/web start",
     "start:api": "bun run --filter @vss/api start",
+    "build:web": "bun --bun run --filter @vss/web build",
+    "build:api": "bun --bun run --filter @vss/api build",
     "dev:web": "bun --bun run --filter @vss/web dev",
     "dev:api": "bun --bun run --filter @vss/api dev",
-    "build:web": "bun --bun run --filter @vss/web build",
-    "typecheck": "bun --bun run --filter '*' typecheck",
+    "typecheck": "bun --workspaces run --filter '*' typecheck",
     "format": "bunx --bun biome format",
     "format:w": "bunx --bun biome format --write",
     "lint": "bunx --bun biome lint",

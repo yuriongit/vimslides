@@ -4,10 +4,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite dev --port $PORT",
-    "start": "bunx serve -s dist -l $PORT",
     "generate-routes": "tsr generate",
-    "build": "vite build",
-    "preview": "vite preview"
+    "typecheck": "tsc --noEmit",
+    "build": "tsr generate && vite build",
+    "preview": "vite preview --port $PORT",
+    "start": "bunx serve -s dist -l $PORT"
   },
   "dependencies": {
     "@animate-ui/react": "^2.4.6",

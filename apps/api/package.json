@@ -6,9 +6,10 @@
     ".": "./src/index.ts"
   },
   "scripts": {
-    "start": "bun src/index.ts",
+    "start": "bun dist/index.js",
     "dev": "bun --watch src/index.ts",
-    "typecheck": "tsc -p tsconfig.json"
+    "build": "bun build ./src/index.ts --outdir ./dist --target bun --minify --sourcemap=external",
+    "typecheck": "bunx --bun tsc -p tsconfig.json"
   },
   "dependencies": {
     "@elysiajs/cors": "catalog:",

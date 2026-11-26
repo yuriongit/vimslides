@@ -299,6 +299,7 @@ export function PresentationsList({
                 href={`https://github.com/yuriongit/vimslides`}
                 target="_blank"
                 rel="noreferrer"
+                aria-label="Learn more about VimSlides on GitHub"
                 className={` `}
               >
                 Learn More <ArrowUpRightIcon />

@@ -5,7 +5,8 @@
     "types": ["bun"],
     "paths": {
       "@/*": ["./src/*"]
-    }
+    },
+    "composite": true
   },
   "include": ["src", "../web/src/lib/clients/api.ts"]
 }
