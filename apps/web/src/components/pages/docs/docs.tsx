@@ -1,6 +1,14 @@
 import { Link } from "@tanstack/react-router"
-import { ArrowLeft, ArrowRight, ChevronRight, Info, Search } from "lucide-react"
-import { useMemo, useState } from "react"
+import {
+  ArrowLeft,
+  ArrowRight,
+  ChevronDown,
+  ChevronRight,
+  Info,
+  Search,
+} from "lucide-react"
+import { AnimatePresence, motion } from "motion/react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import {
@@ -30,7 +38,6 @@ import {
 } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { DOCS_PAGES, type DocBlock, type DocSlug } from "./docs-data"
-
 function normalizeSlug(raw?: string): DocSlug {
   const clean = (raw ?? "").replace(/^\/+|\/+$/g, "").replace(/^docs\/?/, "")
   if (
@@ -154,7 +161,7 @@ function BlockRenderer({ blocks }: { blocks: DocBlock[] }) {
             return (
               <div
                 key={idx}
-                className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1"
+                className="grid gap-4 lg:grid-cols-1"
               >
                 {block.items.map((item) => (
                   <Link
@@ -256,6 +263,27 @@ function BlockRenderer({ blocks }: { blocks: DocBlock[] }) {
 export function DocsView({ slug }: { slug?: string }) {
   const resolved = normalizeSlug(slug)
   const page = DOCS_PAGES[resolved]
+  const scrollRef = useRef<HTMLDivElement>(null)
+  const [hasMoreBelow, setHasMoreBelow] = useState(false)
+  const checkScroll = useCallback(() => {
+    const el = scrollRef.current
+    if (!el) return
+    setHasMoreBelow(el.scrollHeight - el.scrollTop - el.clientHeight > 4)
+  }, [])
+  useEffect(() => {
+    const el = scrollRef.current
+    if (!el) return
+    el.scrollTop = 0
+    checkScroll()
+    const ro = new ResizeObserver(checkScroll)
+    ro.observe(el)
+    const mo = new MutationObserver(checkScroll)
+    mo.observe(el, { childList: true, subtree: true })
+    return () => {
+      ro.disconnect()
+      mo.disconnect()
+    }
+  }, [checkScroll])
   return (
     <div className="mx-auto min-h-full overflow-hidden overflow-y-auto flex w-full max-w-5xl justify-center gap-10 py-8">
       <article className="min-w-0 min-h-full max-w-3xl flex-1 space-y-8">
@@ -292,7 +320,11 @@ export function DocsView({ slug }: { slug?: string }) {
           </p>
         </header>
         <Separator />
-        <div className="space-y-10 scrollbar-none overflow-hidden overflow-y-auto max-h-[55vh]">
+        <div
+          ref={scrollRef}
+          onScroll={checkScroll}
+          className="space-y-10 scrollbar-none overflow-hidden overflow-y-auto max-h-[55vh]"
+        >
           {page.sections.map((sec) => (
             <section
               key={sec.id}
@@ -306,7 +338,39 @@ export function DocsView({ slug }: { slug?: string }) {
             </section>
           ))}
         </div>
-        <Separator />
+        <div className="flex min-h-7 items-center justify-center">
+          <AnimatePresence>
+            {hasMoreBelow && (
+              <motion.button
+                type="button"
+                initial={{ opacity: 0, y: -4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{
+                  opacity: 0,
+                  y: 6,
+                  transition: { duration: 0.18, ease: "easeIn" },
+                }}
+                transition={{ duration: 0.2, ease: "easeOut" }}
+                onClick={() =>
+                  scrollRef.current?.scrollBy({ top: 180, behavior: "smooth" })
+                }
+                aria-label="Scroll down for more"
+                className="flex items-center gap-1.5 rounded-full border border-border bg-muted/60 p-1.5 text-base text-muted-foreground transition-colors hover:border-primary/50 hover:text-foreground"
+              >
+                <motion.span
+                  animate={{ y: [0, 2.5, 0] }}
+                  transition={{
+                    duration: 1.4,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                  }}
+                >
+                  <ChevronDown className="h-4 w-4" />
+                </motion.span>
+              </motion.button>
+            )}
+          </AnimatePresence>
+        </div>
       </article>
       <aside className="hidden w-40 shrink-0 xl:block">
         <div className="sticky top-40 flex h-full flex-col justify-between">
@@ -326,7 +390,6 @@ export function DocsView({ slug }: { slug?: string }) {
               ))}
             </nav>
           </div>
-
           <footer className="flex items-center flex-col gap-1">
             {page.prev ? (
               <Link

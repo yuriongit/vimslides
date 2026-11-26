@@ -21,6 +21,7 @@ const data = {
     {
       title: "Learn",
       items: [
+        { title: "Docs", url: "/docs" },
         { title: "Getting Started", url: "/docs/getting-started" },
         { title: "Ex Commands", url: "/docs/ex-commands" },
         { title: "Keybindings", url: "/docs/keybindings" },
