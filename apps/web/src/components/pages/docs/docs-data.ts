@@ -99,7 +99,7 @@ export const DOCS_PAGES: Record<DocSlug, DocPage> = {
                 title: "BASE Scope (Canvas & Slides)",
                 detail:
                   "Select, nudge, align, z-order, and yank/paste boxes or reorder slides across the deck.",
-                keys: ["h j k l", "H J K L", "o", "ss / sS"],
+                keys: ["h j k l", "H J K L", "o", "sj / sk"],
               },
               {
                 title: "TEXT Scope (In-Box Editing)",
@@ -484,7 +484,7 @@ export const DOCS_PAGES: Record<DocSlug, DocPage> = {
                 "Typography",
                 "Toggle character case across the entire selected box",
               ],
-              ["ss / sS", "Slides", "Go to next or previous slide (× count)"],
+              ["sj / sk", "Slides", "Go to next or previous slide (× count)"],
               [
                 "sg / sG",
                 "Slides",
