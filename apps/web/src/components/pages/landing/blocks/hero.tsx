@@ -62,6 +62,8 @@ function Hero({
               {primaryAction.label}
             </Link>
             <a
+              target="_blank"
+              rel="noopener"
               href={secondaryAction.to}
               className={buttonVariants({ variant: "outline", size: "sm" })}
             >

@@ -22,7 +22,7 @@ export function HomeNavbar() {
           <NavigationMenuItem>
             <NavigationMenuLink
               target="_blank"
-              rel="noreferrer"
+              rel="noopener"
               href="https://github.com/yuriongit/vimslides"
               className={buttonVariants({ variant: "ghost", size: "icon-sm" })}
             >

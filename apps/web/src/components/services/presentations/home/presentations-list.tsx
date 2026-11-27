@@ -298,7 +298,7 @@ export function PresentationsList({
               <a
                 href={`https://github.com/yuriongit/vimslides`}
                 target="_blank"
-                rel="noreferrer"
+                rel="noopener"
                 aria-label="Learn more about VimSlides on GitHub"
                 className={` `}
               >
