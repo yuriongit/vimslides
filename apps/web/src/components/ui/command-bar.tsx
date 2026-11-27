@@ -1,6 +1,7 @@
 import type { Presentation } from "@vss/shared"
 import { useEffect, useState } from "react"
 import type {
+  ActionCommand,
   PickerCommand,
   PresentationCommand,
 } from "@/components/services/presentations/home/presentation-commands"
@@ -59,6 +60,17 @@ export function PresentationsCmdBar({
   const [activePicker, setActivePicker] = useState<PickerCommand | null>(null)
   const [search, setSearch] = useState("")
 
+  // A command that accepts typed arguments, matched when the input is
+  // `<name> <args>`, e.g. `:order mod asc` (the leading colon is optional).
+  const normalizedSearch = search.startsWith(":") ? search : `:${search}`
+  const argCommand =
+    commands.find(
+      (command): command is ActionCommand =>
+        command.kind === "action"
+        && command.apply !== undefined
+        && normalizedSearch.startsWith(`${command.name} `),
+    ) ?? null
+
   // Covers every way the bar can close (Escape, outside click, :q, a pick)
   useEffect(() => {
     if (!open) {
@@ -110,9 +122,11 @@ export function PresentationsCmdBar({
         />
 
         <CommandList>
-          <CommandEmpty>
-            {activePicker ? "No presentations found." : "No results found."}
-          </CommandEmpty>
+          {!argCommand ? (
+            <CommandEmpty>
+              {activePicker ? "No presentations found." : "No results found."}
+            </CommandEmpty>
+          ) : null}
 
           {activePicker ? (
             <>
@@ -165,22 +179,54 @@ export function PresentationsCmdBar({
               </CommandGroup>
             </>
           ) : (
-            <CommandGroup heading="Presentations">
-              {commands.map((command) => (
-                <CommandItem
-                  key={command.name}
-                  value={command.name}
-                  onSelect={() => handleSelectCommand(command)}
-                >
-                  <div className="flex flex-col">
-                    <span>{command.name}</span>
-                    <span className="text-xs text-muted-foreground">
-                      {command.description}
-                    </span>
-                  </div>
-                </CommandItem>
-              ))}
-            </CommandGroup>
+            <>
+              {argCommand ? (
+                <>
+                  {/* forceMount: the run item never scores in cmdk's filter
+                      (it doesn't register while force-mounted), which would
+                      hide the whole group */}
+                  <CommandGroup
+                    forceMount
+                    heading={`${argCommand.name} with arguments`}
+                  >
+                    <CommandItem
+                      forceMount
+                      value={search}
+                      onSelect={() => {
+                        argCommand.apply?.(
+                          normalizedSearch.slice(argCommand.name.length + 1),
+                        )
+                        onOpenChange(false)
+                      }}
+                    >
+                      <div className="flex flex-col">
+                        <span>{search.trim()}</span>
+                        <span className="text-xs text-muted-foreground">
+                          Press enter to run
+                        </span>
+                      </div>
+                    </CommandItem>
+                  </CommandGroup>
+                  <CommandSeparator />
+                </>
+              ) : null}
+              <CommandGroup heading="Presentations">
+                {commands.map((command) => (
+                  <CommandItem
+                    key={command.name}
+                    value={command.name}
+                    onSelect={() => handleSelectCommand(command)}
+                  >
+                    <div className="flex flex-col">
+                      <span>{command.name}</span>
+                      <span className="text-xs text-muted-foreground">
+                        {command.description}
+                      </span>
+                    </div>
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            </>
           )}
         </CommandList>
       </Command>
