@@ -36,7 +36,18 @@ type PresentationCommands = {
   onEdit: (presentation: Presentation) => void
 }
 
-const ORDER_USAGE = "Usage: :order <modified/mod|created/cre> <asc|desc>"
+const ORDER_USAGE = ":order <modified/mod|created/cre> <asc|desc>"
+
+function showOrderUsage() {
+  toast.add({
+    title: (
+      <>
+        Usage: <span className="font-mono text-primary">:order</span>
+      </>
+    ),
+    description: ORDER_USAGE,
+  })
+}
 
 export function parseOrderArgs(args: string): PresentationOrderBy | null {
   const match = /^(mod(?:ified)?|cre(?:ated)?)\s+(asc|desc)$/i.exec(args.trim())
@@ -107,11 +118,11 @@ export function definePresentationCommands({
       kind: "action",
       name: ":order",
       description: "Order presentations — :order <mod|cre> <asc|desc>",
-      execute: () => toast.add({ title: ORDER_USAGE }),
+      execute: showOrderUsage,
       apply: (args) => {
         const order = parseOrderArgs(args)
         if (!order) {
-          toast.add({ title: ORDER_USAGE })
+          showOrderUsage()
           return
         }
         onOrder(order)
