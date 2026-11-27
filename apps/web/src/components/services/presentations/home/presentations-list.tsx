@@ -6,9 +6,11 @@ import type {
   Presentation,
   PresentationId,
   PresentationInsert,
+  PresentationOrderBy,
   PresentationUpdate,
 } from "@vss/shared"
 import {
+  ArrowUpDownIcon,
   ArrowUpRightIcon,
   LayoutGridIcon,
   ListIcon,
@@ -26,11 +28,21 @@ import {
   UpdatePresentationSheet,
   useUpdatePresentation,
 } from "@/components/services/presentations/home/presentations-update-form"
-import { Button } from "@/components/ui/button"
+import { Button, buttonVariants } from "@/components/ui/button"
 import {
   PresentationsCmdBar,
   usePresentationsViewBar,
 } from "@/components/ui/command-bar"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import {
   Empty,
   EmptyContent,
@@ -56,6 +68,8 @@ import { formatDate } from "@/utils/format-date"
 export function PresentationsList({
   user,
   presentations,
+  orderBy,
+  onOrderChange,
   createFn,
   syncFn,
   deleteFn,
@@ -63,6 +77,8 @@ export function PresentationsList({
 }: {
   presentations: Presentation[]
   user: User
+  orderBy: PresentationOrderBy
+  onOrderChange: (order: PresentationOrderBy) => void
   createFn: UseMutateAsyncFunction<PresentationId, Error, PresentationInsert>
   syncFn: () => Promise<unknown>
   deleteFn: UseMutateAsyncFunction<void, Error, PresentationId>
@@ -109,6 +125,17 @@ export function PresentationsList({
       success: "Presentations synced",
     })
   }
+  // Single handler shared by the order button and the `:order` command.
+  function handleOrderKey(key: string) {
+    if (key === "lastModified" || key === "createdAt") {
+      onOrderChange({ key, direction: orderBy.direction })
+    }
+  }
+  function handleOrderDirection(direction: string) {
+    if (direction === "asc" || direction === "desc") {
+      onOrderChange({ key: orderBy.key, direction })
+    }
+  }
   const commands = definePresentationCommands({
     onCreate: openCreatePresentation,
     onEdit: openUpdatePresentation,
@@ -121,6 +148,7 @@ export function PresentationsList({
     onSync: syncPresentations,
     onGrid: () => setLayout("grid"),
     onList: () => setLayout("list"),
+    onOrder: onOrderChange,
     onClose: () => setOpenCmdBar(false),
   })
   return (
@@ -168,6 +196,48 @@ export function PresentationsList({
               >
                 {layout === "grid" ? <ListIcon /> : <LayoutGridIcon />}
               </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger
+                  className={buttonVariants({
+                    variant: "ghost",
+                    size: "icon",
+                  })}
+                  aria-label="Order presentations"
+                >
+                  <ArrowUpDownIcon />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuGroup>
+                    <DropdownMenuLabel>Order by</DropdownMenuLabel>
+                    <DropdownMenuRadioGroup
+                      value={orderBy.key}
+                      onValueChange={handleOrderKey}
+                    >
+                      <DropdownMenuRadioItem value="lastModified">
+                        Last modified
+                      </DropdownMenuRadioItem>
+                      <DropdownMenuRadioItem value="createdAt">
+                        Created
+                      </DropdownMenuRadioItem>
+                    </DropdownMenuRadioGroup>
+                  </DropdownMenuGroup>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuGroup>
+                    <DropdownMenuLabel>Direction</DropdownMenuLabel>
+                    <DropdownMenuRadioGroup
+                      value={orderBy.direction}
+                      onValueChange={handleOrderDirection}
+                    >
+                      <DropdownMenuRadioItem value="asc">
+                        Ascending
+                      </DropdownMenuRadioItem>
+                      <DropdownMenuRadioItem value="desc">
+                        Descending
+                      </DropdownMenuRadioItem>
+                    </DropdownMenuRadioGroup>
+                  </DropdownMenuGroup>
+                </DropdownMenuContent>
+              </DropdownMenu>
               <Button
                 variant="ghost"
                 size="icon"

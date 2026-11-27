@@ -1,4 +1,8 @@
-import { PresentationDeleteSchema, PresentationPatchSchema } from "@vss/shared"
+import {
+  PresentationDeleteSchema,
+  PresentationOrderBySchema,
+  PresentationPatchSchema,
+} from "@vss/shared"
 import { Elysia, status } from "elysia"
 import { z } from "zod"
 import type { supabaseEntries } from "../lib/clients/supabase/supabase.client"
@@ -46,6 +50,16 @@ const SlideSchema = z.object({
 
 const PublicIdParamsSchema = z.object({
   id: z.uuid(),
+})
+
+// Whitelist of orderable columns; the query key is never interpolated raw.
+const ORDER_BY_COLUMNS = {
+  lastModified: "last_modified",
+  createdAt: "created_at",
+} as const
+
+const ListQuerySchema = z.object({
+  orderBy: PresentationOrderBySchema.optional(),
 })
 
 const AssetBodySchema = z.object({
@@ -204,16 +218,23 @@ export const presentationRoutes = new Elysia()
     },
     { body: PresentationDeleteSchema },
   )
-  .get("/presentations", async ({ supabase, jwtClaims }) => {
-    const { data, error } = await supabase
-      .from("presentations")
-      .select("*")
-      .eq("user_id", jwtClaims.sub)
-      .order("created_at")
-    if (error) throw error
+  .get(
+    "/presentations",
+    async ({ query, supabase, jwtClaims }) => {
+      const orderBy = query.orderBy
+      const { data, error } = await supabase
+        .from("presentations")
+        .select("*")
+        .eq("user_id", jwtClaims.sub)
+        .order(ORDER_BY_COLUMNS[orderBy?.key ?? "lastModified"], {
+          ascending: orderBy?.direction === "asc",
+        })
+      if (error) throw error
 
-    return data
-  })
+      return data
+    },
+    { query: ListQuerySchema },
+  )
   .patch(
     "/presentations",
     async ({ body, supabase, jwtClaims }) => {

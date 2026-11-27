@@ -14,6 +14,7 @@ import { PresentationsList } from "@/components/services/presentations/home/pres
 import { Loading } from "@/components/ui/loading"
 import { SidebarProvider } from "@/components/ui/sidebar"
 import { MINUTE } from "@/constants/constants"
+import { usePresentationsOrder } from "@/hooks/use-presentations-order"
 import { getAuthHeaders } from "@/lib/auth/get-auth-headers"
 import { api } from "@/lib/clients/api/api.client"
 
@@ -25,12 +26,17 @@ function Presentations() {
   const navigate = useNavigate()
   // Access the client
   const queryClient = useQueryClient()
+  // Selected order persisted in localStorage; defaults to last modified, desc
+  const { order: orderBy, setOrder: setOrderBy } = usePresentationsOrder()
   // Queries
   const presentationsQuery = useQuery({
-    queryKey: ["presentations"],
+    queryKey: ["presentations", orderBy],
     queryFn: async () => {
       const headers = await getAuthHeaders()
-      const { data, error } = await api.presentations.get({ headers: headers })
+      const { data, error } = await api.presentations.get({
+        headers: headers,
+        query: { orderBy },
+      })
 
       if (error) throw error
       return data
@@ -104,6 +110,8 @@ function Presentations() {
           <PresentationsList
             user={user.user}
             presentations={presentationsQuery.data ?? []}
+            orderBy={orderBy}
+            onOrderChange={setOrderBy}
             syncFn={() => presentationsQuery.refetch({ throwOnError: true })}
             createFn={presentationCreateMutation.mutateAsync}
             deleteFn={presentationDeleteMutation.mutateAsync}
