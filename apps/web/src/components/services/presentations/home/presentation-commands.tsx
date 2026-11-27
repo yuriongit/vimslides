@@ -40,9 +40,10 @@ const ORDER_USAGE = ":order <modified/mod|created/cre> <asc|desc>"
 
 function showOrderUsage() {
   toast.add({
+    type: "info",
     title: (
       <>
-        Usage: <span className="font-mono text-primary">:order</span>
+        Usage (<span className="text-primary">:order</span>)
       </>
     ),
     description: ORDER_USAGE,
