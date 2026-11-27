@@ -170,8 +170,10 @@ function measureBoxSize(box: CanvasBox): { w: number; h: number } {
     box.height && box.width > 0 ? (box.height / box.width) * w : w * (9 / 16)
   return { w, h }
 }
-const isWordChar = (ch: string) => /[\w$]/.test(ch)
-const isWhitespace = (ch: string) => /\s/.test(ch)
+const isWordChar = (ch: string | undefined) =>
+  ch !== undefined && /[\w$]/.test(ch)
+const isWhitespace = (ch: string | undefined) =>
+  ch !== undefined && /\s/.test(ch)
 function getLineBounds(text: string, pos: number) {
   const clamped = Math.max(0, Math.min(text.length, pos))
   const lineStart = text.lastIndexOf("\n", Math.max(0, clamped - 1)) + 1
@@ -188,7 +190,7 @@ function getLineStartByIndex(text: string, lineIdx: number): number {
   const lines = text.split("\n")
   const target = Math.max(0, Math.min(lines.length - 1, lineIdx))
   let offset = 0
-  for (let i = 0; i < target; i++) offset += lines[i].length + 1
+  for (let i = 0; i < target; i++) offset += (lines[i]?.length ?? 0) + 1
   return offset
 }
 function getFirstNonBlankOnLine(text: string, pos: number): number {
@@ -218,7 +220,7 @@ function moveVerticalLine(
   let currentLine = lines.length - 1
   let col = 0
   for (let i = 0; i < lines.length; i++) {
-    const len = lines[i].length
+    const len = lines[i]?.length ?? 0
     if (pos <= offset + len) {
       currentLine = i
       col = pos - offset
@@ -232,10 +234,10 @@ function moveVerticalLine(
   )
   let targetStart = 0
   for (let i = 0; i < targetLine; i++) {
-    targetStart += lines[i].length + 1
+    targetStart += (lines[i]?.length ?? 0) + 1
   }
   const wanted = desiredCol ?? col
-  return targetStart + Math.min(wanted, lines[targetLine].length)
+  return targetStart + Math.min(wanted, lines[targetLine]?.length ?? 0)
 }
 function moveWordForward(text: string, pos: number, bigWord: boolean): number {
   const len = text.length
@@ -371,10 +373,12 @@ function findMatchingBracket(text: string, pos: number): number | null {
   }
   const { lineEnd } = getLineBounds(text, pos)
   let idx = pos
-  while (idx < lineEnd && !pairs[text[idx]]) idx++
+  while (idx < lineEnd && !pairs[text[idx] ?? ""]) idx++
   if (idx >= lineEnd) return null
   const open = text[idx]
+  if (open === undefined) return null
   const close = pairs[open]
+  if (close === undefined) return null
   const forward = open === "(" || open === "[" || open === "{"
   let depth = 0
   if (forward) {
@@ -401,24 +405,24 @@ function moveParagraph(text: string, pos: number, dir: 1 | -1): number {
   let offset = 0
   let curLine = 0
   for (let i = 0; i < lines.length; i++) {
-    if (pos <= offset + lines[i].length) {
+    if (pos <= offset + (lines[i]?.length ?? 0)) {
       curLine = i
       break
     }
-    offset += lines[i].length + 1
+    offset += (lines[i]?.length ?? 0) + 1
   }
   let targetLine = curLine
   while (
     targetLine + dir >= 0
     && targetLine + dir < lines.length
-    && lines[targetLine + dir].trim() === ""
+    && lines[targetLine + dir]?.trim() === ""
   ) {
     targetLine += dir
   }
   while (
     targetLine + dir >= 0
     && targetLine + dir < lines.length
-    && lines[targetLine + dir].trim() !== ""
+    && lines[targetLine + dir]?.trim() !== ""
   ) {
     targetLine += dir
   }
@@ -426,7 +430,7 @@ function moveParagraph(text: string, pos: number, dir: 1 | -1): number {
     targetLine += dir
   }
   let res = 0
-  for (let i = 0; i < targetLine; i++) res += lines[i].length + 1
+  for (let i = 0; i < targetLine; i++) res += (lines[i]?.length ?? 0) + 1
   return res
 }
 function resolveTextObject(
@@ -480,23 +484,24 @@ function resolveTextObject(
     let offset = 0
     let curLine = 0
     for (let i = 0; i < lines.length; i++) {
-      if (idx <= offset + lines[i].length) {
+      if (idx <= offset + (lines[i]?.length ?? 0)) {
         curLine = i
         break
       }
-      offset += lines[i].length + 1
+      offset += (lines[i]?.length ?? 0) + 1
     }
     let sLine = curLine
     let eLine = curLine
-    while (sLine > 0 && lines[sLine - 1].trim() !== "") sLine--
-    while (eLine < lines.length - 1 && lines[eLine + 1].trim() !== "") eLine++
+    while (sLine > 0 && lines[sLine - 1]?.trim() !== "") sLine--
+    while (eLine < lines.length - 1 && lines[eLine + 1]?.trim() !== "") eLine++
     if (modifier === "a") {
-      while (eLine < lines.length - 1 && lines[eLine + 1].trim() === "") eLine++
+      while (eLine < lines.length - 1 && lines[eLine + 1]?.trim() === "")
+        eLine++
     }
     let start = 0
-    for (let i = 0; i < sLine; i++) start += lines[i].length + 1
+    for (let i = 0; i < sLine; i++) start += (lines[i]?.length ?? 0) + 1
     let end = start
-    for (let i = sLine; i <= eLine; i++) end += lines[i].length + 1
+    for (let i = sLine; i <= eLine; i++) end += (lines[i]?.length ?? 0) + 1
     return [start, Math.min(text.length, end)]
   }
   const bracketMap: Record<string, [string, string]> = {
@@ -640,17 +645,20 @@ function parseSubstitute(raw: string): Substitution | null {
     cur += ch
   }
   parts.push(cur)
-  if (parts.length < 2 || parts[0] === "") return null
+  const pattern = parts[0]
+  if (parts.length < 2 || pattern === undefined || pattern === "") return null
+  const rawReplacement = parts[1]
+  if (rawReplacement === undefined) return null
   const modifiers = parts[2] ?? ""
   const global = modifiers.includes("g")
   const flags = (global ? "g" : "") + (modifiers.includes("i") ? "i" : "")
-  const replacement = parts[1]
+  const replacement = rawReplacement
     .replace(/\$/g, "$$$$")
     .replace(/\\n/g, "\n")
     .replace(/\\(\d)/g, "$$$1")
     .replace(/(?<!\\)&/g, "$$&")
     .replace(/\\&/g, "&")
-  return { pattern: parts[0], replacement, global, flags, whole }
+  return { pattern, replacement, global, flags, whole }
 }
 export function useVimSlides({
   presentationId,
@@ -833,6 +841,7 @@ export function useVimSlides({
         const stack = undoRef.current
         if (stack.length === 0) break
         const previous = stack[stack.length - 1]
+        if (previous === undefined) break
         undoRef.current = stack.slice(0, -1)
         redoRef.current = [...redoRef.current, slidesRef.current]
         setSlides(previous)
@@ -855,6 +864,7 @@ export function useVimSlides({
         const stack = redoRef.current
         if (stack.length === 0) break
         const next = stack[stack.length - 1]
+        if (next === undefined) break
         redoRef.current = stack.slice(0, -1)
         undoRef.current = [...undoRef.current, slidesRef.current]
         setSlides(next)
@@ -1070,6 +1080,7 @@ export function useVimSlides({
       if (idx === -1) return
       const reordered = [...sorted]
       const [item] = reordered.splice(idx, 1)
+      if (item === undefined) return
       if (delta === "front") {
         reordered.push(item)
       } else if (delta === "back") {
@@ -1100,7 +1111,8 @@ export function useVimSlides({
     (dir: Direction) => {
       if (!currentSlide || currentSlide.boxes.length === 0) return
       if (!selectedBox) {
-        selectBox(currentSlide.boxes[0].id)
+        const first = currentSlide.boxes[0]
+        if (first) selectBox(first.id)
         return
       }
       let best: CanvasBox | null = null
@@ -1246,6 +1258,7 @@ export function useVimSlides({
       commitSlides((prev) => {
         const copy = [...prev]
         const [moved] = copy.splice(activeSlideIndex, 1)
+        if (moved === undefined) return copy
         copy.splice(t, 0, moved)
         return copy
       })
@@ -1290,8 +1303,9 @@ export function useVimSlides({
         }
       } else {
         for (let i = hits.length - 1; i >= 0; i--) {
-          if (compareHit(hits[i], cur) < 0) {
-            hit = hits[i]
+          const candidate = hits[i]
+          if (candidate && compareHit(candidate, cur) < 0) {
+            hit = candidate
             break
           }
         }
@@ -1300,6 +1314,7 @@ export function useVimSlides({
           wrapped = true
         }
       }
+      if (!hit) return
       const targetBox = list[hit.slide]?.boxes[hit.box]
       if (!targetBox) return
       if (hit.slide !== activeSlideIndex) {
@@ -1906,7 +1921,8 @@ export function useVimSlides({
                 ? hist.length - 1
                 : Math.max(0, cmdHistoryIdxRef.current - 1)
             cmdHistoryIdxRef.current = idx
-            setCommandBuffer(hist[idx])
+            const cmd = hist[idx]
+            if (cmd !== undefined) setCommandBuffer(cmd)
           }
         } else if (e.key === "ArrowDown") {
           if (cmdHistoryIdxRef.current >= 0) {
@@ -1915,8 +1931,9 @@ export function useVimSlides({
               cmdHistoryIdxRef.current = -1
               setCommandBuffer("")
             } else {
+              const cmd = hist[idx]
               cmdHistoryIdxRef.current = idx
-              setCommandBuffer(hist[idx])
+              if (cmd !== undefined) setCommandBuffer(cmd)
             }
           }
         } else if (e.ctrlKey && e.key === "u") {
@@ -2396,7 +2413,8 @@ export function useVimSlides({
                 ? (idx - 1 + currentSlide.boxes.length)
                   % currentSlide.boxes.length
                 : (idx + 1) % currentSlide.boxes.length
-              selectBox(currentSlide.boxes[nextIdx].id)
+              const next = currentSlide.boxes[nextIdx]
+              if (next) selectBox(next.id)
             }
             resetAllPending()
             break
